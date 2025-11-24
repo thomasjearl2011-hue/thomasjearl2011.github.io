@@ -1,0 +1,755 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nexus Gaming Hub</title>
+
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
+
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #0f172a; 
+            color: #e2e8f0; 
+        }
+
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #1e293b; 
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #475569; 
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #64748b; 
+        }
+
+        @keyframes fade-in {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .animate-fade-in {
+            animation: fade-in 0.3s ease-out forwards;
+        }
+
+        .glass-panel {
+            background: rgba(30, 41, 59, 0.7);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .ttt-cell {
+            transition: all 0.2s;
+        }
+        .ttt-cell:hover:not(:disabled) {
+            background-color: #334155;
+        }
+    </style>
+</head>
+<body class="h-screen flex overflow-hidden selection:bg-indigo-500 selection:text-white">
+
+    
+    <aside class="w-20 lg:w-64 flex-shrink-0 bg-slate-900 border-r border-slate-800 flex flex-col transition-all duration-300">
+        
+        <div class="h-16 flex items-center justify-center lg:justify-start lg:px-6 border-b border-slate-800">
+            <i class="fa-solid fa-gamepad text-indigo-500 text-2xl"></i>
+            <span class="ml-3 font-bold text-xl hidden lg:block text-white tracking-tight">NEXUS</span>
+        </div>
+
+        
+        <nav class="flex-1 py-6 space-y-2 px-2">
+            <button onclick="switchTab('home')" class="nav-btn w-full flex items-center p-3 rounded-lg text-slate-400 hover:bg-slate-800 hover:text-white transition-colors group relative" id="nav-home">
+                <i class="fa-solid fa-house text-xl w-8 text-center group-hover:text-indigo-400"></i>
+                <span class="ml-3 font-medium hidden lg:block">Home</span>
+                <div class="absolute left-0 top-2 bottom-2 w-1 bg-indigo-500 rounded-r opacity-0 transition-opacity" id="indicator-home"></div>
+            </button>
+
+            <button onclick="switchTab('games')" class="nav-btn w-full flex items-center p-3 rounded-lg text-slate-400 hover:bg-slate-800 hover:text-white transition-colors group relative" id="nav-games">
+                <i class="fa-solid fa-rocket text-xl w-8 text-center group-hover:text-pink-400"></i>
+                <span class="ml-3 font-medium hidden lg:block">Games Library</span>
+                <div class="absolute left-0 top-2 bottom-2 w-1 bg-pink-500 rounded-r opacity-0 transition-opacity" id="indicator-games"></div>
+            </button>
+
+            <button onclick="switchTab('store')" class="nav-btn w-full flex items-center p-3 rounded-lg text-slate-400 hover:bg-slate-800 hover:text-white transition-colors group relative" id="nav-store">
+                <i class="fa-solid fa-bag-shopping text-xl w-8 text-center group-hover:text-emerald-400"></i>
+                <span class="ml-3 font-medium hidden lg:block">Store</span>
+                <div class="absolute left-0 top-2 bottom-2 w-1 bg-emerald-500 rounded-r opacity-0 transition-opacity" id="indicator-store"></div>
+            </button>
+
+            <button onclick="switchTab('community')" class="nav-btn w-full flex items-center p-3 rounded-lg text-slate-400 hover:bg-slate-800 hover:text-white transition-colors group relative" id="nav-community">
+                <i class="fa-solid fa-users text-xl w-8 text-center group-hover:text-amber-400"></i>
+                <span class="ml-3 font-medium hidden lg:block">Community</span>
+                <div class="absolute left-0 top-2 bottom-2 w-1 bg-amber-500 rounded-r opacity-0 transition-opacity" id="indicator-community"></div>
+            </button>
+        </nav>
+
+        
+        <div class="p-4 border-t border-slate-800">
+            <button onclick="switchTab('settings')" class="w-full flex items-center p-2 rounded-lg text-slate-400 hover:text-white transition-colors mb-2" id="nav-settings">
+                <i class="fa-solid fa-gear w-8 text-center"></i>
+                <span class="ml-3 font-medium hidden lg:block">Settings</span>
+            </button>
+            <div class="flex items-center p-2 mt-2 rounded-lg bg-slate-800/50">
+                <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Felix" alt="User" class="w-8 h-8 rounded-full bg-indigo-500">
+                <div class="ml-3 hidden lg:block overflow-hidden">
+                    <p class="text-sm font-medium text-white truncate">PlayerOne</p>
+                    <p class="text-xs text-slate-500 truncate">Lvl 42 • Premium</p>
+                </div>
+            </div>
+        </div>
+    </aside>
+
+    
+    <main class="flex-1 overflow-y-auto relative bg-gradient-to-br from-slate-900 via-slate-900 to-slate-800">
+
+        
+        <header class="lg:hidden h-16 bg-slate-900 border-b border-slate-800 flex items-center px-4 justify-between sticky top-0 z-20">
+            <span class="font-bold text-xl text-white">NEXUS</span>
+            <button class="text-slate-400"><i class="fa-solid fa-bars text-xl"></i></button>
+        </header>
+
+        
+        <section id="view-home" class="p-6 lg:p-10 max-w-7xl mx-auto animate-fade-in">
+            
+            <div class="relative rounded-2xl overflow-hidden bg-slate-800 h-64 md:h-80 flex items-end p-8 mb-10 shadow-2xl">
+                <div class="absolute inset-0 bg-gradient-to-t from-slate-900 via-slate-900/40 to-transparent z-10"></div>
+                
+                <div class="absolute inset-0 z-0 opacity-60">
+                    <div class="absolute top-0 left-0 w-full h-full bg-[url('https://www.nomadfoods.com/wp-content/uploads/2018/08/placeholder-1-e1533569576673-960x960.png')] bg-cover bg-center"></div>
+                </div>
+
+                <div class="relative z-20 w-full max-w-2xl">
+                    <span class="inline-block px-3 py-1 bg-indigo-500 text-xs font-bold rounded-full text-white mb-3">FEATURED UPDATE</span>
+                    <h1 class="text-3xl md:text-5xl font-black text-white mb-2 leading-tight">Test: Season 1</h1>
+                    <p class="text-slate-300 mb-6 line-clamp-2">Experience the new physics engine and competitive ranking system. Play now to earn exclusive skins.</p>
+                    <div class="flex gap-4">
+                        <button onclick="switchTab('games')" class="px-6 py-3 bg-white text-slate-900 font-bold rounded-lg hover:bg-indigo-50 transition-colors flex items-center">
+                            <i class="fa-solid fa-play mr-2"></i> Play Now
+                        </button>
+                        <button class="px-6 py-3 bg-slate-800/80 backdrop-blur text-white font-bold rounded-lg hover:bg-slate-700 transition-colors">
+                            More Info
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
+                <div class="glass-panel p-6 rounded-xl flex items-center border border-slate-700/50">
+                    <div class="w-12 h-12 rounded-lg bg-indigo-500/20 text-indigo-400 flex items-center justify-center text-2xl mr-4">
+                        <i class="fa-solid fa-trophy"></i>
+                    </div>
+                    <div>
+                        <p class="text-slate-400 text-sm">Total Trophies</p>
+                        <p class="text-2xl font-bold text-white">1,248</p>
+                    </div>
+                </div>
+                <div class="glass-panel p-6 rounded-xl flex items-center border border-slate-700/50">
+                    <div class="w-12 h-12 rounded-lg bg-emerald-500/20 text-emerald-400 flex items-center justify-center text-2xl mr-4">
+                        <i class="fa-solid fa-clock"></i>
+                    </div>
+                    <div>
+                        <p class="text-slate-400 text-sm">Hours Played</p>
+                        <p class="text-2xl font-bold text-white">342.5</p>
+                    </div>
+                </div>
+                <div class="glass-panel p-6 rounded-xl flex items-center border border-slate-700/50">
+                    <div class="w-12 h-12 rounded-lg bg-pink-500/20 text-pink-400 flex items-center justify-center text-2xl mr-4">
+                        <i class="fa-solid fa-users"></i>
+                    </div>
+                    <div>
+                        <p class="text-slate-400 text-sm">Friends Online</p>
+                        <p class="text-2xl font-bold text-white">8 <span class="text-sm font-normal text-slate-500">/ 24</span></p>
+                    </div>
+                </div>
+            </div>
+
+            <h2 class="text-xl font-bold text-white mb-6 flex items-center">
+                <i class="fa-solid fa-fire text-orange-500 mr-2"></i> Trending Now
+            </h2>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                
+                <div onclick="switchTab('games')" class="group cursor-pointer">
+                    <div class="aspect-video bg-slate-800 rounded-xl overflow-hidden mb-3 relative">
+                        <img src="https://www.nomadfoods.com/wp-content/uploads/2018/08/placeholder-1-e1533569576673-960x960.png" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110">
+                        <div class="absolute inset-0 bg-black/20 group-hover:bg-black/0 transition-colors"></div>
+                    </div>
+                    <h3 class="font-bold text-white group-hover:text-indigo-400 transition-colors">Neon Tic-Tac-Toe</h3>
+                    <p class="text-xs text-slate-500">Puzzle • Arcade</p>
+                </div>
+                
+                <div onclick="switchTab('games')" class="group cursor-pointer">
+                    <div class="aspect-video bg-slate-800 rounded-xl overflow-hidden mb-3 relative">
+                        <img src="https://www.nomadfoods.com/wp-content/uploads/2018/08/placeholder-1-e1533569576673-960x960.png" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110">
+                    </div>
+                    <h3 class="font-bold text-white group-hover:text-indigo-400 transition-colors">Cyber Snake</h3>
+                    <p class="text-xs text-slate-500">Arcade • Fun</p>
+                </div>
+                
+                <div onclick="switchTab('games')" class="group cursor-pointer">
+                    <div class="aspect-video bg-slate-800 rounded-xl overflow-hidden mb-3 relative">
+                        <img src="https://www.nomadfoods.com/wp-content/uploads/2018/08/placeholder-1-e1533569576673-960x960.png" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110">
+                    </div>
+                    <h3 class="font-bold text-white group-hover:text-indigo-400 transition-colors">Reflex Tester</h3>
+                    <p class="text-xs text-slate-500">Reaction • Fast</p>
+                </div>
+            </div>
+        </section>
+
+        
+        <section id="view-games" class="p-6 lg:p-10 max-w-7xl mx-auto hidden animate-fade-in">
+            <div class="flex items-center justify-between mb-8">
+                <div>
+                    <h1 class="text-3xl font-bold text-white">Library</h1>
+                    <p class="text-slate-400">Your installed collection</p>
+                </div>
+                <div class="flex gap-2">
+                    <input type="text" placeholder="Search games..." class="bg-slate-800 border border-slate-700 text-white px-4 py-2 rounded-lg text-sm focus:outline-none focus:border-indigo-500 w-48 md:w-64">
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+
+                
+                <div class="bg-slate-800 rounded-xl overflow-hidden border border-slate-700 hover:border-indigo-500 transition-all hover:shadow-lg hover:shadow-indigo-500/10 group">
+                    <div class="h-40 bg-gradient-to-br from-indigo-600 to-purple-700 flex items-center justify-center relative overflow-hidden">
+                        <i class="fa-solid fa-x absolute text-9xl text-white opacity-10 -left-4 -bottom-4"></i>
+                        <i class="fa-regular fa-circle absolute text-9xl text-white opacity-10 -right-4 -top-4"></i>
+                        <i class="fa-solid fa-table-cells text-5xl text-white z-10"></i>
+                    </div>
+                    <div class="p-5">
+                        <h3 class="font-bold text-lg text-white mb-1">Neon Tic-Tac-Toe</h3>
+                        <p class="text-slate-400 text-sm mb-4">The classic game of X and O with a futuristic twist. Play against the AI.</p>
+                        <button onclick="launchGame('tictactoe')" class="w-full py-2 bg-indigo-500 hover:bg-indigo-600 text-white rounded font-medium transition-colors">
+                            <i class="fa-solid fa-play mr-2"></i> Play Now
+                        </button>
+                    </div>
+                </div>
+
+                
+                <div class="bg-slate-800 rounded-xl overflow-hidden border border-slate-700 hover:border-emerald-500 transition-all hover:shadow-lg hover:shadow-emerald-500/10 group">
+                    <div class="h-40 bg-gradient-to-br from-emerald-600 to-teal-700 flex items-center justify-center relative overflow-hidden">
+                        <i class="fa-solid fa-worm absolute text-9xl text-white opacity-10 -right-2 top-2"></i>
+                        <i class="fa-solid fa-square text-5xl text-white z-10"></i>
+                    </div>
+                    <div class="p-5">
+                        <h3 class="font-bold text-lg text-white mb-1">Cyber Snake</h3>
+                        <p class="text-slate-400 text-sm mb-4">Navigate the grid, eat the energy pellets, and don't crash into the walls.</p>
+                        <button onclick="launchGame('snake')" class="w-full py-2 bg-emerald-500 hover:bg-emerald-600 text-white rounded font-medium transition-colors">
+                            <i class="fa-solid fa-play mr-2"></i> Play Now
+                        </button>
+                    </div>
+                </div>
+
+                
+                <div class="bg-slate-800 rounded-xl overflow-hidden border border-slate-700 hover:border-orange-500 transition-all hover:shadow-lg hover:shadow-orange-500/10 group">
+                    <div class="h-40 bg-gradient-to-br from-orange-600 to-red-700 flex items-center justify-center relative overflow-hidden">
+                        <i class="fa-solid fa-bolt absolute text-9xl text-white opacity-10 left-10 top-0"></i>
+                        <i class="fa-solid fa-stopwatch text-5xl text-white z-10"></i>
+                    </div>
+                    <div class="p-5">
+                        <h3 class="font-bold text-lg text-white mb-1">Reflex Tester</h3>
+                        <p class="text-slate-400 text-sm mb-4">How fast are you? Click the target as soon as it turns green.</p>
+                        <button onclick="launchGame('reflex')" class="w-full py-2 bg-orange-500 hover:bg-orange-600 text-white rounded font-medium transition-colors">
+                            <i class="fa-solid fa-play mr-2"></i> Play Now
+                        </button>
+                    </div>
+                </div>
+
+                
+                <div class="bg-slate-800/50 rounded-xl overflow-hidden border border-slate-700 border-dashed flex items-center justify-center flex-col p-8 opacity-70 hover:opacity-100 transition-opacity">
+                    <div class="w-16 h-16 rounded-full bg-slate-700 flex items-center justify-center mb-4">
+                        <i class="fa-solid fa-plus text-slate-400"></i>
+                    </div>
+                    <p class="text-slate-400 font-medium">Coming Soon</p>
+                </div>
+
+            </div>
+        </section>
+
+        
+        <section id="view-store" class="p-6 lg:p-10 max-w-7xl mx-auto hidden animate-fade-in">
+            <div class="text-center py-20">
+                <div class="inline-flex items-center justify-center w-24 h-24 rounded-full bg-slate-800 mb-6">
+                    <i class="fa-solid fa-bag-shopping text-4xl text-slate-500"></i>
+                </div>
+                <h2 class="text-3xl font-bold text-white mb-2">Store Under Maintenance</h2>
+                <p class="text-slate-400 max-w-md mx-auto">We are currently restocking digital assets. Check back later for new skins, DLCs, and game passes.</p>
+                <button onclick="switchTab('home')" class="mt-8 px-6 py-2 border border-slate-600 text-slate-300 rounded hover:bg-slate-800 hover:text-white transition-colors">
+                    Return Home
+                </button>
+            </div>
+        </section>
+
+        
+        <section id="view-community" class="p-6 lg:p-10 max-w-7xl mx-auto hidden animate-fade-in">
+             <div class="bg-slate-800 rounded-xl p-8 border border-slate-700 text-center">
+                <i class="fa-solid fa-comments text-5xl text-amber-500 mb-4"></i>
+                <h2 class="text-2xl font-bold text-white">Community Forums</h2>
+                <p class="text-slate-400 mt-2">Join the conversation with other players.</p>
+
+                <div class="mt-8 grid gap-4 text-left max-w-2xl mx-auto">
+                    <div class="bg-slate-900/50 p-4 rounded border border-slate-700/50">
+                        <div class="flex items-center justify-between mb-2">
+                            <span class="text-indigo-400 text-xs font-bold uppercase">Announcement</span>
+                            <span class="text-slate-500 text-xs">2 hours ago</span>
+                        </div>
+                        <h3 class="text-white font-medium hover:underline cursor-pointer">Server Maintenance Scheduled for Friday</h3>
+                    </div>
+                    <div class="bg-slate-900/50 p-4 rounded border border-slate-700/50">
+                        <div class="flex items-center justify-between mb-2">
+                            <span class="text-emerald-400 text-xs font-bold uppercase">General</span>
+                            <span class="text-slate-500 text-xs">5 hours ago</span>
+                        </div>
+                        <h3 class="text-white font-medium hover:underline cursor-pointer">Best strategy for Level 42?</h3>
+                    </div>
+                </div>
+             </div>
+        </section>
+
+        
+        <section id="view-settings" class="p-6 lg:p-10 max-w-3xl mx-auto hidden animate-fade-in">
+            <h1 class="text-3xl font-bold text-white mb-8">Settings</h1>
+
+            <div class="space-y-6">
+                
+                <div class="bg-slate-800 rounded-xl p-6 border border-slate-700">
+                    <h2 class="text-lg font-bold text-white mb-4 flex items-center">
+                        <i class="fa-solid fa-display text-slate-400 mr-2"></i> Display
+                    </h2>
+                    <div class="space-y-4">
+                        <div class="flex items-center justify-between">
+                            <span class="text-slate-300">Streamer Mode</span>
+                            <div class="w-12 h-6 bg-slate-600 rounded-full relative cursor-pointer">
+                                <div class="absolute left-1 top-1 w-4 h-4 bg-white rounded-full"></div>
+                            </div>
+                        </div>
+                        <div class="flex items-center justify-between">
+                            <span class="text-slate-300">Show FPS Counter</span>
+                            <div class="w-12 h-6 bg-indigo-500 rounded-full relative cursor-pointer">
+                                <div class="absolute right-1 top-1 w-4 h-4 bg-white rounded-full"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                
+                <div class="bg-slate-800 rounded-xl p-6 border border-slate-700">
+                    <h2 class="text-lg font-bold text-white mb-4 flex items-center">
+                        <i class="fa-solid fa-volume-high text-slate-400 mr-2"></i> Audio
+                    </h2>
+                    <div class="space-y-4">
+                        <div>
+                            <div class="flex justify-between mb-1">
+                                <span class="text-slate-300">Master Volume</span>
+                                <span class="text-slate-400 text-sm">80%</span>
+                            </div>
+                            <div class="h-2 bg-slate-600 rounded-full overflow-hidden">
+                                <div class="h-full bg-indigo-500 w-[80%]"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    
+    <div id="game-overlay" class="fixed inset-0 bg-slate-900/95 z-50 hidden flex-col items-center justify-center backdrop-blur-sm">
+
+        
+        <div class="w-full max-w-4xl flex justify-between items-center px-6 py-4 absolute top-0">
+            <h2 id="active-game-title" class="text-2xl font-bold text-white tracking-wider">GAME TITLE</h2>
+            <button onclick="closeGame()" class="px-4 py-2 bg-slate-800 hover:bg-red-500/20 text-slate-300 hover:text-red-400 rounded-lg transition-colors border border-slate-700">
+                <i class="fa-solid fa-xmark mr-2"></i> Exit Game
+            </button>
+        </div>
+
+        
+        <div class="relative bg-black rounded-lg shadow-2xl border border-slate-700 p-1 flex flex-col items-center">
+
+            
+            <canvas id="game-canvas" width="400" height="400" class="hidden bg-slate-800 cursor-crosshair"></canvas>
+
+            
+            <div id="ttt-board" class="hidden grid-cols-3 gap-2 bg-slate-700 p-2 w-[320px] h-[320px]">
+                
+            </div>
+
+            
+            <div id="game-ui-layer" class="absolute inset-0 flex flex-col items-center justify-center bg-black/80 z-10">
+                <h3 id="game-status-title" class="text-3xl font-black text-white mb-2 uppercase italic tracking-widest">Ready?</h3>
+                <p id="game-status-desc" class="text-slate-300 mb-6 text-center px-4">Press start to play</p>
+                <button id="start-btn" class="px-8 py-3 bg-indigo-600 hover:bg-indigo-500 text-white font-bold rounded shadow-lg shadow-indigo-500/50 transition-all transform hover:scale-105">
+                    START
+                </button>
+            </div>
+        </div>
+
+        <div class="mt-6 text-slate-500 text-sm" id="game-controls-hint">
+            Use Arrow Keys to move
+        </div>
+    </div>
+
+    
+    <script>
+
+        const tabs = ['home', 'games', 'store', 'community', 'settings'];
+
+        function switchTab(tabName) {
+
+            tabs.forEach(t => {
+                const section = document.getElementById(`view-${t}`);
+                if (section) section.classList.add('hidden');
+
+                const navBtn = document.getElementById(`nav-${t}`);
+                const indicator = document.getElementById(`indicator-${t}`);
+
+                if (navBtn) {
+                    navBtn.classList.remove('bg-slate-800', 'text-white');
+                    navBtn.classList.add('text-slate-400');
+                    if(indicator) indicator.classList.remove('opacity-100');
+                }
+            });
+
+            const activeSection = document.getElementById(`view-${tabName}`);
+            activeSection.classList.remove('hidden');
+            activeSection.classList.add('animate-fade-in');
+
+            const activeNav = document.getElementById(`nav-${tabName}`);
+            const activeIndicator = document.getElementById(`indicator-${tabName}`);
+
+            if (activeNav) {
+                activeNav.classList.add('bg-slate-800', 'text-white');
+                activeNav.classList.remove('text-slate-400');
+                if(activeIndicator) activeIndicator.classList.add('opacity-100');
+            }
+        }
+
+        switchTab('home');
+
+        let activeGame = null;
+        let gameLoopId = null;
+        const overlay = document.getElementById('game-overlay');
+        const gameTitle = document.getElementById('active-game-title');
+        const uiLayer = document.getElementById('game-ui-layer');
+        const startBtn = document.getElementById('start-btn');
+        const statusTitle = document.getElementById('game-status-title');
+        const statusDesc = document.getElementById('game-status-desc');
+        const controlsHint = document.getElementById('game-controls-hint');
+
+        const canvas = document.getElementById('game-canvas');
+        const ctx = canvas.getContext('2d');
+        const tttBoard = document.getElementById('ttt-board');
+
+        function launchGame(gameId) {
+            activeGame = gameId;
+            overlay.classList.remove('hidden');
+            overlay.classList.add('flex');
+
+            canvas.classList.add('hidden');
+            tttBoard.classList.add('hidden');
+            uiLayer.classList.remove('hidden');
+            startBtn.classList.remove('hidden');
+            statusTitle.textContent = "READY?";
+            statusDesc.textContent = "Click Start to Begin";
+
+            if (gameId === 'snake') {
+                gameTitle.textContent = "CYBER SNAKE";
+                controlsHint.textContent = "Use Arrow Keys to Move";
+                canvas.classList.remove('hidden');
+            } else if (gameId === 'tictactoe') {
+                gameTitle.textContent = "NEON TIC-TAC-TOE";
+                controlsHint.textContent = "Click cells to place X";
+                tttBoard.classList.remove('hidden');
+                initTicTacToeDOM();
+            } else if (gameId === 'reflex') {
+                gameTitle.textContent = "REFLEX TESTER";
+                controlsHint.textContent = "Click when the color changes!";
+                canvas.classList.remove('hidden');
+            }
+
+            startBtn.onclick = () => startGame(gameId);
+        }
+
+        function closeGame() {
+            activeGame = null;
+            if (gameLoopId) cancelAnimationFrame(gameLoopId);
+            if (reflexTimeout) clearTimeout(reflexTimeout);
+            overlay.classList.add('hidden');
+            overlay.classList.remove('flex');
+        }
+
+        function startGame(gameId) {
+            uiLayer.classList.add('hidden');
+            if (gameId === 'snake') initSnake();
+            if (gameId === 'tictactoe') startTicTacToe();
+            if (gameId === 'reflex') initReflex();
+        }
+
+        function gameOver(message, subtext = "Press Start to play again") {
+            uiLayer.classList.remove('hidden');
+            statusTitle.textContent = message;
+            statusDesc.textContent = subtext;
+            activeGame = null;
+        }
+
+        let snake = [];
+        let food = {};
+        let direction = 'RIGHT';
+        let nextDirection = 'RIGHT';
+        let score = 0;
+        const gridSize = 20;
+        const tileCount = 20; 
+
+        function initSnake() {
+            snake = [{x: 10, y: 10}, {x: 9, y: 10}, {x: 8, y: 10}];
+            food = {x: 15, y: 10};
+            direction = 'RIGHT';
+            nextDirection = 'RIGHT';
+            score = 0;
+            activeGame = 'snake';
+
+            document.addEventListener('keydown', handleSnakeInput);
+
+            let lastTime = 0;
+            const speed = 100; 
+
+            function loop(currentTime) {
+                if (activeGame !== 'snake') return;
+                gameLoopId = requestAnimationFrame(loop);
+
+                if (currentTime - lastTime < speed) return;
+                lastTime = currentTime;
+
+                updateSnake();
+                drawSnake();
+            }
+            loop(0);
+        }
+
+        function handleSnakeInput(e) {
+            if (activeGame !== 'snake') return;
+            switch(e.key) {
+                case 'ArrowUp': if (direction !== 'DOWN') nextDirection = 'UP'; break;
+                case 'ArrowDown': if (direction !== 'UP') nextDirection = 'DOWN'; break;
+                case 'ArrowLeft': if (direction !== 'RIGHT') nextDirection = 'LEFT'; break;
+                case 'ArrowRight': if (direction !== 'LEFT') nextDirection = 'RIGHT'; break;
+            }
+        }
+
+        function updateSnake() {
+            direction = nextDirection;
+            const head = {x: snake[0].x, y: snake[0].y};
+
+            if (direction === 'UP') head.y--;
+            if (direction === 'DOWN') head.y++;
+            if (direction === 'LEFT') head.x--;
+            if (direction === 'RIGHT') head.x++;
+
+            if (head.x < 0 || head.x >= tileCount || head.y < 0 || head.y >= tileCount) {
+                gameOver("CRASHED!", `Score: ${score}`);
+                return;
+            }
+
+            for (let i = 0; i < snake.length; i++) {
+                if (head.x === snake[i].x && head.y === snake[i].y) {
+                    gameOver("GAME OVER", `Score: ${score}`);
+                    return;
+                }
+            }
+
+            snake.unshift(head);
+
+            if (head.x === food.x && head.y === food.y) {
+                score += 10;
+                placeFood();
+            } else {
+                snake.pop();
+            }
+        }
+
+        function placeFood() {
+            food = {
+                x: Math.floor(Math.random() * tileCount),
+                y: Math.floor(Math.random() * tileCount)
+            };
+
+            for(let part of snake) {
+                if(part.x === food.x && part.y === food.y) placeFood();
+            }
+        }
+
+        function drawSnake() {
+
+            ctx.fillStyle = '#0f172a';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            ctx.strokeStyle = '#1e293b';
+            ctx.lineWidth = 1;
+
+            ctx.fillStyle = '#10b981'; 
+            ctx.shadowBlur = 10;
+            ctx.shadowColor = "#10b981";
+            ctx.fillRect(food.x * gridSize, food.y * gridSize, gridSize - 2, gridSize - 2);
+            ctx.shadowBlur = 0;
+
+            ctx.fillStyle = '#6366f1'; 
+            snake.forEach((part, index) => {
+                if (index === 0) ctx.fillStyle = '#818cf8'; 
+                else ctx.fillStyle = '#6366f1';
+                ctx.fillRect(part.x * gridSize, part.y * gridSize, gridSize - 2, gridSize - 2);
+            });
+
+            ctx.fillStyle = 'white';
+            ctx.font = '16px Inter';
+            ctx.fillText("Score: " + score, 10, 20);
+        }
+
+        let tttState = Array(9).fill(null);
+        let currentPlayer = 'X';
+
+        function initTicTacToeDOM() {
+            tttBoard.innerHTML = '';
+            for(let i=0; i<9; i++) {
+                const cell = document.createElement('button');
+                cell.className = 'ttt-cell bg-slate-800 text-5xl font-bold flex items-center justify-center rounded hover:bg-slate-700 text-white';
+                cell.dataset.index = i;
+                cell.onclick = () => handleTTTClick(i);
+                tttBoard.appendChild(cell);
+            }
+        }
+
+        function startTicTacToe() {
+            activeGame = 'tictactoe';
+            tttState.fill(null);
+            currentPlayer = 'X';
+
+            const cells = document.querySelectorAll('.ttt-cell');
+            cells.forEach(c => {
+                c.textContent = '';
+                c.classList.remove('text-indigo-400', 'text-pink-400');
+            });
+        }
+
+        function handleTTTClick(index) {
+            if (activeGame !== 'tictactoe' || tttState[index] || currentPlayer !== 'X') return;
+
+            makeMove(index, 'X');
+
+            if (!checkWin('X') && !checkDraw()) {
+
+                currentPlayer = 'O';
+                statusDesc.textContent = "AI is thinking...";
+                setTimeout(() => {
+                    if (activeGame !== 'tictactoe') return;
+                    const emptyIndices = tttState.map((v, i) => v === null ? i : null).filter(v => v !== null);
+                    if (emptyIndices.length > 0) {
+                        const randomMove = emptyIndices[Math.floor(Math.random() * emptyIndices.length)];
+                        makeMove(randomMove, 'O');
+                        checkWin('O');
+                        checkDraw();
+                        currentPlayer = 'X';
+                        statusDesc.textContent = "Your Turn (X)";
+                    }
+                }, 500);
+            }
+        }
+
+        function makeMove(index, player) {
+            tttState[index] = player;
+            const cell = document.querySelector(`.ttt-cell[data-index='${index}']`);
+            cell.textContent = player;
+            cell.classList.add(player === 'X' ? 'text-indigo-400' : 'text-pink-400');
+        }
+
+        function checkWin(player) {
+            const wins = [
+                [0,1,2], [3,4,5], [6,7,8], 
+                [0,3,6], [1,4,7], [2,5,8], 
+                [0,4,8], [2,4,6]           
+            ];
+
+            const won = wins.some(combination => combination.every(i => tttState[i] === player));
+
+            if (won) {
+                gameOver(player === 'X' ? "YOU WON!" : "AI WINS!", "Nice game.");
+                return true;
+            }
+            return false;
+        }
+
+        function checkDraw() {
+            if (!tttState.includes(null)) {
+                gameOver("DRAW", "No moves left.");
+                return true;
+            }
+            return false;
+        }
+
+        let reflexState = 'waiting'; 
+        let reflexTimeout;
+        let reflexStartTime;
+
+        function initReflex() {
+            activeGame = 'reflex';
+            reflexState = 'waiting';
+
+            ctx.fillStyle = '#ef4444'; 
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            ctx.fillStyle = 'white';
+            ctx.font = '30px Inter';
+            ctx.textAlign = 'center';
+            ctx.fillText("WAIT FOR GREEN", canvas.width/2, canvas.height/2);
+
+            canvas.onmousedown = handleReflexClick;
+
+            const randomTime = 2000 + Math.random() * 3000;
+
+            reflexTimeout = setTimeout(() => {
+                if(activeGame !== 'reflex') return;
+                reflexState = 'green';
+                reflexStartTime = Date.now();
+
+                ctx.fillStyle = '#22c55e'; 
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+                ctx.fillStyle = 'white';
+                ctx.fillText("CLICK NOW!", canvas.width/2, canvas.height/2);
+            }, randomTime);
+        }
+
+        function handleReflexClick() {
+            if (activeGame !== 'reflex') return;
+
+            if (reflexState === 'waiting') {
+                clearTimeout(reflexTimeout);
+                gameOver("TOO EARLY", "Don't anticipate it.");
+            } else if (reflexState === 'green') {
+                const reactionTime = Date.now() - reflexStartTime;
+                let rating = "Slow poke";
+                if(reactionTime < 200) rating = "Godlike!";
+                else if(reactionTime < 300) rating = "Great!";
+                else if(reactionTime < 400) rating = "Average";
+
+                gameOver(`${reactionTime}ms`, rating);
+            }
+        }
+
+    </script>
+</body>
+</html>
