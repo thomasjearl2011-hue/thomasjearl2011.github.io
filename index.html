@@ -11,14 +11,12 @@
 </head>
 <body class="h-screen flex overflow-hidden selection:bg-indigo-500 selection:text-white">
 
-    
     <aside class="w-20 lg:w-64 flex-shrink-0 bg-slate-900 border-r border-slate-800 flex flex-col transition-all duration-300">
         
         <div class="h-16 flex items-center justify-center lg:justify-start lg:px-6 border-b border-slate-800">
             <i class="fa-solid fa-gamepad text-indigo-500 text-2xl"></i>
             <span class="ml-3 font-bold text-xl hidden lg:block text-white tracking-tight">NEXUS</span>
         </div>
-
         
         <nav class="flex-1 py-6 space-y-2 px-2">
             <button onclick="switchTab('home')" class="nav-btn w-full flex items-center p-3 rounded-lg text-slate-400 hover:bg-slate-800 hover:text-white transition-colors group relative" id="nav-home">
@@ -46,7 +44,6 @@
             </button>
         </nav>
 
-        
         <div class="p-4 border-t border-slate-800">
             <button onclick="switchTab('settings')" class="w-full flex items-center p-2 rounded-lg text-slate-400 hover:text-white transition-colors mb-2" id="nav-settings">
                 <i class="fa-solid fa-gear w-8 text-center"></i>
@@ -62,15 +59,12 @@
         </div>
     </aside>
 
-    
     <main class="flex-1 overflow-y-auto relative bg-gradient-to-br from-slate-900 via-slate-900 to-slate-800">
 
-        
         <header class="lg:hidden h-16 bg-slate-900 border-b border-slate-800 flex items-center px-4 justify-between sticky top-0 z-20">
             <span class="font-bold text-xl text-white">NEXUS</span>
             <button class="text-slate-400"><i class="fa-solid fa-bars text-xl"></i></button>
         </header>
-
         
         <section id="view-home" class="p-6 lg:p-10 max-w-7xl mx-auto animate-fade-in">
             
@@ -95,7 +89,6 @@
                     </div>
                 </div>
             </div>
-
             
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
                 <div class="glass-panel p-6 rounded-xl flex items-center border border-slate-700/50">
@@ -159,7 +152,6 @@
                 </div>
             </div>
         </section>
-
         
         <section id="view-games" class="p-6 lg:p-10 max-w-7xl mx-auto hidden animate-fade-in">
             <div class="flex items-center justify-between mb-8">
@@ -189,7 +181,6 @@
                         </button>
                     </div>
                 </div>
-
                 
                 <div class="bg-slate-800 rounded-xl overflow-hidden border border-slate-700 hover:border-emerald-500 transition-all hover:shadow-lg hover:shadow-emerald-500/10 group">
                     <div class="h-40 bg-gradient-to-br from-emerald-600 to-teal-700 flex items-center justify-center relative overflow-hidden">
@@ -204,7 +195,6 @@
                         </button>
                     </div>
                 </div>
-
                 
                 <div class="bg-slate-800 rounded-xl overflow-hidden border border-slate-700 hover:border-orange-500 transition-all hover:shadow-lg hover:shadow-orange-500/10 group">
                     <div class="h-40 bg-gradient-to-br from-orange-600 to-red-700 flex items-center justify-center relative overflow-hidden">
@@ -219,7 +209,6 @@
                         </button>
                     </div>
                 </div>
-
                 
                 <div class="bg-slate-800/50 rounded-xl overflow-hidden border border-slate-700 border-dashed flex items-center justify-center flex-col p-8 opacity-70 hover:opacity-100 transition-opacity">
                     <div class="w-16 h-16 rounded-full bg-slate-700 flex items-center justify-center mb-4">
@@ -230,7 +219,6 @@
 
             </div>
         </section>
-
         
         <section id="view-store" class="p-6 lg:p-10 max-w-7xl mx-auto hidden animate-fade-in">
             <div class="text-center py-20">
@@ -244,7 +232,6 @@
                 </button>
             </div>
         </section>
-
         
         <section id="view-community" class="p-6 lg:p-10 max-w-7xl mx-auto hidden animate-fade-in">
              <div class="bg-slate-800 rounded-xl p-8 border border-slate-700 text-center">
@@ -263,7 +250,6 @@
                 </div>
              </div>
         </section>
-
         
         <section id="view-settings" class="p-6 lg:p-10 max-w-3xl mx-auto hidden animate-fade-in">
             <h1 class="text-3xl font-bold text-white mb-8">Settings</h1>
@@ -289,7 +275,6 @@
                         </div>
                     </div>
                 </div>
-
                 
                 <div class="bg-slate-800 rounded-xl p-6 border border-slate-700">
                     <h2 class="text-lg font-bold text-white mb-4 flex items-center">
@@ -311,10 +296,8 @@
         </section>
 
     </main>
-
     
     <div id="game-overlay" class="fixed inset-0 bg-slate-900/95 z-50 hidden flex-col items-center justify-center backdrop-blur-sm">
-
         
         <div class="w-full max-w-4xl flex justify-between items-center px-6 py-4 absolute top-0">
             <h2 id="active-game-title" class="text-2xl font-bold text-white tracking-wider">GAME TITLE</h2>
@@ -322,13 +305,10 @@
                 <i class="fa-solid fa-xmark mr-2"></i> Exit Game
             </button>
         </div>
-
         
         <div class="relative bg-black rounded-lg shadow-2xl border border-slate-700 p-1 flex flex-col items-center">
-
             
             <canvas id="game-canvas" width="400" height="400" class="hidden bg-slate-800 cursor-crosshair"></canvas>
-
             
             <div id="ttt-board" class="hidden grid-cols-3 gap-2 bg-slate-700 p-2 w-[320px] h-[320px]">
                 
@@ -348,10 +328,8 @@
             Use Arrow Keys to move
         </div>
     </div>
-
     
     <script>
-
         const tabs = ['home', 'games', 'store', 'community', 'settings'];
 
         function switchTab(tabName) {
@@ -694,7 +672,6 @@
                 gameOver(`${reactionTime}ms`, rating);
             }
         }
-
     </script>
 </body>
 </html>
