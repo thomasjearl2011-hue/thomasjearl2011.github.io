@@ -27,6 +27,8 @@ Games Tab: 🟢
 
     Cube Combat: 🟡
 
+Test branch: 🟡
+
 Store: 🟨
 
 Community Forms: 🟢 (kinda)
