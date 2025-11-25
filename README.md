@@ -15,18 +15,18 @@ key:
 🟡 = In active development
 🟨 = In development
 
-Nexus Hub: `🟠`
+Nexus Hub: 🟠
 
-Games Tab: `🟢`
+Games Tab: 🟢
 
-    Neon Tic-Tac-Toe: `🔴`
+    Neon Tic-Tac-Toe: 🔴
 
-    Cyber Snake: `🟢`
+    Cyber Snake: 🟢
 
-    Reflex Tester: `🟢`
+    Reflex Tester: 🟢
 
-    Cube Combat: `🟡`
+    Cube Combat: 🟡
 
-Store: `🟨`
+Store: 🟨
 
-Community Forms: `🟢 (kinda)`
+Community Forms: 🟢 (kinda)
