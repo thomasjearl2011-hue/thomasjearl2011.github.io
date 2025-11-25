@@ -157,7 +157,7 @@
             <div class="flex items-center justify-between mb-8">
                 <div>
                     <h1 class="text-3xl font-bold text-white">Library</h1>
-                    <p class="text-slate-400">Your installed collection</p>
+                    <p class="text-slate-400">Your collection</p>
                 </div>
                 <div class="flex gap-2">
                     <input type="text" placeholder="Search games..." class="bg-slate-800 border border-slate-700 text-white px-4 py-2 rounded-lg text-sm focus:outline-none focus:border-indigo-500 w-48 md:w-64">
@@ -204,6 +204,20 @@
                     <div class="p-5">
                         <h3 class="font-bold text-lg text-white mb-1">Reflex Tester</h3>
                         <p class="text-slate-400 text-sm mb-4">How fast are you? Click the target as soon as it turns green.</p>
+                        <button onclick="launchGame('reflex')" class="w-full py-2 bg-orange-500 hover:bg-orange-600 text-white rounded font-medium transition-colors">
+                            <i class="fa-solid fa-play mr-2"></i> Play Now
+                        </button>
+                    </div>
+                </div>
+
+                <div class="bg-slate-800 rounded-xl overflow-hidden border border-slate-700 hover:border-orange-500 transition-all hover:shadow-lg hover:shadow-orange-500/10 group">
+                    <div class="h-40 bg-gradient-to-br from-orange-600 to-red-700 flex items-center justify-center relative overflow-hidden">
+                        <i class="fa-solid fa-bolt absolute text-9xl text-white opacity-10 left-10 top-0"></i>
+                        <i class="fa-solid fa-stopwatch text-5xl text-white z-10"></i>
+                    </div>
+                    <div class="p-5">
+                        <h3 class="font-bold text-lg text-white mb-1">Test branch</h3>
+                        <p class="text-slate-400 text-sm mb-4">Would you like to test out games in develoupment. Well ynow you can.</p>
                         <button onclick="launchGame('reflex')" class="w-full py-2 bg-orange-500 hover:bg-orange-600 text-white rounded font-medium transition-colors">
                             <i class="fa-solid fa-play mr-2"></i> Play Now
                         </button>
