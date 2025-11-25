@@ -12,7 +12,8 @@ key:
 
 🔴 = Not working
 
-🟡 = In development 
+🟡 = In active development
+🟨 = In development
 
 Nexus Hub: `🟠`
 
@@ -24,6 +25,8 @@ Games Tab: `🟢`
 
     Reflex Tester: `🟢`
 
-Store: `🟡`
+    Cube Combat: `🟡`
+
+Store: `🟨`
 
 Community Forms: `🟢 (kinda)`
