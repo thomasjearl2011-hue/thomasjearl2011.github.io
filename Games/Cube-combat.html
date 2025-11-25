@@ -1,0 +1,921 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cube Combat: Side Scroller</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: #111;
+            color: white;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            user-select: none;
+        }
+
+        #game-container {
+            position: relative;
+            box-shadow: 0 0 20px rgba(0,0,0,0.5);
+            width: 800px;
+            height: 600px;
+        }
+
+        canvas {
+            background-color: #f0f0f0; 
+            display: block;
+        }
+
+        #ui-layer {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .hud {
+            display: flex;
+            justify-content: space-between;
+            padding: 20px;
+            font-weight: bold;
+            font-size: 20px;
+            text-shadow: 1px 1px 2px black;
+        }
+
+        .health-bar-container {
+            width: 300px;
+            height: 25px;
+            background: #555;
+            border: 2px solid #333;
+            position: relative;
+        }
+
+        .health-bar {
+            height: 100%;
+            transition: width 0.1s;
+        }
+
+        #p1-health { background-color: blue; width: 100%; }
+        #p2-health { background-color: red; width: 100%; }
+
+        #menu-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #000; 
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            pointer-events: auto;
+            z-index: 10;
+        }
+
+        .menu-screen {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding-top: 60px;
+            box-sizing: border-box;
+            display: none; 
+        }
+
+        .menu-screen.active {
+            display: flex;
+        }
+
+        .menu-title {
+            font-size: 72px;
+            color: red;
+            margin-bottom: 40px;
+            font-weight: bold;
+            text-shadow: 2px 2px 0 blue;
+        }
+
+        .sub-title {
+            font-size: 50px;
+            color: white;
+            margin-bottom: 30px;
+        }
+
+        .btn {
+            color: white;
+            border: none;
+            padding: 15px 0;
+            font-size: 24px;
+            margin: 10px;
+            cursor: pointer;
+            transition: transform 0.1s, background 0.1s, filter 0.1s;
+            width: 300px;
+            text-align: center;
+            border-radius: 10px;
+            font-weight: bold;
+            display: block;
+        }
+
+        .btn:hover {
+            transform: scale(1.05);
+            filter: brightness(1.2);
+        }
+
+        .btn-green { background: #00C800; color: black; } 
+        .btn-blue { background: #0000FF; color: white; } 
+        .btn-pink { background: #FFC0CB; color: black; } 
+        .btn-gray { background: #646464; color: black; } 
+        .btn-red { background: #FF0000; color: black; } 
+        .btn-cyan { background: #00FFFF; color: black; } 
+
+        .cubes-layout {
+            display: flex;
+            flex-direction: row;
+            width: 90%;
+            height: 70%;
+            margin-top: 20px;
+        }
+
+        .cubes-grid {
+            flex: 2;
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            grid-auto-rows: 80px;
+            gap: 20px;
+            overflow-y: auto;
+            padding: 10px;
+        }
+
+        .cube-icon {
+            width: 60px;
+            height: 60px;
+            border: 2px solid white;
+            cursor: pointer;
+            transition: transform 0.1s;
+        }
+        .cube-icon:hover { transform: scale(1.1); }
+        .cube-icon.selected { border: 4px solid #00FF00; }
+
+        .cube-icon.locked {
+            position: relative;
+            filter: grayscale(100%) brightness(0.4);
+        }
+        .cube-icon.locked::after {
+            content: '🔒'; /* lock icon */
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 32px;
+            color: white;
+            text-shadow: 0 0 4px black;
+        }
+
+        .cube-details {
+            flex: 1;
+            background: #333;
+            border: 3px solid white;
+            border-radius: 10px;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            color: white;
+            box-sizing: border-box;
+            overflow-y: auto; /* keep all stats inside the tab and scroll if needed */
+        }
+
+        .detail-row { margin-bottom: 15px; }
+        .detail-label { color: #00FFFF; font-size: 20px; margin-bottom: 5px;}
+        .detail-value { font-size: 18px; color: #ccc; }
+
+        .achievements-list {
+            width: 80%;
+            height: 70%;
+            overflow-y: auto;
+            border: 1px solid #333;
+            padding: 10px;
+        }
+
+        .achievement-item {
+            background: #333;
+            margin-bottom: 10px;
+            padding: 15px;
+            border-radius: 5px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .achievement-item.unlocked { background: #00aa00; color: black; }
+        .achievement-item.locked { background: #444; color: #aaa; }
+
+        .hidden { display: none !important; }
+
+        ::-webkit-scrollbar { width: 10px; }
+        ::-webkit-scrollbar-track { background: #222; }
+        ::-webkit-scrollbar-thumb { background: #555; }
+        ::-webkit-scrollbar-thumb:hover { background: #777; }
+
+    </style>
+</head>
+<body>
+
+<div id="game-container">
+    <canvas id="gameCanvas" width="800" height="600"></canvas>
+
+    <div id="ui-layer">
+        <div class="hud" id="hud">
+            <div>
+                <div style="color: blue">P1 (Blue)</div>
+                <div class="health-bar-container">
+                    <div id="p1-health" class="health-bar"></div>
+                </div>
+            </div>
+            <div style="text-align: right;">
+                <div style="color: red" id="p2-name">AI (Red)</div>
+                <div class="health-bar-container">
+                    <div id="p2-health" class="health-bar"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="menu-overlay">
+
+        <div id="screen-main" class="menu-screen active">
+            <div class="menu-title">CUBE COMBAT</div>
+
+            <button class="btn btn-green" onclick="navTo('screen-modes')">START GAME</button>
+            <button class="btn btn-blue" onclick="navTo('screen-cubes'); renderCubes()">COLLECTED CUBES</button>
+            <button class="btn btn-pink" onclick="navTo('screen-achievements'); renderAchievements()">ACHIEVEMENTS</button>
+            <button class="btn btn-gray" onclick="alert('Cannot quit browser window directly. Close tab to exit.')">QUIT</button>
+        </div>
+
+        <div id="screen-modes" class="menu-screen">
+            <div class="sub-title">SELECT GAME MODE</div>
+
+            <button class="btn btn-red" onclick="startGame('ai')">PLAYER VS AI</button>
+            <button class="btn btn-blue" onclick="startGame('pvp')">PLAYER VS PLAYER</button>
+            <div style="height: 20px;"></div>
+            <button class="btn btn-gray" onclick="navTo('screen-main')">BACK</button>
+        </div>
+
+        <div id="screen-cubes" class="menu-screen">
+            <div class="sub-title">COLLECTED CUBES</div>
+            <button class="btn btn-gray" style="width: 150px; position: absolute; top: 20px; left: 20px;" onclick="navTo('screen-main')">BACK (ESC)</button>
+
+            <div class="cubes-layout">
+                <div class="cubes-grid" id="cubes-grid-container">
+                    </div>
+                <div class="cube-details" id="cube-details-panel">
+                    <div style="text-align: center; margin-bottom: 20px; color: #aaa;">Select a cube to view details</div>
+                </div>
+            </div>
+        </div>
+
+        <div id="screen-achievements" class="menu-screen">
+            <div class="sub-title">ACHIEVEMENTS</div>
+            <button class="btn btn-gray" style="width: 150px; position: absolute; top: 20px; left: 20px;" onclick="navTo('screen-main')">BACK (ESC)</button>
+
+            <div class="achievements-list" id="achievements-container">
+                </div>
+        </div>
+
+        <div id="game-over-screen" class="hidden" style="position:absolute; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.9); display:flex; flex-direction:column; align-items:center; justify-content:center; z-index:20;">
+            <div id="winner-text" style="font-size: 50px; margin-bottom: 30px; font-weight:bold; color: white;">WINNER</div>
+            <button class="btn btn-green" onclick="restartGame()">RESTART (R)</button>
+            <button class="btn btn-gray" onclick="showMainMenu()">MAIN MENU</button>
+        </div>
+
+    </div>
+</div>
+
+<script>
+
+    const CUBE_DATA = [
+        { id: 1, name: "Cube 1", color: "blue", hp: 100, attacks: "Slash, Parry" },
+        { id: 2, name: "Cube 2", color: "red", hp: 100, attacks: "Charge, Beam" },
+        { id: 3, name: "Cube 3", color: "green", hp: 100, attacks: "None" },
+        { id: 4, name: "Cube 4", color: "pink", hp: 100, attacks: "None" },
+        { id: 5, name: "Cube 5", color: "brown", hp: 75, attacks: "None" },
+        { id: 6, name: "Cube 6", color: "purple", hp: 75, attacks: "None" }
+    ];
+
+    const ACHIEVEMENT_DATA = [
+        { id: 1, name: "First Blood", desc: "Defeat your first enemy", unlocks: "Cube 3", unlocked: true },
+        { id: 2, name: "Sharpshooter", desc: "Hit 5 beams in a row", unlocks: "Cube 4", unlocked: false },
+        { id: 3, name: "Unstoppable", desc: "Win without taking damage", unlocks: "Cube 5", unlocked: false },
+        { id: 4, name: "Wombo Combo", desc: "Absoultely combo the red Ai cube", unlocks: "Cube 6", unlocked: false },
+        { id: 5, name: "Cube Master", desc: "Unlock all cubes", unlocks: "Golden Skin", unlocked: false }
+    ];
+
+    function navTo(screenId) {
+
+        document.querySelectorAll('.menu-screen').forEach(el => el.classList.remove('active'));
+
+        document.getElementById(screenId).classList.add('active');
+    }
+
+    function renderCubes() {
+        const container = document.getElementById('cubes-grid-container');
+        container.innerHTML = '';
+
+        CUBE_DATA.forEach((cube, index) => {
+            const div = document.createElement('div');
+
+            // Determine if this cube is locked by an achievement
+            const unlockingAchievement = ACHIEVEMENT_DATA.find(a => a.unlocks === cube.name);
+            const isLocked = unlockingAchievement && !unlockingAchievement.unlocked;
+
+            div.className = 'cube-icon' + (isLocked ? ' locked' : '');
+            div.style.backgroundColor = cube.color;
+
+            if (!isLocked) {
+                div.onclick = () => selectCube(cube, div);
+            } else {
+                div.title = 'Locked - unlock "' + unlockingAchievement.name + '" to use this cube';
+            }
+
+            container.appendChild(div);
+        });
+
+        document.getElementById('cube-details-panel').innerHTML = '<div style="text-align: center; margin-top: 50px; color: #aaa;">Select a cube to view details</div>';
+    }
+
+    function selectCube(cube, element) {
+
+        document.querySelectorAll('.cube-icon').forEach(el => el.classList.remove('selected'));
+        element.classList.add('selected');
+
+        const panel = document.getElementById('cube-details-panel');
+        panel.innerHTML = `
+            <div style="text-align:center; margin-bottom:20px;">
+                <div style="background:${cube.color}; width:80px; height:80px; display:inline-block; border:2px solid white;"></div>
+            </div>
+            <div class="detail-row"><div class="detail-label">Name:</div><div class="detail-value">${cube.name}</div></div>
+            <div class="detail-row"><div class="detail-label">Color:</div><div class="detail-value" style="text-transform:capitalize;">${cube.color}</div></div>
+            <div class="detail-row"><div class="detail-label">Max HP:</div><div class="detail-value">${cube.hp}</div></div>
+            <div class="detail-row"><div class="detail-label">Attacks:</div><div class="detail-value">${cube.attacks}</div></div>
+        `;
+    }
+
+    function renderAchievements() {
+        const container = document.getElementById('achievements-container');
+        container.innerHTML = '';
+
+        ACHIEVEMENT_DATA.forEach(ach => {
+            const div = document.createElement('div');
+            div.className = `achievement-item ${ach.unlocked ? 'unlocked' : 'locked'}`;
+            div.innerHTML = `
+                <div>
+                    <div style="font-size: 24px; font-weight:bold;">#${ach.id} - ${ach.name}</div>
+                    <div style="font-size: 16px; margin-top:5px;">${ach.desc}</div>
+                    <div style="font-size: 14px; margin-top:5px; font-style:italic;">Unlocks: ${ach.unlocks}</div>
+                </div>
+                <div style="font-size: 20px; font-weight:bold;">${ach.unlocked ? 'UNLOCKED' : 'LOCKED'}</div>
+            `;
+            container.appendChild(div);
+        });
+    }
+
+    const canvas = document.getElementById('gameCanvas');
+    const ctx = canvas.getContext('2d');
+    const WIDTH = 800;
+    const HEIGHT = 600;
+
+    const GRAVITY = 0.6;
+    const FRICTION = 0.8;
+    const MOVE_SPEED = 5;
+    const JUMP_FORCE = 14;
+    const FLOOR_Y = HEIGHT - 50; 
+
+    const CUBE_SIZE = 50;
+    const MAX_HP = 100;
+
+    const ATTACK_DMG = 20; 
+    const SLASH_DMG = 25;
+    const BEAM_DMG = 30;
+    const CHARGE_DMG = 25;
+
+    const COLORS = {
+        BLUE: '#0000FF',
+        RED: '#FF0000',
+        CYAN: '#00FFFF',
+        PURPLE: '#800080',
+        BLACK: '#000000',
+        WHITE: '#FFFFFF',
+        GRAY: '#C8C8C8'
+    };
+
+    let gameMode = 'ai'; 
+    let gameState = 'menu'; 
+    let winner = null;
+    let animationId;
+
+    const keys = {};
+    window.addEventListener('keydown', e => {
+        keys[e.code] = true;
+
+        if (e.code === 'Escape') {
+            if (gameState === 'playing') {
+                showMainMenu();
+            } else if (gameState === 'menu') {
+
+                if(!document.getElementById('screen-main').classList.contains('active')){
+                    navTo('screen-main');
+                }
+            }
+        }
+    });
+    window.addEventListener('keyup', e => keys[e.code] = false);
+
+    class Entity {
+        constructor(x, y, color) {
+            this.x = x;
+            this.y = y;
+            this.w = CUBE_SIZE;
+            this.h = CUBE_SIZE;
+            this.color = color;
+            this.vx = 0;
+            this.vy = 0;
+            this.isGrounded = false;
+            this.hp = MAX_HP;
+            this.dead = false;
+            this.facingRight = true;
+        }
+
+        update() {
+            if (this.dead) return;
+
+            this.vy += GRAVITY;
+
+            this.x += this.vx;
+            this.y += this.vy;
+
+            if (this.y + this.h >= FLOOR_Y) {
+                this.y = FLOOR_Y - this.h;
+                this.vy = 0;
+                this.isGrounded = true;
+            } else {
+                this.isGrounded = false;
+            }
+
+            if (this.x < 0) this.x = 0;
+            if (this.x + this.w > WIDTH) this.x = WIDTH - this.w;
+
+            this.vx *= FRICTION;
+            if (Math.abs(this.vx) < 0.1) this.vx = 0;
+        }
+
+        draw(ctx) {
+            if (this.dead) return;
+            ctx.fillStyle = this.color;
+            ctx.fillRect(this.x, this.y, this.w, this.h);
+
+            ctx.strokeStyle = "black";
+            ctx.lineWidth = 2;
+            ctx.strokeRect(this.x, this.y, this.w, this.h);
+
+            ctx.fillStyle = "white";
+            const eyeX = this.facingRight ? this.x + 30 : this.x + 10;
+            ctx.fillRect(eyeX, this.y + 10, 10, 10);
+        }
+
+        takeDamage(amount) {
+            if (this.dead) return;
+            this.hp -= amount;
+            if (this.hp <= 0) {
+                this.hp = 0;
+                this.dead = true;
+                checkGameOver();
+            }
+            updateUI();
+        }
+    }
+
+    class BlueCube extends Entity {
+        constructor() {
+            super(50, FLOOR_Y - CUBE_SIZE, COLORS.BLUE);
+
+            this.slashCooldown = 0;
+            this.slashActive = false;
+            this.slashTimer = 0;
+
+            this.parryActive = false;
+            this.parryTimer = 0;
+            this.parryCooldown = 0;
+        }
+
+        update() {
+            super.update();
+            if (this.dead) return;
+
+            if (this.slashCooldown > 0) this.slashCooldown--;
+            if (this.parryCooldown > 0) this.parryCooldown--;
+
+            if (!this.parryActive) {
+                if (keys['KeyA']) {
+                    this.vx = -MOVE_SPEED;
+                    this.facingRight = false;
+                }
+                if (keys['KeyD']) {
+                    this.vx = MOVE_SPEED;
+                    this.facingRight = true;
+                }
+                if (keys['KeyW'] && this.isGrounded) {
+                    this.vy = -JUMP_FORCE;
+                }
+
+                if (keys['Space'] && this.slashCooldown <= 0) {
+                    this.performSlash();
+                }
+            }
+
+            if (keys['KeyF'] && this.parryCooldown <= 0 && !this.parryActive) {
+                this.parryActive = true;
+                this.parryTimer = 30; 
+                this.color = COLORS.BLACK; 
+            }
+
+            if (this.parryActive) {
+                this.parryTimer--;
+                this.vx = 0; 
+                if (this.parryTimer <= 0) {
+                    this.parryActive = false;
+                    this.color = COLORS.BLUE;
+                    this.parryCooldown = 60;
+                }
+            }
+
+            if (this.slashActive) {
+                this.slashTimer--;
+                if (this.slashTimer <= 0) {
+                    this.slashActive = false;
+                }
+            }
+        }
+
+        performSlash() {
+            this.slashActive = true;
+            this.slashTimer = 15; 
+            this.slashCooldown = 60; 
+
+            const reach = 70;
+            const hitX = this.facingRight ? this.x + this.w : this.x - reach;
+            const hitY = this.y;
+
+            if (!redCube.dead && rectIntersect(hitX, hitY, reach, this.h, redCube.x, redCube.y, redCube.w, redCube.h)) {
+                if (!redCube.isInvincible) {
+                    redCube.takeDamage(SLASH_DMG);
+
+                    redCube.vx = this.facingRight ? 10 : -10;
+                    redCube.vy = -5;
+                }
+            }
+        }
+
+        draw(ctx) {
+            super.draw(ctx);
+
+            if (this.slashActive) {
+                ctx.fillStyle = "rgba(128, 0, 128, 0.6)"; 
+                const reach = 70;
+                const hitX = this.facingRight ? this.x + this.w : this.x - reach;
+                ctx.fillRect(hitX, this.y, reach, this.h);
+            }
+
+            if (this.parryActive) {
+                ctx.strokeStyle = "white";
+                ctx.lineWidth = 3;
+                ctx.beginPath();
+                ctx.arc(this.x + this.w/2, this.y + this.h/2, 40, 0, Math.PI * 2);
+                ctx.stroke();
+            }
+        }
+    }
+
+    class RedCube extends Entity {
+        constructor() {
+            super(WIDTH - 100, FLOOR_Y - CUBE_SIZE, COLORS.RED);
+            this.facingRight = false;
+
+            this.state = 'IDLE'; 
+            this.stateTimer = 0;
+            this.isInvincible = false;
+
+            this.aiMoveTimer = 0;
+            this.aiTargetX = 0;
+        }
+
+        update() {
+
+            if (this.state !== 'CHARGING') this.isInvincible = false;
+
+            if (this.dead) return;
+
+            this.vy += GRAVITY;
+            this.x += this.vx;
+            this.y += this.vy;
+
+            if (this.y + this.h >= FLOOR_Y) {
+                this.y = FLOOR_Y - this.h;
+                this.vy = 0;
+                this.isGrounded = true;
+            } else {
+                this.isGrounded = false;
+            }
+            if (this.x < 0) { this.x = 0; this.handleWallHit(); }
+            if (this.x + this.w > WIDTH) { this.x = WIDTH - this.w; this.handleWallHit(); }
+
+            if (this.state !== 'CHARGING') {
+                this.vx *= FRICTION;
+                if (Math.abs(this.vx) < 0.1) this.vx = 0;
+            }
+
+            if (gameMode === 'pvp') {
+                this.updatePvP();
+            } else {
+                this.updateAI();
+            }
+
+            if (this.state === 'CHARGE_WINDUP') {
+                this.color = (Math.floor(Date.now() / 100) % 2 === 0) ? COLORS.RED : COLORS.BLACK; 
+                this.stateTimer--;
+                if (this.stateTimer <= 0) {
+                    this.state = 'CHARGING';
+                    this.stateTimer = 60; 
+                    this.vx = this.facingRight ? 15 : -15; 
+                    this.isInvincible = true; 
+                }
+            } 
+            else if (this.state === 'CHARGING') {
+                this.color = COLORS.RED;
+
+                if (rectIntersect(this.x, this.y, this.w, this.h, blueCube.x, blueCube.y, blueCube.w, blueCube.h)) {
+                    this.hitPlayer(CHARGE_DMG, true);
+                }
+
+                this.stateTimer--;
+                if (this.stateTimer <= 0) {
+                    this.state = 'IDLE';
+                    this.vx = 0;
+                }
+            }
+            else if (this.state === 'BEAM_WINDUP') {
+                this.color = (Math.floor(Date.now() / 100) % 2 === 0) ? COLORS.CYAN : COLORS.BLACK;
+                this.stateTimer--;
+                if (this.stateTimer <= 0) {
+                    this.state = 'BEAM_FIRING';
+                    this.stateTimer = 20; 
+                    this.fireBeam();
+                }
+            }
+            else if (this.state === 'BEAM_FIRING') {
+                this.color = COLORS.RED;
+                this.stateTimer--;
+                if (this.stateTimer <= 0) {
+                    this.state = 'IDLE';
+                }
+            }
+            else if (this.state === 'STUNNED') {
+                this.color = COLORS.GRAY;
+                this.stateTimer--;
+                if (this.stateTimer <= 0) {
+                    this.state = 'IDLE';
+                    this.color = COLORS.RED;
+                }
+            }
+        }
+
+        updatePvP() {
+            if (this.state !== 'IDLE') return; 
+
+            if (keys['ArrowLeft']) {
+                this.vx = -MOVE_SPEED;
+                this.facingRight = false;
+            }
+            if (keys['ArrowRight']) {
+                this.vx = MOVE_SPEED;
+                this.facingRight = true;
+            }
+            if (keys['ArrowUp'] && this.isGrounded) {
+                this.vy = -JUMP_FORCE;
+            }
+
+            if (keys['KeyK']) this.startCharge();
+            if (keys['KeyL']) this.startBeam();
+        }
+
+        updateAI() {
+            if (this.state !== 'IDLE') return;
+
+            const dx = blueCube.x - this.x;
+            const dy = blueCube.y - this.y;
+            const dist = Math.hypot(dx, dy);
+
+            this.facingRight = dx > 0;
+
+            const rand = Math.random();
+
+            if (dist < 400 && Math.abs(dy) < 50 && rand < 0.02) {
+
+                if (Math.random() < 0.5) this.startCharge();
+                else this.startBeam();
+                return;
+            }
+
+            if (dist > 300) {
+
+                this.vx = this.facingRight ? MOVE_SPEED * 0.6 : -MOVE_SPEED * 0.6;
+            } else if (dist < 150) {
+
+                this.vx = this.facingRight ? -MOVE_SPEED * 0.6 : MOVE_SPEED * 0.6;
+            }
+
+            if (blueCube.y < this.y - 100 && this.isGrounded && Math.random() < 0.05) {
+                this.vy = -JUMP_FORCE;
+            }
+        }
+
+        startCharge() {
+            this.state = 'CHARGE_WINDUP';
+            this.stateTimer = 40; 
+            this.vx = 0;
+        }
+
+        startBeam() {
+            this.state = 'BEAM_WINDUP';
+            this.stateTimer = 50; 
+            this.vx = 0;
+        }
+
+        fireBeam() {
+
+            const beamW = 600;
+            const beamH = 40;
+            const beamX = this.facingRight ? this.x + this.w : this.x - beamW;
+            const beamY = this.y + (this.h/2) - (beamH/2);
+
+            if (rectIntersect(beamX, beamY, beamW, beamH, blueCube.x, blueCube.y, blueCube.w, blueCube.h)) {
+                this.hitPlayer(BEAM_DMG, false);
+            }
+        }
+
+        handleWallHit() {
+
+            if (this.state === 'CHARGING') {
+                this.state = 'STUNNED';
+                this.stateTimer = 60; 
+                this.vx = this.facingRight ? -5 : 5; 
+                this.takeDamage(10); 
+            }
+        }
+
+        hitPlayer(dmg, isCharge) {
+            if (blueCube.parryActive) {
+
+                this.state = 'STUNNED';
+                this.stateTimer = 90; 
+                this.vx = this.facingRight ? -10 : 10; 
+
+                return;
+            }
+
+            blueCube.takeDamage(dmg);
+
+            blueCube.vx = this.facingRight ? 10 : -10;
+            blueCube.vy = -5;
+
+            if (isCharge) {
+                this.state = 'IDLE';
+                this.vx = 0;
+            }
+        }
+
+        draw(ctx) {
+            super.draw(ctx);
+
+            if (this.state === 'BEAM_FIRING') {
+                ctx.fillStyle = COLORS.CYAN;
+                const beamW = 600;
+                const beamH = 40;
+                const beamX = this.facingRight ? this.x + this.w : this.x - beamW;
+                const beamY = this.y + (this.h/2) - (beamH/2);
+                ctx.fillRect(beamX, beamY, beamW, beamH);
+
+                ctx.shadowBlur = 20;
+                ctx.shadowColor = "cyan";
+                ctx.fillRect(beamX, beamY, beamW, beamH);
+                ctx.shadowBlur = 0;
+            }
+        }
+    }
+
+    function rectIntersect(x1, y1, w1, h1, x2, y2, w2, h2) {
+        return x2 < x1 + w1 && x2 + w2 > x1 && y2 < y1 + h1 && y2 + h2 > y1;
+    }
+
+    let blueCube;
+    let redCube;
+
+    function initGame() {
+        blueCube = new BlueCube();
+        redCube = new RedCube();
+        updateUI();
+    }
+
+    function updateUI() {
+
+        const p1Pct = (blueCube.hp / MAX_HP) * 100;
+        const p2Pct = (redCube.hp / MAX_HP) * 100;
+        document.getElementById('p1-health').style.width = p1Pct + '%';
+        document.getElementById('p2-health').style.width = p2Pct + '%';
+
+        document.getElementById('p2-name').innerText = gameMode === 'ai' ? "AI (Red)" : "P2 (Red)";
+    }
+
+    function checkGameOver() {
+        if (gameState !== 'playing') return;
+
+        if (blueCube.dead) {
+            gameState = 'gameover';
+            winner = 'RED CUBE';
+            document.getElementById('winner-text').style.color = 'red';
+            showGameOver();
+        } else if (redCube.dead) {
+            gameState = 'gameover';
+            winner = 'BLUE CUBE';
+            document.getElementById('winner-text').style.color = 'blue';
+            showGameOver();
+        }
+    }
+
+    function gameLoop() {
+        if (gameState !== 'playing') return;
+
+        ctx.fillStyle = "#fff";
+        ctx.fillRect(0, 0, WIDTH, HEIGHT);
+
+        ctx.fillStyle = "#333";
+        ctx.fillRect(0, FLOOR_Y, WIDTH, HEIGHT - FLOOR_Y);
+
+        blueCube.update();
+        redCube.update();
+
+        redCube.draw(ctx);
+        blueCube.draw(ctx);
+
+        requestAnimationFrame(gameLoop);
+    }
+
+    function startGame(mode) {
+        gameMode = mode;
+        gameState = 'playing';
+
+        document.getElementById('menu-overlay').classList.add('hidden');
+        initGame();
+        gameLoop();
+    }
+
+    function showGameOver() {
+        document.getElementById('menu-overlay').classList.remove('hidden');
+
+        document.querySelectorAll('.menu-screen').forEach(el => el.classList.remove('active'));
+        document.getElementById('game-over-screen').classList.remove('hidden');
+        document.getElementById('winner-text').innerText = winner + " WINS!";
+    }
+
+    function restartGame() {
+        document.getElementById('game-over-screen').classList.add('hidden');
+        document.getElementById('menu-overlay').classList.add('hidden');
+        gameState = 'playing';
+        initGame();
+        gameLoop();
+    }
+
+    function showMainMenu() {
+
+        gameState = 'menu';
+
+        document.getElementById('menu-overlay').classList.remove('hidden');
+        document.getElementById('game-over-screen').classList.add('hidden');
+
+        navTo('screen-main');
+    }
+
+    ctx.fillStyle = "#333";
+    ctx.fillRect(0, 0, WIDTH, HEIGHT);
+
+</script>
+</body>
+</html>
