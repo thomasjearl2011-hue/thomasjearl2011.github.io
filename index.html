@@ -347,5 +347,29 @@
     </div>
     
     <script src="Js/Base-games.js"></script>
+    <script type="module">
+        // Import the functions you need from the SDKs you need
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-app.js";
+        import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-analytics.js";
+        // TODO: Add SDKs for Firebase products that you want to use
+        // https://firebase.google.com/docs/web/setup#available-libraries
+
+        // Your web app's Firebase configuration
+        // For Firebase JS SDK v7.20.0 and later, measurementId is optional
+        const firebaseConfig = {
+            apiKey: "AIzaSyDWGcagecOrdCn7BuBeA72ICFkeH7QWePc",
+            authDomain: "nexus-hub-caeab.firebaseapp.com",
+            databaseURL: "https://nexus-hub-caeab-default-rtdb.asia-southeast1.firebasedatabase.app",
+            projectId: "nexus-hub-caeab",
+            storageBucket: "nexus-hub-caeab.firebasestorage.app",
+            messagingSenderId: "45490042276",
+            appId: "1:45490042276:web:5dd49816f386fc23193d31",
+            measurementId: "G-MM3NHNWYZX"
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const analytics = getAnalytics(app);
+    </script>
 </body>
 </html>
