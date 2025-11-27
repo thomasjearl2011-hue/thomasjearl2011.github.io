@@ -265,9 +265,18 @@
             <div class="sub-title">SELECT GAME MODE</div>
 
             <button class="btn btn-red" onclick="startGame('ai')">PLAYER VS AI</button>
-            <button class="btn btn-blue" onclick="startGame('pvp')">PLAYER VS PLAYER</button>
+            <button class="btn btn-blue" onclick="navTo('screen-pvp-submenu')">PLAYER VS PLAYER</button>
             <div style="height: 20px;"></div>
             <button class="btn btn-gray" onclick="navTo('screen-main')">BACK</button>
+        </div>
+
+        <div id="screen-pvp-submenu" class="menu-screen">
+            <div class="sub-title">PLAYER VS PLAYER</div>
+
+            <button class="btn btn-blue" onclick="startGame('pvp')">LOCAL MULTIPLAYER</button>
+            <button class="btn btn-cyan" onclick="alert('P2P multiplayer is not implemented yet.')">P2P MULTIPLAYER</button>
+            <div style="height: 20px;"></div>
+            <button class="btn btn-gray" onclick="navTo('screen-modes')">BACK</button>
         </div>
 
         <div id="screen-cubes" class="menu-screen">
@@ -305,10 +314,10 @@
     const CUBE_DATA = [
         { id: 1, name: "Cube 1", color: "blue", hp: 100, attacks: "Slash, Parry" },
         { id: 2, name: "Cube 2", color: "red", hp: 100, attacks: "Charge, Beam" },
-        { id: 3, name: "Cube 3", color: "green", hp: 100, attacks: "None" },
-        { id: 4, name: "Cube 4", color: "pink", hp: 100, attacks: "None" },
-        { id: 5, name: "Cube 5", color: "brown", hp: 75, attacks: "None" },
-        { id: 6, name: "Cube 6", color: "purple", hp: 75, attacks: "None" }
+        { id: 3, name: "Cube 3", color: "green", hp: 100, attacks: "Placeholder" },
+        { id: 4, name: "Cube 4", color: "pink", hp: 100, attacks: "Placeholder" },
+        { id: 5, name: "Cube 5", color: "brown", hp: 75, attacks: "Placeholder" },
+        { id: 6, name: "Cube 6", color: "purple", hp: 75, attacks: "Placeholder" }
     ];
 
     const ACHIEVEMENT_DATA = [
@@ -316,7 +325,8 @@
         { id: 2, name: "Sharpshooter", desc: "Hit 5 beams in a row", unlocks: "Cube 4", unlocked: false },
         { id: 3, name: "Unstoppable", desc: "Win without taking damage", unlocks: "Cube 5", unlocked: false },
         { id: 4, name: "Wombo Combo", desc: "Absoultely combo the red Ai cube", unlocks: "Cube 6", unlocked: false },
-        { id: 5, name: "Cube Master", desc: "Unlock all cubes", unlocks: "Golden Skin", unlocked: false }
+        { id: 5, name: "What...No, this is guy hacking", desc: "Discover the unpatchable combo", unlocks: "Cube 7", unlocked: false },
+        { id: 6, name: "Cube Master", desc: "Unlock all cubes", unlocks: "Master Cube", unlocked: false }
     ];
 
     function navTo(screenId) {
