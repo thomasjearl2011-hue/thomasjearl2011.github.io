@@ -25,7 +25,7 @@ Games Tab: 🟢
 
     Reflex Tester: 🟢
 
-    Cube Combat: 🟡 but 🔴
+    Cube Combat: 🟡
 
 Test branch: 🟠
 
