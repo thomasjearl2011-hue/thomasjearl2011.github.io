@@ -3,7 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cube Combat (html port)</title>
+    <title>Cube Combat</title>
+    <script src="https://unpkg.com/peerjs@1.5.1/dist/peerjs.min.js"></script>
     <style>
         body {
             margin: 0;
@@ -138,6 +139,7 @@
         .btn-gray { background: #646464; color: black; } 
         .btn-red { background: #FF0000; color: black; } 
         .btn-cyan { background: #00FFFF; color: black; } 
+        .btn-orange { background: #FFA500; color: black; }
 
         .cubes-layout {
             display: flex;
@@ -172,7 +174,7 @@
             filter: grayscale(100%) brightness(0.4);
         }
         .cube-icon.locked::after {
-            content: '🔒'; /* lock icon */
+            content: '🔒'; 
             position: absolute;
             top: 50%;
             left: 50%;
@@ -192,7 +194,7 @@
             flex-direction: column;
             color: white;
             box-sizing: border-box;
-            overflow-y: auto; /* keep all stats inside the tab and scroll if needed */
+            overflow-y: auto; 
         }
 
         .detail-row { margin-bottom: 15px; }
@@ -220,6 +222,20 @@
         .achievement-item.locked { background: #444; color: #aaa; }
 
         .hidden { display: none !important; }
+
+        .p2p-input {
+            width: 400px;
+            padding: 10px;
+            font-size: 18px;
+            text-align: center;
+            margin: 10px;
+        }
+        .p2p-status {
+            color: yellow;
+            margin-bottom: 15px;
+            font-size: 18px;
+            height: 24px;
+        }
 
         ::-webkit-scrollbar { width: 10px; }
         ::-webkit-scrollbar-track { background: #222; }
@@ -274,9 +290,35 @@
             <div class="sub-title">PLAYER VS PLAYER</div>
 
             <button class="btn btn-blue" onclick="startGame('pvp')">LOCAL MULTIPLAYER</button>
-            <button class="btn btn-cyan" onclick="alert('P2P multiplayer is not implemented yet.')">P2P MULTIPLAYER</button>
+            <button class="btn btn-cyan" onclick="navTo('screen-p2p-lobby')">P2P MULTIPLAYER</button>
             <div style="height: 20px;"></div>
             <button class="btn btn-gray" onclick="navTo('screen-modes')">BACK</button>
+        </div>
+
+        <div id="screen-p2p-lobby" class="menu-screen">
+            <div class="sub-title">P2P LOBBY</div>
+
+            <div id="p2p-status-msg" class="p2p-status">Select Host or Join</div>
+
+            <div id="p2p-host-section" style="display:none; text-align:center;">
+                <div style="color:#aaa; font-size:14px;">Share this ID with your friend:</div>
+                <input type="text" id="host-id-display" class="p2p-input" readonly value="Generating ID..." onclick="this.select()">
+                <div style="color: #00aa00; margin-top:5px;">Waiting for connection...</div>
+            </div>
+
+            <div id="p2p-join-section" style="display:none; text-align:center;">
+                <div style="color:#aaa; font-size:14px;">Enter Host ID:</div>
+                <input type="text" id="join-id-input" class="p2p-input" placeholder="Paste ID here">
+                <button class="btn btn-green" style="width:200px; margin: 10px auto;" onclick="connectToHost()">CONNECT</button>
+            </div>
+
+            <div id="p2p-buttons">
+                <button class="btn btn-orange" onclick="initP2PHost()">HOST GAME</button>
+                <button class="btn btn-cyan" onclick="initP2PJoin()">JOIN GAME</button>
+            </div>
+
+            <div style="height: 20px;"></div>
+            <button class="btn btn-gray" onclick="resetP2P(); navTo('screen-pvp-submenu')">BACK</button>
         </div>
 
         <div id="screen-cubes" class="menu-screen">
@@ -329,10 +371,13 @@
         { id: 6, name: "Cube Master", desc: "Unlock all cubes", unlocks: "Master Cube", unlocked: false }
     ];
 
+    let peer = null;
+    let conn = null;
+    let p2pRole = null; 
+    let networkKeys = {}; 
+
     function navTo(screenId) {
-
         document.querySelectorAll('.menu-screen').forEach(el => el.classList.remove('active'));
-
         document.getElementById(screenId).classList.add('active');
     }
 
@@ -342,8 +387,6 @@
 
         CUBE_DATA.forEach((cube, index) => {
             const div = document.createElement('div');
-
-            // Determine if this cube is locked by an achievement
             const unlockingAchievement = ACHIEVEMENT_DATA.find(a => a.unlocks === cube.name);
             const isLocked = unlockingAchievement && !unlockingAchievement.unlocked;
 
@@ -355,18 +398,14 @@
             } else {
                 div.title = 'Locked - unlock "' + unlockingAchievement.name + '" to use this cube';
             }
-
             container.appendChild(div);
         });
-
         document.getElementById('cube-details-panel').innerHTML = '<div style="text-align: center; margin-top: 50px; color: #aaa;">Select a cube to view details</div>';
     }
 
     function selectCube(cube, element) {
-
         document.querySelectorAll('.cube-icon').forEach(el => el.classList.remove('selected'));
         element.classList.add('selected');
-
         const panel = document.getElementById('cube-details-panel');
         panel.innerHTML = `
             <div style="text-align:center; margin-bottom:20px;">
@@ -435,19 +474,123 @@
     const keys = {};
     window.addEventListener('keydown', e => {
         keys[e.code] = true;
-
         if (e.code === 'Escape') {
-            if (gameState === 'playing') {
-                showMainMenu();
-            } else if (gameState === 'menu') {
-
-                if(!document.getElementById('screen-main').classList.contains('active')){
-                    navTo('screen-main');
-                }
-            }
+            if (gameState === 'playing') showMainMenu();
+            else if (gameState === 'menu' && !document.getElementById('screen-main').classList.contains('active')) navTo('screen-main');
         }
     });
     window.addEventListener('keyup', e => keys[e.code] = false);
+
+    function initP2PHost() {
+        resetP2P();
+        document.getElementById('p2p-buttons').style.display = 'none';
+        document.getElementById('p2p-host-section').style.display = 'block';
+        document.getElementById('p2p-status-msg').innerText = "Initializing Peer...";
+
+        peer = new Peer(); 
+
+        peer.on('open', (id) => {
+            document.getElementById('host-id-display').value = id;
+            document.getElementById('p2p-status-msg').innerText = "Wait for Player 2 to join...";
+            p2pRole = 'host';
+        });
+
+        peer.on('connection', (c) => {
+            conn = c;
+            setupConnection();
+        });
+    }
+
+    function initP2PJoin() {
+        resetP2P();
+        document.getElementById('p2p-buttons').style.display = 'none';
+        document.getElementById('p2p-join-section').style.display = 'block';
+        p2pRole = 'client';
+    }
+
+    function connectToHost() {
+        const hostId = document.getElementById('join-id-input').value.trim();
+        if(!hostId) return alert("Please enter the Host ID");
+
+        document.getElementById('p2p-status-msg').innerText = "Connecting...";
+        peer = new Peer();
+
+        peer.on('open', () => {
+            conn = peer.connect(hostId);
+            setupConnection();
+        });
+
+        peer.on('error', (err) => alert("Connection Error: " + err));
+    }
+
+    function setupConnection() {
+        conn.on('open', () => {
+            document.getElementById('p2p-status-msg').innerText = "Connected! Starting Game...";
+
+            if (p2pRole === 'host') {
+                setTimeout(() => startGame('p2p'), 1000);
+            }
+        });
+
+        conn.on('data', (data) => {
+            handleNetworkData(data);
+        });
+
+        conn.on('close', () => {
+            alert("Connection lost");
+            showMainMenu();
+        });
+    }
+
+    function resetP2P() {
+        if(peer) peer.destroy();
+        peer = null;
+        conn = null;
+        p2pRole = null;
+        networkKeys = {};
+        document.getElementById('p2p-buttons').style.display = 'block';
+        document.getElementById('p2p-host-section').style.display = 'none';
+        document.getElementById('p2p-join-section').style.display = 'none';
+        document.getElementById('p2p-status-msg').innerText = "Select Host or Join";
+        document.getElementById('join-id-input').value = "";
+    }
+
+    function handleNetworkData(data) {
+        if (data.type === 'INPUT') {
+
+            networkKeys = data.keys;
+        } else if (data.type === 'STATE') {
+
+            if (gameState !== 'playing') startGame('p2p');
+
+            applyStateToCube(blueCube, data.p1);
+            applyStateToCube(redCube, data.p2);
+        } else if (data.type === 'GAMEOVER') {
+             gameState = 'gameover';
+             winner = data.winner;
+             showGameOver();
+        } else if (data.type === 'RESTART') {
+            restartGame(true);
+        }
+    }
+
+    function applyStateToCube(cube, state) {
+        cube.x = state.x;
+        cube.y = state.y;
+        cube.w = state.w;
+        cube.h = state.h;
+        cube.color = state.color;
+        cube.hp = state.hp;
+        cube.facingRight = state.facingRight;
+
+        cube.slashActive = state.slashActive;
+        cube.parryActive = state.parryActive;
+
+        if(cube instanceof RedCube) {
+            cube.state = state.state; 
+            cube.beamActive = (state.state === 'BEAM_FIRING');
+        }
+    }
 
     class Entity {
         constructor(x, y, color) {
@@ -465,6 +608,9 @@
         }
 
         update() {
+
+            if (gameMode === 'p2p' && p2pRole === 'client') return;
+
             if (this.dead) return;
 
             this.vy += GRAVITY;
@@ -502,6 +648,9 @@
         }
 
         takeDamage(amount) {
+
+            if (gameMode === 'p2p' && p2pRole === 'client') return;
+
             if (this.dead) return;
             this.hp -= amount;
             if (this.hp <= 0) {
@@ -516,11 +665,9 @@
     class BlueCube extends Entity {
         constructor() {
             super(50, FLOOR_Y - CUBE_SIZE, COLORS.BLUE);
-
             this.slashCooldown = 0;
             this.slashActive = false;
             this.slashTimer = 0;
-
             this.parryActive = false;
             this.parryTimer = 0;
             this.parryCooldown = 0;
@@ -528,30 +675,34 @@
 
         update() {
             super.update();
+            if (gameMode === 'p2p' && p2pRole === 'client') return; 
+
             if (this.dead) return;
 
             if (this.slashCooldown > 0) this.slashCooldown--;
             if (this.parryCooldown > 0) this.parryCooldown--;
 
+            const input = keys; 
+
             if (!this.parryActive) {
-                if (keys['KeyA']) {
+                if (input['KeyA']) {
                     this.vx = -MOVE_SPEED;
                     this.facingRight = false;
                 }
-                if (keys['KeyD']) {
+                if (input['KeyD']) {
                     this.vx = MOVE_SPEED;
                     this.facingRight = true;
                 }
-                if (keys['KeyW'] && this.isGrounded) {
+                if (input['KeyW'] && this.isGrounded) {
                     this.vy = -JUMP_FORCE;
                 }
 
-                if (keys['Space'] && this.slashCooldown <= 0) {
+                if (input['Space'] && this.slashCooldown <= 0) {
                     this.performSlash();
                 }
             }
 
-            if (keys['KeyF'] && this.parryCooldown <= 0 && !this.parryActive) {
+            if (input['KeyF'] && this.parryCooldown <= 0 && !this.parryActive) {
                 this.parryActive = true;
                 this.parryTimer = 30; 
                 this.color = COLORS.BLACK; 
@@ -587,7 +738,6 @@
             if (!redCube.dead && rectIntersect(hitX, hitY, reach, this.h, redCube.x, redCube.y, redCube.w, redCube.h)) {
                 if (!redCube.isInvincible) {
                     redCube.takeDamage(SLASH_DMG);
-
                     redCube.vx = this.facingRight ? 10 : -10;
                     redCube.vy = -5;
                 }
@@ -596,6 +746,7 @@
 
         draw(ctx) {
             super.draw(ctx);
+            if (this.dead) return;
 
             if (this.slashActive) {
                 ctx.fillStyle = "rgba(128, 0, 128, 0.6)"; 
@@ -618,42 +769,23 @@
         constructor() {
             super(WIDTH - 100, FLOOR_Y - CUBE_SIZE, COLORS.RED);
             this.facingRight = false;
-
             this.state = 'IDLE'; 
             this.stateTimer = 0;
             this.isInvincible = false;
-
-            this.aiMoveTimer = 0;
-            this.aiTargetX = 0;
+            this.beamActive = false; 
         }
 
         update() {
+            super.update(); 
+            if (gameMode === 'p2p' && p2pRole === 'client') return; 
 
             if (this.state !== 'CHARGING') this.isInvincible = false;
-
             if (this.dead) return;
 
-            this.vy += GRAVITY;
-            this.x += this.vx;
-            this.y += this.vy;
-
-            if (this.y + this.h >= FLOOR_Y) {
-                this.y = FLOOR_Y - this.h;
-                this.vy = 0;
-                this.isGrounded = true;
-            } else {
-                this.isGrounded = false;
-            }
-            if (this.x < 0) { this.x = 0; this.handleWallHit(); }
-            if (this.x + this.w > WIDTH) { this.x = WIDTH - this.w; this.handleWallHit(); }
-
-            if (this.state !== 'CHARGING') {
-                this.vx *= FRICTION;
-                if (Math.abs(this.vx) < 0.1) this.vx = 0;
-            }
-
             if (gameMode === 'pvp') {
-                this.updatePvP();
+                this.updatePvP(keys); 
+            } else if (gameMode === 'p2p') {
+                this.updatePvP(networkKeys); 
             } else {
                 this.updateAI();
             }
@@ -670,11 +802,9 @@
             } 
             else if (this.state === 'CHARGING') {
                 this.color = COLORS.RED;
-
                 if (rectIntersect(this.x, this.y, this.w, this.h, blueCube.x, blueCube.y, blueCube.w, blueCube.h)) {
                     this.hitPlayer(CHARGE_DMG, true);
                 }
-
                 this.stateTimer--;
                 if (this.stateTimer <= 0) {
                     this.state = 'IDLE';
@@ -707,51 +837,43 @@
             }
         }
 
-        updatePvP() {
+        updatePvP(inputSource) {
             if (this.state !== 'IDLE') return; 
 
-            if (keys['ArrowLeft']) {
+            if (inputSource['ArrowLeft']) {
                 this.vx = -MOVE_SPEED;
                 this.facingRight = false;
             }
-            if (keys['ArrowRight']) {
+            if (inputSource['ArrowRight']) {
                 this.vx = MOVE_SPEED;
                 this.facingRight = true;
             }
-            if (keys['ArrowUp'] && this.isGrounded) {
+            if (inputSource['ArrowUp'] && this.isGrounded) {
                 this.vy = -JUMP_FORCE;
             }
 
-            if (keys['KeyK']) this.startCharge();
-            if (keys['KeyL']) this.startBeam();
+            if (inputSource['KeyK']) this.startCharge();
+            if (inputSource['KeyL']) this.startBeam();
         }
 
         updateAI() {
             if (this.state !== 'IDLE') return;
-
             const dx = blueCube.x - this.x;
             const dy = blueCube.y - this.y;
             const dist = Math.hypot(dx, dy);
-
             this.facingRight = dx > 0;
-
             const rand = Math.random();
 
             if (dist < 400 && Math.abs(dy) < 50 && rand < 0.02) {
-
                 if (Math.random() < 0.5) this.startCharge();
                 else this.startBeam();
                 return;
             }
-
             if (dist > 300) {
-
                 this.vx = this.facingRight ? MOVE_SPEED * 0.6 : -MOVE_SPEED * 0.6;
             } else if (dist < 150) {
-
                 this.vx = this.facingRight ? -MOVE_SPEED * 0.6 : MOVE_SPEED * 0.6;
             }
-
             if (blueCube.y < this.y - 100 && this.isGrounded && Math.random() < 0.05) {
                 this.vy = -JUMP_FORCE;
             }
@@ -770,19 +892,16 @@
         }
 
         fireBeam() {
-
             const beamW = 600;
             const beamH = 40;
             const beamX = this.facingRight ? this.x + this.w : this.x - beamW;
             const beamY = this.y + (this.h/2) - (beamH/2);
-
             if (rectIntersect(beamX, beamY, beamW, beamH, blueCube.x, blueCube.y, blueCube.w, blueCube.h)) {
                 this.hitPlayer(BEAM_DMG, false);
             }
         }
 
         handleWallHit() {
-
             if (this.state === 'CHARGING') {
                 this.state = 'STUNNED';
                 this.stateTimer = 60; 
@@ -793,16 +912,12 @@
 
         hitPlayer(dmg, isCharge) {
             if (blueCube.parryActive) {
-
                 this.state = 'STUNNED';
                 this.stateTimer = 90; 
                 this.vx = this.facingRight ? -10 : 10; 
-
                 return;
             }
-
             blueCube.takeDamage(dmg);
-
             blueCube.vx = this.facingRight ? 10 : -10;
             blueCube.vy = -5;
 
@@ -815,7 +930,7 @@
         draw(ctx) {
             super.draw(ctx);
 
-            if (this.state === 'BEAM_FIRING') {
+            if (this.state === 'BEAM_FIRING' || (gameMode === 'p2p' && p2pRole === 'client' && this.beamActive)) {
                 ctx.fillStyle = COLORS.CYAN;
                 const beamW = 600;
                 const beamH = 40;
@@ -845,29 +960,36 @@
     }
 
     function updateUI() {
-
         const p1Pct = (blueCube.hp / MAX_HP) * 100;
         const p2Pct = (redCube.hp / MAX_HP) * 100;
         document.getElementById('p1-health').style.width = p1Pct + '%';
         document.getElementById('p2-health').style.width = p2Pct + '%';
 
-        document.getElementById('p2-name').innerText = gameMode === 'ai' ? "AI (Red)" : "P2 (Red)";
+        let name = "AI (Red)";
+        if(gameMode === 'pvp') name = "P2 (Local)";
+        if(gameMode === 'p2p') name = "P2 (Online)";
+        document.getElementById('p2-name').innerText = name;
     }
 
     function checkGameOver() {
         if (gameState !== 'playing') return;
 
         if (blueCube.dead) {
-            gameState = 'gameover';
-            winner = 'RED CUBE';
-            document.getElementById('winner-text').style.color = 'red';
-            showGameOver();
+            finishGame('RED CUBE');
         } else if (redCube.dead) {
-            gameState = 'gameover';
-            winner = 'BLUE CUBE';
-            document.getElementById('winner-text').style.color = 'blue';
-            showGameOver();
+            finishGame('BLUE CUBE');
         }
+    }
+
+    function finishGame(winnerName) {
+        gameState = 'gameover';
+        winner = winnerName;
+
+        if(gameMode === 'p2p' && p2pRole === 'host' && conn) {
+            conn.send({ type: 'GAMEOVER', winner: winnerName });
+        }
+
+        showGameOver();
     }
 
     function gameLoop() {
@@ -875,12 +997,45 @@
 
         ctx.fillStyle = "#fff";
         ctx.fillRect(0, 0, WIDTH, HEIGHT);
-
         ctx.fillStyle = "#333";
         ctx.fillRect(0, FLOOR_Y, WIDTH, HEIGHT - FLOOR_Y);
 
-        blueCube.update();
-        redCube.update();
+        if (gameMode === 'p2p') {
+            if (p2pRole === 'host') {
+
+                blueCube.update();
+                redCube.update();
+
+                if(conn && conn.open) {
+                    conn.send({
+                        type: 'STATE',
+                        p1: { 
+                            x: blueCube.x, y: blueCube.y, w: blueCube.w, h: blueCube.h, 
+                            color: blueCube.color, hp: blueCube.hp, facingRight: blueCube.facingRight,
+                            slashActive: blueCube.slashActive, parryActive: blueCube.parryActive 
+                        },
+                        p2: { 
+                            x: redCube.x, y: redCube.y, w: redCube.w, h: redCube.h, 
+                            color: redCube.color, hp: redCube.hp, facingRight: redCube.facingRight,
+                            state: redCube.state 
+                        }
+                    });
+                }
+            } else if (p2pRole === 'client') {
+
+                if(conn && conn.open) {
+                    conn.send({
+                        type: 'INPUT',
+                        keys: keys
+                    });
+                }
+
+            }
+        } else {
+
+            blueCube.update();
+            redCube.update();
+        }
 
         redCube.draw(ctx);
         blueCube.draw(ctx);
@@ -893,33 +1048,57 @@
         gameState = 'playing';
 
         document.getElementById('menu-overlay').classList.add('hidden');
-        initGame();
+
+        if(mode !== 'p2p' || p2pRole === 'host') {
+             initGame();
+        }
+
+        if(mode === 'p2p' && p2pRole === 'host' && blueCube) {
+            blueCube.hp = MAX_HP; blueCube.dead = false;
+            redCube.hp = MAX_HP; redCube.dead = false;
+            redCube.x = WIDTH - 100; redCube.y = FLOOR_Y - CUBE_SIZE;
+            blueCube.x = 50; blueCube.y = FLOOR_Y - CUBE_SIZE;
+        }
+
         gameLoop();
     }
 
     function showGameOver() {
         document.getElementById('menu-overlay').classList.remove('hidden');
-
         document.querySelectorAll('.menu-screen').forEach(el => el.classList.remove('active'));
         document.getElementById('game-over-screen').classList.remove('hidden');
-        document.getElementById('winner-text').innerText = winner + " WINS!";
+
+        const color = (winner.includes('BLUE')) ? 'blue' : 'red';
+        const txt = document.getElementById('winner-text');
+        txt.innerText = winner + " WINS!";
+        txt.style.color = color;
     }
 
-    function restartGame() {
+    function restartGame(isRemoteTrigger = false) {
+
+        if (gameMode === 'p2p' && p2pRole === 'host' && !isRemoteTrigger) {
+             conn.send({ type: 'RESTART' });
+        }
+
         document.getElementById('game-over-screen').classList.add('hidden');
         document.getElementById('menu-overlay').classList.add('hidden');
         gameState = 'playing';
-        initGame();
+
+        if(gameMode !== 'p2p' || p2pRole === 'host') {
+            initGame();
+        }
+
         gameLoop();
     }
 
     function showMainMenu() {
-
         gameState = 'menu';
-
+        if(conn) {
+            conn.close();
+            resetP2P();
+        }
         document.getElementById('menu-overlay').classList.remove('hidden');
         document.getElementById('game-over-screen').classList.add('hidden');
-
         navTo('screen-main');
     }
 
