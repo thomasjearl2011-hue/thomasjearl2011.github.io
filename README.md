@@ -31,4 +31,4 @@ Test branch: 🟠
 
 Store: 🟨
 
-Community Forms: 🔴
+Announcements: 🟨
