@@ -12,12 +12,12 @@
 <body class="h-screen flex overflow-hidden selection:bg-indigo-500 selection:text-white">
 
     <aside class="w-20 lg:w-64 flex-shrink-0 bg-slate-900 border-r border-slate-800 flex flex-col transition-all duration-300">
-        
+
         <div class="h-16 flex items-center justify-center lg:justify-start lg:px-6 border-b border-slate-800">
             <i class="fa-solid fa-gamepad text-indigo-500 text-2xl"></i>
             <span class="ml-3 font-bold text-xl hidden lg:block text-white tracking-tight">NEXUS</span>
         </div>
-        
+
         <nav class="flex-1 py-6 space-y-2 px-2">
             <button onclick="switchTab('home')" class="nav-btn w-full flex items-center p-3 rounded-lg text-slate-400 hover:bg-slate-800 hover:text-white transition-colors group relative" id="nav-home">
                 <i class="fa-solid fa-house text-xl w-8 text-center group-hover:text-indigo-400"></i>
@@ -65,12 +65,12 @@
             <span class="font-bold text-xl text-white">NEXUS</span>
             <button class="text-slate-400"><i class="fa-solid fa-bars text-xl"></i></button>
         </header>
-        
+
         <section id="view-home" class="p-6 lg:p-10 max-w-7xl mx-auto animate-fade-in">
-            
+
             <div class="relative rounded-2xl overflow-hidden bg-slate-800 h-64 md:h-80 flex items-end p-8 mb-10 shadow-2xl">
                 <div class="absolute inset-0 bg-gradient-to-t from-slate-900 via-slate-900/40 to-transparent z-10"></div>
-                
+
                 <div class="absolute inset-0 z-0 opacity-60">
                     <div class="absolute top-0 left-0 w-full h-full bg-[url('https://i.ytimg.com/vi/PcEjw0nW3VY/hq720.jpg?sqp=-oaymwEhCK4FEIIDSFryq4qpAxMIARUAAAAAGAElAADIQj0AgKJD&rs=AOn4CLBCF-21EYyYCFleSu7pY3g8JShemg')] bg-cover bg-center"></div>
                 </div>
@@ -89,7 +89,7 @@
                     </div>
                 </div>
             </div>
-            
+
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
                 <div class="glass-panel p-6 rounded-xl flex items-center border border-slate-700/50">
                     <div class="w-12 h-12 rounded-lg bg-indigo-500/20 text-indigo-400 flex items-center justify-center text-2xl mr-4">
@@ -125,7 +125,7 @@
             </h2>
 
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                
+
                 <div onclick="switchTab('games')" class="group cursor-pointer">
                     <div class="aspect-video bg-slate-800 rounded-xl overflow-hidden mb-3 relative">
                         <img src="https://www.nomadfoods.com/wp-content/uploads/2018/08/placeholder-1-e1533569576673-960x960.png" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110">
@@ -134,7 +134,7 @@
                     <h3 class="font-bold text-white group-hover:text-indigo-400 transition-colors">Neon Tic-Tac-Toe</h3>
                     <p class="text-xs text-slate-500">Puzzle • Arcade</p>
                 </div>
-                
+
                 <div onclick="switchTab('games')" class="group cursor-pointer">
                     <div class="aspect-video bg-slate-800 rounded-xl overflow-hidden mb-3 relative">
                         <img src="https://www.nomadfoods.com/wp-content/uploads/2018/08/placeholder-1-e1533569576673-960x960.png" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110">
@@ -142,7 +142,7 @@
                     <h3 class="font-bold text-white group-hover:text-indigo-400 transition-colors">Cyber Snake</h3>
                     <p class="text-xs text-slate-500">Arcade • Fun</p>
                 </div>
-                
+
                 <div onclick="switchTab('games')" class="group cursor-pointer">
                     <div class="aspect-video bg-slate-800 rounded-xl overflow-hidden mb-3 relative">
                         <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTIZ6BWPtTgZujyHCqJkW-TKqv3Jy2QibC77w&s" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110">
@@ -152,7 +152,7 @@
                 </div>
             </div>
         </section>
-        
+
         <section id="view-games" class="p-6 lg:p-10 max-w-7xl mx-auto hidden animate-fade-in">
             <div class="flex items-center justify-between mb-8">
                 <div>
@@ -166,7 +166,6 @@
 
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
 
-                
                 <div class="bg-slate-800 rounded-xl overflow-hidden border border-slate-700 hover:border-indigo-500 transition-all hover:shadow-lg hover:shadow-indigo-500/10 group">
                     <div class="h-40 bg-gradient-to-br from-indigo-600 to-purple-700 flex items-center justify-center relative overflow-hidden">
                         <i class="fa-solid fa-x absolute text-9xl text-white opacity-10 -left-4 -bottom-4"></i>
@@ -181,7 +180,7 @@
                         </button>
                     </div>
                 </div>
-                
+
                 <div class="bg-slate-800 rounded-xl overflow-hidden border border-slate-700 hover:border-emerald-500 transition-all hover:shadow-lg hover:shadow-emerald-500/10 group">
                     <div class="h-40 bg-gradient-to-br from-emerald-600 to-teal-700 flex items-center justify-center relative overflow-hidden">
                         <i class="fa-solid fa-worm absolute text-9xl text-white opacity-10 -right-2 top-2"></i>
@@ -195,7 +194,7 @@
                         </button>
                     </div>
                 </div>
-                
+
                 <div class="bg-slate-800 rounded-xl overflow-hidden border border-slate-700 hover:border-orange-500 transition-all hover:shadow-lg hover:shadow-orange-500/10 group">
                     <div class="h-40 bg-gradient-to-br from-orange-600 to-red-700 flex items-center justify-center relative overflow-hidden">
                         <i class="fa-solid fa-bolt absolute text-9xl text-white opacity-10 left-10 top-0"></i>
@@ -226,7 +225,6 @@
                 </div>
             </div>
 
-                
                 <div class="bg-slate-800/50 rounded-xl overflow-hidden border border-slate-700 border-dashed flex items-center justify-center flex-col p-8 opacity-70 hover:opacity-100 transition-opacity">
                     <div class="w-16 h-16 rounded-full bg-slate-700 flex items-center justify-center mb-4">
                         <i class="fa-solid fa-plus text-slate-400"></i>
@@ -236,7 +234,7 @@
 
             </div>
         </section>
-        
+
         <section id="view-store" class="p-6 lg:p-10 max-w-7xl mx-auto hidden animate-fade-in">
             <div class="text-center py-20">
                 <div class="inline-flex items-center justify-center w-24 h-24 rounded-full bg-slate-800 mb-6">
@@ -249,7 +247,7 @@
                 </button>
             </div>
         </section>
-        
+
         <section id="view-community" class="p-6 lg:p-10 max-w-7xl mx-auto hidden animate-fade-in">
              <div class="bg-slate-800 rounded-xl p-8 border border-slate-700 text-center">
                 <i class="fa-solid fa-comments text-5xl text-amber-500 mb-4"></i>
@@ -269,12 +267,12 @@
                 </div>
              </div>
         </section>
-        
+
         <section id="view-settings" class="p-6 lg:p-10 max-w-3xl mx-auto hidden animate-fade-in">
             <h1 class="text-3xl font-bold text-white mb-8">Settings</h1>
 
             <div class="space-y-6">
-                
+
                 <div class="bg-slate-800 rounded-xl p-6 border border-slate-700">
                     <h2 class="text-lg font-bold text-white mb-4 flex items-center">
                         <i class="fa-solid fa-display text-slate-400 mr-2"></i> Display
@@ -294,7 +292,7 @@
                         </div>
                     </div>
                 </div>
-                
+
                 <div class="bg-slate-800 rounded-xl p-6 border border-slate-700">
                     <h2 class="text-lg font-bold text-white mb-4 flex items-center">
                         <i class="fa-solid fa-volume-high text-slate-400 mr-2"></i> Audio
@@ -315,25 +313,24 @@
         </section>
 
     </main>
-    
+
     <div id="game-overlay" class="fixed inset-0 bg-slate-900/95 z-50 hidden flex-col items-center justify-center backdrop-blur-sm">
-        
+
         <div class="w-full max-w-4xl flex justify-between items-center px-6 py-4 absolute top-0">
             <h2 id="active-game-title" class="text-2xl font-bold text-white tracking-wider">GAME TITLE</h2>
             <button onclick="closeGame()" class="px-4 py-2 bg-slate-800 hover:bg-red-500/20 text-slate-300 hover:text-red-400 rounded-lg transition-colors border border-slate-700">
                 <i class="fa-solid fa-xmark mr-2"></i> Exit Game
             </button>
         </div>
-        
+
         <div class="relative bg-black rounded-lg shadow-2xl border border-slate-700 p-1 flex flex-col items-center">
-            
+
             <canvas id="game-canvas" width="400" height="400" class="hidden bg-slate-800 cursor-crosshair"></canvas>
-            
+
             <div id="ttt-board" class="hidden grid-cols-3 gap-2 bg-slate-700 p-2 w-[320px] h-[320px]">
-                
+
             </div>
 
-            
             <div id="game-ui-layer" class="absolute inset-0 flex flex-col items-center justify-center bg-black/80 z-10">
                 <h3 id="game-status-title" class="text-3xl font-black text-white mb-2 uppercase italic tracking-widest">Ready?</h3>
                 <p id="game-status-desc" class="text-slate-300 mb-6 text-center px-4">Press start to play</p>
@@ -347,19 +344,15 @@
             Use Arrow Keys to move
         </div>
     </div>
-    
+
     <script src="Js/Base-games.js"></script>
     <script type="module">
-        // Import the functions you need from the SDKs you need
+
         import { initializeApp } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-app.js";
         import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-analytics.js";
-        // *** FIX APPLIED HERE: ADDED 'onValue' ***
-        import { getDatabase, ref, set, onValue } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-database.js";
-        // TODO: Add SDKs for Firebase products that you want to use
-        // https://firebase.google.com/docs/web/setup#available-libraries
 
-        // Your web app's Firebase configuration
-        // For Firebase JS SDK v7.20.0 and later, measurementId is optional
+        import { getDatabase, ref, set, onValue } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-database.js";
+
         const firebaseConfig = {
             apiKey: "AIzaSyDWGcagecOrdCn7BuBeA72ICFkeH7QWePc",
             authDomain: "nexus-hub-caeab.firebaseapp.com",
@@ -371,25 +364,19 @@
             measurementId: "G-MM3NHNWYZX"
         };
 
-        // Initialize Firebase
-       // ... (Your imports and firebaseConfig are already here) ...
-
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
 
-        // Connect to the specific "announcement" spot in the database
         const announcementRef = ref(db, 'announcement');
 
-        // "onValue" runs automatically whenever the database changes
         onValue(announcementRef, (snapshot) => {
             const data = snapshot.val();
             const displayElement = document.getElementById('live-announcement');
 
         if (data && data.message) {
-            // Update the text on the screen
+
             displayElement.innerText = data.message;
-      
-            // Optional: Add a subtle flash effect to show it updated
+
             displayElement.style.opacity = '0.5';
             setTimeout(() => displayElement.style.opacity = '1', 300);
         } else {
