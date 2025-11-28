@@ -4,23 +4,76 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Test Branch</title>
-    <link rel="stylesheet" href="../styles.css">
-</head>
-<body>
-    <header>
-        <h1>Welcome to the Test Branch Page</h1>
+    <script src="https://cdn.tailwindcss.com"></script>
+    </head>
+<body class="bg-gray-900 text-white min-h-screen">
+
+    <header class="p-4 bg-gray-800 shadow-lg">
+        <h1 class="text-3xl font-bold text-teal-400">🎮 Welcome to the Test Branch Page</h1>
     </header>
-    <main>
-        <p>This is a test branch for games (style comming soon).</p>
-    </main>
 
-    <button onclick="location.href='Cube-combat.html'">Cube Combat</button>
-    <form action="https://thomasjearl2011-hue.github.io/thomasjearl2011.github.io">
-        <input type="submit" value="Return to Nexus hub" />
-    </form>
+    <div class="flex">
 
-    <footer>
+        <nav id="sidebar" class="w-1/5 bg-gray-800 p-4 border-r border-gray-700 min-h-[calc(100vh-64px)]">
+            <h2 class="text-xl font-semibold mb-4 text-teal-300">Available Games</h2>
+
+            <ul class="space-y-3">
+                <li class="group">
+                    <button 
+                        onclick="loadGame('Cube-combat.html')"
+                        class="w-full text-left py-2 px-3 rounded-lg bg-gray-700 hover:bg-teal-600 transition duration-150 ease-in-out font-medium"
+                    >
+                        🧊 Cube Combat
+                    </button>
+                </li>
+                <li class="group">
+                    <button 
+                        onclick="loadGame('Game-2-Placeholder.html')"
+                        class="w-full text-left py-2 px-3 rounded-lg bg-gray-700 hover:bg-teal-600 transition duration-150 ease-in-out font-medium"
+                    >
+                        🚀 Space Adventure (Coming Soon)
+                    </button>
+                </li>
+            </ul>
+
+            <hr class="my-6 border-gray-700">
+
+            <form action="https://thomasjearl2011-hue.github.io/thomasjearl2011.github.io" class="mt-4">
+                <input 
+                    type="submit" 
+                    value="⬅️ Return to Nexus hub"
+                    class="w-full py-2 px-4 rounded-lg bg-red-600 hover:bg-red-700 transition duration-150 ease-in-out cursor-pointer font-bold" 
+                />
+            </form>
+
+        </nav>
+
+        <main id="game-container" class="w-4/5 p-6 flex-grow">
+            <p class="text-lg mb-4 text-gray-400">This is a test branch for games. Select a game from the menu to load it here.</p>
+
+            <iframe 
+                id="game-frame" 
+                src="" 
+                class="w-full h-full border-2 border-dashed border-teal-500 rounded-lg bg-gray-700"
+                style="min-height: 70vh;"
+                title="Game Content Area"
+            ></iframe>
+        </main>
+    </div>
+
+    <footer class="p-3 bg-gray-800 border-t border-gray-700 text-center text-sm text-gray-500">
         <p>&copy; 2024 Test Branch</p>
     </footer>
+
+    <script>
+        function loadGame(gamePath) {
+            const iframe = document.getElementById('game-frame');
+            iframe.src = gamePath;
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+
+        });
+    </script>
 </body>
 </html>
