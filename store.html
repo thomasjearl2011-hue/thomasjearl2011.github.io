@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nexus Digital Store</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <style>
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #0f172a; 
+            color: #e2e8f0; 
+        }
+
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #1e293b; 
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #475569; 
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #64748b; 
+        }
+
+        @keyframes fade-in {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .animate-fade-in {
+            animation: fade-in 0.3s ease-out forwards;
+        }
+
+        .glass-panel {
+            background: rgba(30, 41, 59, 0.7);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .product-card {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .product-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.5);
+        }
+        .btn-primary {
+            transition: all 0.2s ease;
+        }
+        .btn-primary:hover {
+            background-color: #1d4ed8;
+            transform: scale(1.02);
+        }
+
+        .cart-overlay {
+            transition: transform 0.3s ease-in-out;
+        }
+        .cart-open {
+            transform: translateX(0);
+        }
+        .cart-closed {
+            transform: translateX(100%);
+        }
+    </style>
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        primary: '#3b82f6',
+                        secondary: '#1e293b',
+                        background: '#0f172a',
+                        textlight: '#e2e8f0',
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="min-h-screen p-4 sm:p-8">
+
+    
+    <header class="mb-12 glass-panel p-4 sm:p-6 rounded-xl shadow-lg animate-fade-in">
+        <div class="flex flex-col sm:flex-row justify-between items-center">
+            <h1 class="text-3xl sm:text-4xl font-extrabold text-primary mb-3 sm:mb-0">
+                <span class="text-white">The</span> Nexus Store
+            </h1>
+            <nav class="flex items-center space-x-6">
+                <a href="#skins" class="text-textlight hover:text-primary transition duration-150">Skins</a>
+                <a href="#games" class="text-textlight hover:text-primary transition duration-150">Games</a>
+                <a href="#vfx" class="text-textlight hover:text-primary transition duration-150">Custom VFX</a>
+
+                
+                <button onclick="toggleCart()" class="relative p-2 rounded-full hover:bg-white/10 transition duration-150 focus:outline-none focus:ring-2 focus:ring-primary">
+                    
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-6 h-6 text-textlight">
+                        <circle cx="9" cy="21" r="1"></circle>
+                        <circle cx="20" cy="21" r="1"></circle>
+                        <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
+                    </svg>
+                    
+                    <span id="cart-count" class="absolute top-0 right-0 inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-red-100 transform translate-x-1/2 -translate-y-1/2 bg-red-600 rounded-full">
+                        0
+                    </span>
+                </button>
+            </nav>
+        </div>
+    </header>
+
+    
+    <main class="container mx-auto space-y-16">
+
+        
+        <section id="skins" class="animate-fade-in" style="animation-delay: 0.1s;">
+            <h2 class="text-3xl font-bold mb-8 pb-2 border-b-2 border-primary/50 text-textlight">
+                Exclusive Skins
+            </h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+                
+                <div class="product-card glass-panel p-5 rounded-xl shadow-xl flex flex-col justify-between">
+                    <div>
+                        <img src="https://placehold.co/400x300/475569/ffffff?text=Obsidian+Armor" alt="Obsidian Armor Skin" class="w-full h-40 object-cover rounded-lg mb-4">
+                        <h3 class="text-xl font-semibold text-primary mb-2">Obsidian Wraith</h3>
+                        <p class="text-sm text-gray-400 mb-4">A sleek, dark skin featuring crystalline armor and glowing blue accents.</p>
+                    </div>
+                    <div class="flex justify-between items-center">
+                        <span class="text-2xl font-bold text-green-400">$14.99</span>
+                        <button onclick="addToCart('Skin', 'Obsidian Wraith', 14.99)" class="btn-primary bg-primary text-white py-2 px-4 rounded-lg font-medium shadow-md hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-primary focus:ring-opacity-50">
+                            Add to Cart
+                        </button>
+                    </div>
+                </div>
+
+                
+                <div class="product-card glass-panel p-5 rounded-xl shadow-xl flex flex-col justify-between">
+                    <div>
+                        <img src="https://placehold.co/400x300/64748b/ffffff?text=Neon+Racer" alt="Neon Racer Skin" class="w-full h-40 object-cover rounded-lg mb-4">
+                        <h3 class="text-xl font-semibold text-primary mb-2">Neon Velocity</h3>
+                        <p class="text-sm text-gray-400 mb-4">High-contrast skin with electric pink and cyan lines. Built for speed.</p>
+                    </div>
+                    <div class="flex justify-between items-center">
+                        <span class="text-2xl font-bold text-green-400">$9.99</span>
+                        <button onclick="addToCart('Skin', 'Neon Velocity', 9.99)" class="btn-primary bg-primary text-white py-2 px-4 rounded-lg font-medium shadow-md hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-primary focus:ring-opacity-50">
+                            Add to Cart
+                        </button>
+                    </div>
+                </div>
+
+                
+                <div class="product-card glass-panel p-5 rounded-xl shadow-xl flex flex-col justify-between">
+                    <div>
+                        <img src="https://placehold.co/400x300/334155/ffffff?text=Jungle+Camo" alt="Jungle Camo Skin" class="w-full h-40 object-cover rounded-lg mb-4">
+                        <h3 class="text-xl font-semibold text-primary mb-2">Apex Predator</h3>
+                        <p class="text-sm text-gray-400 mb-4">Rugged, military-grade camouflage skin for stealth operations.</p>
+                    </div>
+                    <div class="flex justify-between items-center">
+                        <span class="text-2xl font-bold text-green-400">$19.99</span>
+                        <button onclick="addToCart('Skin', 'Apex Predator', 19.99)" class="btn-primary bg-primary text-white py-2 px-4 rounded-lg font-medium shadow-md hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-primary focus:ring-opacity-50">
+                            Add to Cart
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        
+        <section id="games" class="animate-fade-in" style="animation-delay: 0.2s;">
+            <h2 class="text-3xl font-bold mb-8 pb-2 border-b-2 border-primary/50 text-textlight">
+                Digital Games
+            </h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+                
+                <div class="product-card glass-panel p-5 rounded-xl shadow-xl flex flex-col justify-between">
+                    <div>
+                        <img src="https://placehold.co/400x300/0f172a/ffffff?text=Cyberpunk+City" alt="Cyberpunk City Game" class="w-full h-40 object-cover rounded-lg mb-4">
+                        <h3 class="text-xl font-semibold text-primary mb-2">Neon Drift 2077</h3>
+                        <p class="text-sm text-gray-400 mb-4">Open-world action RPG set in a dystopian, rain-slicked metropolis.</p>
+                    </div>
+                    <div class="flex justify-between items-center">
+                        <span class="text-2xl font-bold text-green-400">$59.99</span>
+                        <button onclick="addToCart('Game', 'Neon Drift 2077', 59.99)" class="btn-primary bg-primary text-white py-2 px-4 rounded-lg font-medium shadow-md hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-primary focus:ring-opacity-50">
+                            Buy Now
+                        </button>
+                    </div>
+                </div>
+
+                
+                <div class="product-card glass-panel p-5 rounded-xl shadow-xl flex flex-col justify-between">
+                    <div>
+                        <img src="https://placehold.co/400x300/1e293b/ffffff?text=Fantasy+Map" alt="Fantasy Map Game" class="w-full h-40 object-cover rounded-lg mb-4">
+                        <h3 class="text-xl font-semibold text-primary mb-2">Chronicles of Aerth</h3>
+                        <p class="text-sm text-gray-400 mb-4">Epic fantasy strategy game with deep lore and complex resource management.</p>
+                    </div>
+                    <div class="flex justify-between items-center">
+                        <span class="text-2xl font-bold text-green-400">$39.99</span>
+                        <button onclick="addToCart('Game', 'Chronicles of Aerth', 39.99)" class="btn-primary bg-primary text-white py-2 px-4 rounded-lg font-medium shadow-md hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-primary focus:ring-opacity-50">
+                            Buy Now
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        
+        <section id="vfx" class="animate-fade-in" style="animation-delay: 0.3s;">
+            <h2 class="text-3xl font-bold mb-8 pb-2 border-b-2 border-primary/50 text-textlight">
+                Custom Visual Effects (VFX)
+            </h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+                
+                <div class="product-card glass-panel p-5 rounded-xl shadow-xl flex flex-col justify-between">
+                    <div>
+                        <img src="https://placehold.co/400x300/3b82f6/ffffff?text=Energy+Blast" alt="Energy Blast VFX" class="w-full h-40 object-cover rounded-lg mb-4">
+                        <h3 class="text-xl font-semibold text-primary mb-2">Quantum Flare Pack</h3>
+                        <p class="text-sm text-gray-400 mb-4">A set of 10 stylized energy blast and explosion effects. Ready to use.</p>
+                    </div>
+                    <div class="flex justify-between items-center">
+                        <span class="text-2xl font-bold text-green-400">$29.00</span>
+                        <button onclick="addToCart('VFX', 'Quantum Flare Pack', 29.00)" class="btn-primary bg-primary text-white py-2 px-4 rounded-lg font-medium shadow-md hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-primary focus:ring-opacity-50">
+                            Purchase Asset
+                        </button>
+                    </div>
+                </div>
+
+                
+                <div class="product-card glass-panel p-5 rounded-xl shadow-xl flex flex-col justify-between">
+                    <div>
+                        <img src="https://placehold.co/400x300/4c0519/ffffff?text=Magical+Dust" alt="Magical Dust VFX" class="w-full h-40 object-cover rounded-lg mb-4">
+                        <h3 class="text-xl font-semibold text-primary mb-2">Arcane Dust Trails</h3>
+                        <p class="text-sm text-gray-400 mb-4">Subtle, particle-based magical trails in various elemental colors.</p>
+                    </div>
+                    <div class="flex justify-between items-center">
+                        <span class="text-2xl font-bold text-green-400">$19.00</span>
+                        <button onclick="addToCart('VFX', 'Arcane Dust Trails', 19.00)" class="btn-primary bg-primary text-white py-2 px-4 rounded-lg font-medium shadow-md hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-primary focus:ring-opacity-50">
+                            Purchase Asset
+                        </button>
+                    </div>
+                </div>
+
+                
+                <div class="product-card glass-panel p-5 rounded-xl shadow-xl flex flex-col justify-between border-2 border-yellow-500">
+                    <div>
+                        <img src="https://placehold.co/400x300/f59e0b/000000?text=Custom+Service" alt="Custom VFX Service" class="w-full h-40 object-cover rounded-lg mb-4 opacity-70">
+                        <h3 class="text-xl font-semibold text-yellow-500 mb-2">Custom VFX Commission</h3>
+                        <p class="text-sm text-gray-400 mb-4">Contact us for a tailored visual effect design based on your specifications.</p>
+                    </div>
+                    <div class="flex justify-between items-center">
+                        <span class="text-2xl font-bold text-yellow-500">Contact for Quote</span>
+                        <button onclick="showModal('Custom VFX Commission', 'Contact for Quote')" class="btn-primary bg-yellow-600 text-white py-2 px-4 rounded-lg font-medium shadow-md hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:ring-opacity-50">
+                            Request Quote
+                        </button>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+    </main>
+
+    
+    <footer class="mt-16 text-center text-sm text-gray-500 py-4 border-t border-secondary/50">
+        &copy; 2025 Nexus Digital. All rights reserved.
+    </footer>
+
+    
+    
+    <div id="cart-sidebar" class="fixed top-0 right-0 h-full w-full sm:w-96 glass-panel shadow-2xl z-40 cart-overlay cart-closed flex flex-col">
+        <div class="flex justify-between items-center p-6 border-b border-white/10">
+            <h3 class="text-2xl font-bold text-primary">Your Cart</h3>
+            <button onclick="toggleCart()" class="text-gray-400 hover:text-white transition duration-150">
+                
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-6 h-6">
+                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                    <line x1="6" y1="6" x2="18" y2="18"></line>
+                </svg>
+            </button>
+        </div>
+
+        
+        
+        <div class="flex-grow p-6 space-y-4 overflow-y-auto">
+            <div id="cart-items-list">
+                
+            </div>
+            <p id="cart-empty-message" class="text-gray-400 text-center mt-12">Your cart is empty. Start shopping!</p>
+        </div>
+
+        
+        <div id="cart-footer" class="p-6 border-t border-white/10">
+            <div class="flex justify-between items-center mb-4">
+                <span class="text-xl font-semibold">Total:</span>
+                <span id="cart-total" class="text-2xl font-bold text-green-400">$0.00</span>
+            </div>
+            <button onclick="checkout()" class="w-full btn-primary bg-green-600 text-white py-3 rounded-lg font-medium shadow-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-opacity-50">
+                Proceed to Checkout
+            </button>
+        </div>
+    </div>
+
+    
+    <script>
+
+        let cart = []; 
+
+        function updateCartDisplay() {
+
+            const cartItemsList = document.getElementById('cart-items-list');
+            const cartCountElement = document.getElementById('cart-count');
+            const cartTotalElement = document.getElementById('cart-total');
+
+            const emptyMessage = document.getElementById('cart-empty-message');
+            let total = 0;
+
+            cartItemsList.innerHTML = ''; 
+
+            if (cart.length === 0) {
+
+                emptyMessage.style.display = 'block';
+            } else {
+
+                emptyMessage.style.display = 'none';
+
+                cart.forEach((item, index) => {
+
+                    const itemElement = document.createElement('div');
+                    itemElement.className = 'flex items-center justify-between p-3 rounded-lg bg-secondary/70 animate-fade-in';
+
+                    itemElement.innerHTML = `
+                        <div>
+                            <p class="font-semibold text-primary">${item.name}</p>
+                            <p class="text-sm text-gray-400">${item.type}</p>
+                        </div>
+                        <div class="flex items-center space-x-3">
+                            <span class="font-bold text-green-400">$${item.price.toFixed(2)}</span>
+                            <button onclick="removeItem(${index})" class="text-red-400 hover:text-red-500 transition duration-150" aria-label="Remove ${item.name}">
+                                
+                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <polyline points="3 6 5 6 21 6"></polyline>
+                                    <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"></path>
+                                    <path d="M10 11v6"></path>
+                                    <path d="M14 11v6"></path>
+                                    <line x1="2" y1="5" x2="22" y2="5"></line>
+                                    <line x1="10" y1="8" x2="14" y2="8"></line>
+                                </svg>
+                            </button>
+                        </div>
+                    `;
+                    cartItemsList.appendChild(itemElement);
+                    total += item.price;
+                });
+            }
+
+            cartTotalElement.textContent = `$${total.toFixed(2)}`;
+            cartCountElement.textContent = cart.length;
+        }
+
+        function toggleCart() {
+            const sidebar = document.getElementById('cart-sidebar');
+            sidebar.classList.toggle('cart-open');
+            sidebar.classList.toggle('cart-closed');
+            if (sidebar.classList.contains('cart-open')) {
+                updateCartDisplay(); 
+            }
+        }
+
+        function addToCart(type, name, price) {
+            cart.push({ type, name, price });
+            updateCartDisplay(); 
+
+            console.log(`[STORE ACTION] Added to cart: ${name}`);
+
+            const messageBox = document.createElement('div');
+            messageBox.id = 'message-box';
+            messageBox.className = 'fixed top-4 right-4 bg-green-600 text-white p-4 rounded-lg shadow-2xl z-50 animate-fade-in';
+            messageBox.innerHTML = `
+                <div class="flex items-center space-x-2">
+                    
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-5 h-5">
+                        <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                        <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                    </svg>
+                    <span>Added ${name} to cart!</span>
+                </div>
+            `;
+            document.body.appendChild(messageBox);
+
+            setTimeout(() => {
+                messageBox.style.opacity = 0;
+                messageBox.style.transition = 'opacity 0.5s ease';
+                setTimeout(() => messageBox.remove(), 500);
+            }, 3000);
+        }
+
+        function removeItem(index) {
+            const removedItem = cart.splice(index, 1)[0];
+            console.log(`[STORE ACTION] Removed from cart: ${removedItem.name}`);
+            updateCartDisplay(); 
+        }
+
+        function checkout() {
+            if (cart.length === 0) {
+                showModal('Checkout Error', 'Your cart is empty. Please add items before checking out.');
+                return;
+            }
+            const totalAmount = cart.reduce((sum, item) => sum + item.price, 0);
+            console.log(`[STORE ACTION] Proceeding to checkout with ${cart.length} items.`);
+            showModal('Checkout Placeholder', `Total items: ${cart.length}. Total amount: $${totalAmount.toFixed(2)}.`);
+
+        }
+
+        function showModal(title, message) {
+            const existingModal = document.getElementById('custom-modal');
+            if (existingModal) existingModal.remove();
+
+            const modalContent = document.createElement('div');
+            modalContent.id = 'custom-modal';
+
+            modalContent.className = 'fixed inset-0 bg-black bg-opacity-70 flex justify-center items-center z-50 animate-fade-in';
+            modalContent.innerHTML = `
+                <div class="glass-panel p-8 rounded-xl w-11/12 max-w-lg shadow-2xl">
+                    <h3 class="text-2xl font-bold mb-4 ${title.includes('Error') ? 'text-red-400' : 'text-primary'}">${title}</h3>
+                    <p class="mb-6 text-textlight">${message}</p>
+                    <button onclick="closeModal()" class="btn-primary bg-primary text-white py-2 px-4 rounded-lg font-medium shadow-md hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-primary focus:ring-opacity-50">
+                        Close
+                    </button>
+                </div>
+            `;
+            document.body.appendChild(modalContent);
+        }
+
+        function closeModal() {
+            const modal = document.getElementById('custom-modal');
+            if (modal) {
+                modal.remove();
+            }
+        }
+
+        updateCartDisplay();
+    </script>
+</body>
+</html>

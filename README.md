@@ -29,6 +29,6 @@ Games Tab: 🟢
 
 Test branch: 🟠
 
-Store: 🟨
+Store: 🟠
 
 Announcements: 🟨

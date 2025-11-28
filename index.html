@@ -31,7 +31,8 @@
                 <div class="absolute left-0 top-2 bottom-2 w-1 bg-pink-500 rounded-r opacity-0 transition-opacity" id="indicator-games"></div>
             </button>
 
-            <button onclick="switchTab('store')" class="nav-btn w-full flex items-center p-3 rounded-lg text-slate-400 hover:bg-slate-800 hover:text-white transition-colors group relative" id="nav-store">
+            <!-- UPDATED: This button now navigates directly to store.html -->
+            <button onclick="window.location.href='store.html'" class="nav-btn w-full flex items-center p-3 rounded-lg text-slate-400 hover:bg-slate-800 hover:text-white transition-colors group relative" id="nav-store">
                 <i class="fa-solid fa-bag-shopping text-xl w-8 text-center group-hover:text-emerald-400"></i>
                 <span class="ml-3 font-medium hidden lg:block">Store</span>
                 <div class="absolute left-0 top-2 bottom-2 w-1 bg-emerald-500 rounded-r opacity-0 transition-opacity" id="indicator-store"></div>
@@ -235,18 +236,7 @@
             </div>
         </section>
 
-        <section id="view-store" class="p-6 lg:p-10 max-w-7xl mx-auto hidden animate-fade-in">
-            <div class="text-center py-20">
-                <div class="inline-flex items-center justify-center w-24 h-24 rounded-full bg-slate-800 mb-6">
-                    <i class="fa-solid fa-bag-shopping text-4xl text-slate-500"></i>
-                </div>
-                <h2 class="text-3xl font-bold text-white mb-2">Store Under Maintenance</h2>
-                <p class="text-slate-400 max-w-md mx-auto">We are currently restocking digital assets. Check back later for new skins, DLCs, and game passes.</p>
-                <button onclick="switchTab('home')" class="mt-8 px-6 py-2 border border-slate-600 text-slate-300 rounded hover:bg-slate-800 hover:text-white transition-colors">
-                    Return Home
-                </button>
-            </div>
-        </section>
+        <!-- The view-store section has been removed as the 'Store' link now navigates externally. -->
 
         <section id="view-community" class="p-6 lg:p-10 max-w-7xl mx-auto hidden animate-fade-in">
              <div class="bg-slate-800 rounded-xl p-8 border border-slate-700 text-center">
