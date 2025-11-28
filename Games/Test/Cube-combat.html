@@ -274,7 +274,7 @@
             <button class="btn btn-green" onclick="navTo('screen-modes')">START GAME</button>
             <button class="btn btn-blue" onclick="navTo('screen-cubes'); renderCubes()">COLLECTED CUBES</button>
             <button class="btn btn-pink" onclick="navTo('screen-achievements'); renderAchievements()">ACHIEVEMENTS</button>
-            <button class="btn btn-gray" onclick="window.location.href='https://thomasjearl2011-hue.github.io/thomasjearl2011.github.io/'">QUIT</button>
+            <button class="btn btn-gray" onclick="window.location.href='/index.html'">QUIT</button>
         </div>
 
         <div id="screen-modes" class="menu-screen">
@@ -344,7 +344,11 @@
 
         <div id="game-over-screen" class="hidden" style="position:absolute; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.9); display:flex; flex-direction:column; align-items:center; justify-content:center; z-index:20;">
             <div id="winner-text" style="font-size: 50px; margin-bottom: 30px; font-weight:bold; color: white;">WINNER</div>
-            <button class="btn btn-green" onclick="restartGame()">RESTART (R)</button>
+
+            <button id="restart-btn" class="btn btn-green" onclick="requestRestart()">RESTART (R)</button>
+
+            <div id="waiting-msg" style="display:none; color: yellow; font-size: 24px; margin: 10px; font-weight: bold; text-shadow: 1px 1px 0 #000;">WAITING FOR HOST TO RESTART...</div>
+
             <button class="btn btn-gray" onclick="showMainMenu()">MAIN MENU</button>
         </div>
 
@@ -469,7 +473,7 @@
     let gameMode = 'ai'; 
     let gameState = 'menu'; 
     let winner = null;
-    let animationId;
+    let animationId = null; 
 
     const keys = {};
     window.addEventListener('keydown', e => {
@@ -477,6 +481,12 @@
         if (e.code === 'Escape') {
             if (gameState === 'playing') showMainMenu();
             else if (gameState === 'menu' && !document.getElementById('screen-main').classList.contains('active')) navTo('screen-main');
+        }
+
+        if (e.code === 'KeyR') {
+            if (gameState === 'gameover') {
+                requestRestart();
+            }
         }
     });
     window.addEventListener('keyup', e => keys[e.code] = false);
@@ -565,6 +575,7 @@
 
             applyStateToCube(blueCube, data.p1);
             applyStateToCube(redCube, data.p2);
+            updateUI(); 
         } else if (data.type === 'GAMEOVER') {
              gameState = 'gameover';
              winner = data.winner;
@@ -581,8 +592,14 @@
         cube.h = state.h;
         cube.color = state.color;
         cube.hp = state.hp;
-        cube.facingRight = state.facingRight;
 
+        if (cube.hp <= 0) {
+            cube.dead = true;
+        } else {
+            cube.dead = false;
+        }
+
+        cube.facingRight = state.facingRight;
         cube.slashActive = state.slashActive;
         cube.parryActive = state.parryActive;
 
@@ -1040,7 +1057,7 @@
         redCube.draw(ctx);
         blueCube.draw(ctx);
 
-        requestAnimationFrame(gameLoop);
+        animationId = requestAnimationFrame(gameLoop);
     }
 
     function startGame(mode) {
@@ -1049,18 +1066,19 @@
 
         document.getElementById('menu-overlay').classList.add('hidden');
 
-        if(mode !== 'p2p' || p2pRole === 'host') {
-             initGame();
-        }
+        initGame();
 
-        if(mode === 'p2p' && p2pRole === 'host' && blueCube) {
+        if(mode === 'p2p' && p2pRole === 'host') {
             blueCube.hp = MAX_HP; blueCube.dead = false;
             redCube.hp = MAX_HP; redCube.dead = false;
             redCube.x = WIDTH - 100; redCube.y = FLOOR_Y - CUBE_SIZE;
             blueCube.x = 50; blueCube.y = FLOOR_Y - CUBE_SIZE;
         }
 
-        gameLoop();
+        if (animationId) {
+             cancelAnimationFrame(animationId);
+        }
+        animationId = requestAnimationFrame(gameLoop);
     }
 
     function showGameOver() {
@@ -1068,27 +1086,57 @@
         document.querySelectorAll('.menu-screen').forEach(el => el.classList.remove('active'));
         document.getElementById('game-over-screen').classList.remove('hidden');
 
-        const color = (winner.includes('BLUE')) ? 'blue' : 'red';
+        const color = (winner && winner.includes && winner.includes('BLUE')) ? 'blue' : 'red';
         const txt = document.getElementById('winner-text');
-        txt.innerText = winner + " WINS!";
+        txt.innerText = (winner ? winner : 'WINNER') + " WINS!";
         txt.style.color = color;
+
+        const restartBtn = document.getElementById('restart-btn');
+        const waitMsg = document.getElementById('waiting-msg');
+
+        if (gameMode === 'p2p' && p2pRole === 'client') {
+            restartBtn.style.display = 'none';
+            restartBtn.disabled = true;
+            restartBtn.style.pointerEvents = 'none';
+            waitMsg.style.display = 'block';
+            waitMsg.innerText = "WAITING FOR HOST TO RESTART...";
+        } else {
+            restartBtn.style.display = 'block';
+            restartBtn.disabled = false;
+            restartBtn.style.pointerEvents = '';
+            waitMsg.style.display = 'none';
+            restartBtn.innerText = 'RESTART (R)';
+        }
+    }
+
+    function requestRestart() {
+        if (gameMode === 'p2p') {
+            if (p2pRole === 'host') {
+                if (conn && conn.open) conn.send({ type: 'RESTART' });
+                restartGame(false);
+            } else {
+
+                console.log('Client: waiting for host to restart');
+            }
+        } else {
+            restartGame(false);
+        }
     }
 
     function restartGame(isRemoteTrigger = false) {
-
-        if (gameMode === 'p2p' && p2pRole === 'host' && !isRemoteTrigger) {
-             conn.send({ type: 'RESTART' });
-        }
 
         document.getElementById('game-over-screen').classList.add('hidden');
         document.getElementById('menu-overlay').classList.add('hidden');
         gameState = 'playing';
 
-        if(gameMode !== 'p2p' || p2pRole === 'host') {
+        if (gameMode !== 'p2p' || p2pRole === 'host' || isRemoteTrigger) {
             initGame();
         }
 
-        gameLoop();
+        if (animationId) {
+            cancelAnimationFrame(animationId);
+        }
+        animationId = requestAnimationFrame(gameLoop);
     }
 
     function showMainMenu() {
@@ -1096,6 +1144,11 @@
         if(conn) {
             conn.close();
             resetP2P();
+        }
+
+        if (animationId) {
+            cancelAnimationFrame(animationId);
+            animationId = null;
         }
         document.getElementById('menu-overlay').classList.remove('hidden');
         document.getElementById('game-over-screen').classList.add('hidden');
