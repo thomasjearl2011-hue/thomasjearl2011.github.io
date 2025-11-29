@@ -25,9 +25,9 @@ Games Tab: 🟢
 
     Reflex Tester: 🟢
 
-    Cube Combat: 🟢 (p2p 🟡, achivements 🔴)
-
 Test branch: 🟠
+
+    Cube Combat: 🟢 (p2p 🟡, achivements 🔴)
 
 Store: 🟠
 
