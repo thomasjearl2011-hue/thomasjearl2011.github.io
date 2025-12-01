@@ -29,8 +29,8 @@ Games Tab: 🟢
 
 Test branch: 🟠
 
-    Cube Combat: 🟢 (p2p 🟢, achivements 🔴, cubes 🔴, moveset's 🔴)
+    Cube Combat: 🟢 (p2p 🟢, achivements 🟢, cubes 🟠, moveset's 🟠)
 
-Store: 🟠
+Store: 🟠 (probably going to be removed)
 
 Announcements: 🟨

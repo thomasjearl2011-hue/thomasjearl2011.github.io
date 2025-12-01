@@ -40,7 +40,7 @@
             transform: translateX(-50%);
             font-size: 20px;
             font-weight: bold;
-            z-index: 1000; /* High z-index to sit on top of everything */
+            z-index: 1000;
             background: linear-gradient(to right, red, orange, yellow, green, blue, indigo, violet);
             background-size: 400% 100%;
             -webkit-background-clip: text;
@@ -94,6 +94,43 @@
 
         #p1-health { background-color: blue; width: 100%; }
         #p2-health { background-color: red; width: 100%; }
+
+        /* ACHIEVEMENT TOAST NOTIFICATION */
+        #achievement-toast {
+            position: absolute;
+            /* CHANGED: Move it far up and off-screen initially */
+            top: -400px; 
+            right: 20px; 
+            width: 350px;
+            background: rgba(0, 0, 0, 0.9);
+            border: 2px solid #00FF00;
+            border-radius: 10px;
+            padding: 15px;
+            display: flex;
+            align-items: center;
+            /* CHANGED: Transition 'top' instead of 'right' for vertical drop-in */
+            transition: top 0.5s ease-in-out; 
+            z-index: 2000;
+        }
+        
+        #achievement-toast.show {
+            /* NEW: Drop down from the top */
+            top: 20px;
+        }
+
+        .toast-icon {
+            font-size: 40px;
+            margin-right: 15px;
+        }
+        .toast-text {
+            color: white;
+        }
+        .toast-title {
+            color: #00FF00;
+            font-weight: bold;
+            font-size: 18px;
+            margin-bottom: 5px;
+        }
 
         #menu-overlay {
             position: absolute;
@@ -277,6 +314,14 @@
 
     <div id="demo-label" class="rainbow-text hidden">Demo build (all issues are known)</div>
 
+    <div id="achievement-toast">
+        <div class="toast-icon">🏆</div>
+        <div class="toast-text">
+            <div class="toast-title">ACHIEVEMENT UNLOCKED</div>
+            <div id="toast-message">First Blood</div>
+        </div>
+    </div>
+
     <div id="ui-layer">
         <div class="hud" id="hud">
             <div>
@@ -302,6 +347,7 @@
             <button class="btn btn-green" onclick="navTo('screen-modes')">START GAME</button>
             <button class="btn btn-blue" onclick="navTo('screen-cubes'); renderCubes()">COLLECTED CUBES</button>
             <button class="btn btn-pink" onclick="navTo('screen-achievements'); renderAchievements()">ACHIEVEMENTS</button>
+            <button class="btn btn-red" onclick="confirmResetProgress()">RESET PROGRESS</button>
             <button class="btn btn-gray" onclick="quitGame()">QUIT</button>
         </div>
 
@@ -357,7 +403,7 @@
                 <div class="cubes-grid" id="cubes-grid-container">
                     </div>
                 <div class="cube-details" id="cube-details-panel">
-                    <div style="text-align: center; margin-bottom: 20px; color: #aaa;">Select a cube to view details</div>
+                    <div style="text-align: center; margin-top: 50px; color: #aaa;">Select a cube to view details</div>
                 </div>
             </div>
         </div>
@@ -394,14 +440,82 @@
         { id: 6, name: "Cube 6", color: "purple", hp: 75, attacks: "Placeholder" }
     ];
 
-    const ACHIEVEMENT_DATA = [
-        { id: 1, name: "First Blood", desc: "Defeat your first enemy", unlocks: "Cube 3", unlocked: true },
-        { id: 2, name: "Sharpshooter", desc: "Hit 5 beams in a row", unlocks: "Cube 4", unlocked: false },
+    let ACHIEVEMENT_DATA = [
+        { id: 1, name: "First Blood", desc: "Win your first battle", unlocks: "Cube 3", unlocked: false },
+        { id: 2, name: "Sharpshooter", desc: "Hit 5 beams in a row (Red Cube)", unlocks: "Cube 4", unlocked: false },
         { id: 3, name: "Unstoppable", desc: "Win without taking damage", unlocks: "Cube 5", unlocked: false },
-        { id: 4, name: "Wombo Combo", desc: "Absoultely combo the red Ai cube", unlocks: "Cube 6", unlocked: false },
+        { id: 4, name: "Wombo Combo", desc: "Absolutely combo the red Ai cube", unlocks: "Cube 6", unlocked: false },
         { id: 5, name: "What...No, this is guy hacking", desc: "Discover the unpatchable combo", unlocks: "Cube 7", unlocked: false },
-        { id: 6, name: "Cube Master", desc: "Unlock all cubes", unlocks: "Master Cube", unlocked: false }
+        { id: 6, name: "Cube Master", desc: "Unlock all other cubes", unlocks: "Master Cube", unlocked: false }
     ];
+
+    // --- ACHIEVEMENT SYSTEM ---
+    
+    // Load from local storage on startup
+    const savedData = localStorage.getItem('cubeCombatData');
+    if (savedData) {
+        const parsed = JSON.parse(savedData);
+        ACHIEVEMENT_DATA.forEach(ach => {
+            const saved = parsed.find(p => p.id === ach.id);
+            if (saved && saved.unlocked) ach.unlocked = true;
+        });
+    }
+
+    function saveGameData() {
+        const toSave = ACHIEVEMENT_DATA.map(a => ({ id: a.id, unlocked: a.unlocked }));
+        localStorage.setItem('cubeCombatData', JSON.stringify(toSave));
+    }
+
+    function confirmResetProgress() {
+        const confirmed = window.confirm("WARNING: This will erase all unlocked cubes and achievements. Are you sure you want to reset your progress?");
+        if (confirmed) {
+            resetGameProgress();
+        }
+    }
+
+    function resetGameProgress() {
+        localStorage.removeItem('cubeCombatData');
+        // Reset the in-memory data
+        ACHIEVEMENT_DATA.forEach(ach => ach.unlocked = false);
+        // Re-initialize to ensure cubes 1 and 2 are still available (they are not tied to achievements)
+        
+        alert("Game progress has been reset.");
+        navTo('screen-main'); // Go back to main screen after reset
+        // Re-render the achievement and cube screens if they were active
+        if (document.getElementById('screen-achievements').classList.contains('active')) renderAchievements();
+        if (document.getElementById('screen-cubes').classList.contains('active')) renderCubes();
+    }
+
+    function unlockAchievement(id) {
+        const ach = ACHIEVEMENT_DATA.find(a => a.id === id);
+        if (ach && !ach.unlocked) {
+            ach.unlocked = true;
+            showAchievementToast(ach.name);
+            saveGameData();
+            
+            // Check for Cube Master
+            const allOthers = ACHIEVEMENT_DATA.filter(a => a.id !== 6);
+            if (allOthers.every(a => a.unlocked)) {
+                unlockAchievement(6);
+            }
+        }
+    }
+
+    function showAchievementToast(name) {
+        const toast = document.getElementById('achievement-toast');
+        document.getElementById('toast-message').innerText = name;
+        toast.classList.add('show');
+        setTimeout(() => {
+            toast.classList.remove('show');
+        }, 4000);
+    }
+
+    // Temporary session stats to track complex achievements
+    let sessionStats = {
+        beamStreak: 0
+    };
+
+    // --------------------------
 
     let peer = null;
     let conn = null;
@@ -409,11 +523,9 @@
     let networkKeys = {}; 
 
     function quitGame() {
-        // Check if the parent window has the closeGame function (meaning we are in Test Branch)
         if (window.parent && typeof window.parent.closeGame === 'function') {
             window.parent.closeGame();
         } else {
-            // If not in Test Branch (e.g., played directly), go to index.html
             window.location.href = '/index.html';
         }
     }
@@ -422,7 +534,6 @@
         document.querySelectorAll('.menu-screen').forEach(el => el.classList.remove('active'));
         document.getElementById(screenId).classList.add('active');
 
-        // Logic to show demo label on every screen EXCEPT main menu
         const demoLabel = document.getElementById('demo-label');
         if (screenId === 'screen-main') {
             demoLabel.classList.add('hidden');
@@ -437,8 +548,13 @@
 
         CUBE_DATA.forEach((cube, index) => {
             const div = document.createElement('div');
+            // Check if cube is unlocked by achievement
             const unlockingAchievement = ACHIEVEMENT_DATA.find(a => a.unlocks === cube.name);
-            const isLocked = unlockingAchievement && !unlockingAchievement.unlocked;
+            // Default cubes 1 and 2 are always unlocked. Others depend on achievements.
+            let isLocked = false;
+            if (cube.id > 2) {
+                isLocked = unlockingAchievement && !unlockingAchievement.unlocked;
+            }
 
             div.className = 'cube-icon' + (isLocked ? ' locked' : '');
             div.style.backgroundColor = cube.color;
@@ -446,7 +562,7 @@
             if (!isLocked) {
                 div.onclick = () => selectCube(cube, div);
             } else {
-                div.title = 'Locked - unlock "' + unlockingAchievement.name + '" to use this cube';
+                div.title = 'Locked - unlock "' + (unlockingAchievement ? unlockingAchievement.name : 'Unknown') + '" to use this cube';
             }
             container.appendChild(div);
         });
@@ -874,6 +990,12 @@
             } 
             else if (this.state === 'CHARGING') {
                 this.color = COLORS.RED;
+                
+                // --- FIX: Check for wall collision ---
+                if (this.x <= 0 || this.x + this.w >= WIDTH) {
+                    this.handleWallHit();
+                }
+
                 if (rectIntersect(this.x, this.y, this.w, this.h, blueCube.x, blueCube.y, blueCube.w, blueCube.h)) {
                     this.hitPlayer(CHARGE_DMG, true);
                 }
@@ -970,16 +1092,28 @@
             const beamY = this.y + (this.h/2) - (beamH/2);
             if (rectIntersect(beamX, beamY, beamW, beamH, blueCube.x, blueCube.y, blueCube.w, blueCube.h)) {
                 this.hitPlayer(BEAM_DMG, false);
+                
+                // Achievement Logic: Consecutive Hits
+                sessionStats.beamStreak++;
+                if (sessionStats.beamStreak >= 5) {
+                    unlockAchievement(2); // Sharpshooter
+                }
+            } else {
+                // Reset streak if missed
+                sessionStats.beamStreak = 0;
             }
         }
 
         handleWallHit() {
-            if (this.state === 'CHARGING') {
-                this.state = 'STUNNED';
-                this.stateTimer = 60; 
-                this.vx = this.facingRight ? -5 : 5; 
-                this.takeDamage(10); 
-            }
+            // Apply Stun
+            this.state = 'STUNNED';
+            this.stateTimer = 60; 
+            this.vx = this.facingRight ? -5 : 5; 
+            this.takeDamage(10); 
+            
+            // Snap to edge so it doesn't get stuck out of bounds
+            if (this.x < 0) this.x = 0;
+            if (this.x + this.w > WIDTH) this.x = WIDTH - this.w;
         }
 
         hitPlayer(dmg, isCharge) {
@@ -1028,6 +1162,10 @@
     function initGame() {
         blueCube = new BlueCube();
         redCube = new RedCube();
+        
+        // Reset session stats
+        sessionStats.beamStreak = 0;
+        
         updateUI();
     }
 
@@ -1060,6 +1198,16 @@
         if(gameMode === 'p2p' && p2pRole === 'host' && conn) {
             conn.send({ type: 'GAMEOVER', winner: winnerName });
         }
+        
+        // --- ACHIEVEMENT CHECKS ---
+        if (winnerName === 'BLUE CUBE') {
+            unlockAchievement(1); // First Blood
+            
+            if (blueCube.hp === MAX_HP) {
+                unlockAchievement(3); // Unstoppable
+            }
+        }
+        // --------------------------
 
         showGameOver();
     }
