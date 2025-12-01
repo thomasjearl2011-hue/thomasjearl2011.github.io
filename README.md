@@ -29,7 +29,7 @@ Games Tab: 🟢
 
 Test branch: 🟠
 
-    Cube Combat: 🟢 (p2p 🟠, achivements 🔴)
+    Cube Combat: 🟢 (p2p 🟢, achivements 🔴)
 
 Store: 🟠
 

@@ -574,7 +574,11 @@
             document.getElementById('p2p-status-msg').innerText = "Connected! Starting Game...";
 
             if (p2pRole === 'host') {
-                setTimeout(() => startGame('p2p'), 1000);
+                setTimeout(() => {
+                    // Send start signal to client before starting
+                    conn.send({ type: 'START_GAME' });
+                    startGame('p2p');
+                }, 1000);
             }
         });
 
@@ -605,13 +609,18 @@
         if (data.type === 'INPUT') {
 
             networkKeys = data.keys;
+        } else if (data.type === 'START_GAME') {
+            // Client receives explicit start signal from host
+            if (p2pRole === 'client') {
+                startGame('p2p');
+            }
         } else if (data.type === 'STATE') {
-
-            if (gameState !== 'playing') startGame('p2p');
-
-            applyStateToCube(blueCube, data.p1);
-            applyStateToCube(redCube, data.p2);
-            updateUI(); 
+            // Only apply state if game is already playing
+            if (gameState === 'playing') {
+                applyStateToCube(blueCube, data.p1);
+                applyStateToCube(redCube, data.p2);
+                updateUI(); 
+            }
         } else if (data.type === 'GAMEOVER') {
              gameState = 'gameover';
              winner = data.winner;
@@ -1132,15 +1141,18 @@
         const waitMsg = document.getElementById('waiting-msg');
 
         if (gameMode === 'p2p' && p2pRole === 'client') {
-            restartBtn.style.display = 'none';
+            // Client sees the same layout but with different button text
+            restartBtn.style.display = 'block';
             restartBtn.disabled = true;
             restartBtn.style.pointerEvents = 'none';
-            waitMsg.style.display = 'block';
-            waitMsg.innerText = "WAITING FOR HOST TO RESTART...";
+            restartBtn.innerText = 'Waiting for host to restart...';
+            restartBtn.style.cursor = 'default';
+            waitMsg.style.display = 'none';
         } else {
             restartBtn.style.display = 'block';
             restartBtn.disabled = false;
             restartBtn.style.pointerEvents = '';
+            restartBtn.style.cursor = 'pointer';
             waitMsg.style.display = 'none';
             restartBtn.innerText = 'RESTART (R)';
         }
