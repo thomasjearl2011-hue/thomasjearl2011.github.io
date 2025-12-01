@@ -302,7 +302,7 @@
             <button class="btn btn-green" onclick="navTo('screen-modes')">START GAME</button>
             <button class="btn btn-blue" onclick="navTo('screen-cubes'); renderCubes()">COLLECTED CUBES</button>
             <button class="btn btn-pink" onclick="navTo('screen-achievements'); renderAchievements()">ACHIEVEMENTS</button>
-            <button class="btn btn-gray" onclick="window.location.href='/index.html'">QUIT</button>
+            <button class="btn btn-gray" onclick="quitGame()">QUIT</button>
         </div>
 
         <div id="screen-modes" class="menu-screen">
@@ -408,6 +408,16 @@
     let p2pRole = null; 
     let networkKeys = {}; 
 
+    function quitGame() {
+        // Check if the parent window has the closeGame function (meaning we are in Test Branch)
+        if (window.parent && typeof window.parent.closeGame === 'function') {
+            window.parent.closeGame();
+        } else {
+            // If not in Test Branch (e.g., played directly), go to index.html
+            window.location.href = '/index.html';
+        }
+    }
+    
     function navTo(screenId) {
         document.querySelectorAll('.menu-screen').forEach(el => el.classList.remove('active'));
         document.getElementById(screenId).classList.add('active');

@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Test Branch</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    </head>
+</head>
 <body class="bg-gray-900 text-white min-h-screen">
 
     <header class="p-4 bg-gray-800 shadow-lg">
@@ -17,11 +17,16 @@
         <nav id="sidebar" class="w-1/5 bg-gray-800 p-4 border-r border-gray-700 min-h-[calc(100vh-64px)]">
             <h2 class="text-xl font-semibold mb-4 text-teal-300">Available Games</h2>
 
+            <p class="text-xs text-gray-500 mb-4 italic">
+                Tip: Idk what to put here.
+            </p>
+
             <ul class="space-y-3">
                 <li class="group">
                     <button 
                         onclick="loadGame('Cube-combat.html')"
-                        class="w-full text-left py-2 px-3 rounded-lg bg-gray-700 hover:bg-teal-600 transition duration-150 ease-in-out font-medium"
+                        ondblclick="closeGame()"
+                        class="w-full text-left py-2 px-3 rounded-lg bg-gray-700 hover:bg-teal-600 transition duration-150 ease-in-out font-medium select-none"
                     >
                         🧊 Cube Combat
                     </button>
@@ -29,7 +34,8 @@
                 <li class="group">
                     <button 
                         onclick="loadGame('Game-2-Placeholder.html')"
-                        class="w-full text-left py-2 px-3 rounded-lg bg-gray-700 hover:bg-teal-600 transition duration-150 ease-in-out font-medium"
+                        ondblclick="closeGame()"
+                        class="w-full text-left py-2 px-3 rounded-lg bg-gray-700 hover:bg-teal-600 transition duration-150 ease-in-out font-medium select-none"
                     >
                         Placeholder Game 2
                     </button>
@@ -48,13 +54,22 @@
 
         </nav>
 
-        <main id="game-container" class="w-4/5 p-6 flex-grow">
-            <p class="text-lg mb-4 text-gray-400">This is a test branch for games. Select a game from the menu to load it here.</p>
+        <main id="game-container" class="w-4/5 p-6 flex-grow relative">
+            
+            <div id="explanation-panel" class="bg-gray-800 p-8 rounded-lg border border-teal-500/30 shadow-xl max-w-2xl mx-auto mt-10">
+                <h3 class="text-2xl font-bold text-teal-400 mb-4">🛠️ How the Test Branch Works</h3>
+                <ul class="list-disc pl-5 space-y-3 text-gray-300">
+                    <li>Select a game from the sidebar menu to launch the environment.</li>
+                    <li>The game will load instantly in this window.</li>
+                    <li><strong>To close a game:</strong> Press the quit button in the main game window.</li>
+                    <li>This environment is for testing new mechanics before they move to the Nexus Hub.</li>
+                </ul>
+            </div>
 
             <iframe 
                 id="game-frame" 
                 src="" 
-                class="w-full h-full border-2 border-dashed border-teal-500 rounded-lg bg-gray-700"
+                class="w-full h-full border-2 border-dashed border-teal-500 rounded-lg bg-gray-700 hidden"
                 style="min-height: 70vh;"
                 title="Game Content Area"
             ></iframe>
@@ -66,14 +81,24 @@
     </footer>
 
     <script>
-        function loadGame(gamePath) {
-            const iframe = document.getElementById('game-frame');
-            iframe.src = gamePath;
+        const iframe = document.getElementById('game-frame');
+        const explanation = document.getElementById('explanation-panel');
+
+        // We attach these to 'window' so the child game can find them
+        window.loadGame = function(gamePath) {
+            explanation.classList.add('hidden');
+            iframe.classList.remove('hidden');
+            
+            if (!iframe.src.includes(gamePath)) {
+                iframe.src = gamePath;
+            }
         }
 
-        document.addEventListener('DOMContentLoaded', () => {
-
-        });
+        window.closeGame = function() {
+            explanation.classList.remove('hidden');
+            iframe.classList.add('hidden');
+            iframe.src = ""; // Stops the game logic/music
+        }
     </script>
 </body>
 </html>
