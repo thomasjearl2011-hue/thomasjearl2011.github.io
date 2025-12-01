@@ -239,22 +239,27 @@
         <!-- The view-store section has been removed as the 'Store' link now navigates externally. -->
 
         <section id="view-community" class="p-6 lg:p-10 max-w-7xl mx-auto hidden animate-fade-in">
-             <div class="bg-slate-800 rounded-xl p-8 border border-slate-700 text-center">
-                <i class="fa-solid fa-comments text-5xl text-amber-500 mb-4"></i>
-                <h2 class="text-2xl font-bold text-white">Community Forums</h2>
-                <p class="text-slate-400 mt-2">Join the conversation with other players.</p>
-
-                <div class="mt-8 grid gap-4 text-left max-w-2xl mx-auto">
-                    <div class="bg-slate-900/50 p-4 rounded border border-slate-700/50">
-                        <div class="flex items-center justify-between mb-2">
-                            <span class="text-indigo-400 text-xs font-bold uppercase">Pinned Announcement</span>
-                            <span class="text-slate-500 text-xs">Forever ago</span>
-                        </div>
-                        <h3 id="live-announcement" class="text-white font-medium hover:underline cursor-pointer">
-                            Loading updates...
-                        </h3>
-                    </div>
+            <div class="w-full overflow-hidden border-b border-slate-700 mb-4">
+                <div id="announcement-ticker"
+                    class="whitespace-nowrap animate-marquee py-2 text-slate-300 text-sm">
+                    Loading announcements...
                 </div>
+            </div>
+
+            <div class="bg-slate-900/50 p-4 rounded border border-slate-700/50">
+                <div class="flex items-center justify-between mb-2">
+                    <span class="text-indigo-400 text-xs font-bold uppercase">Pinned Announcement</span>
+                    <span class="text-slate-500 text-xs">Latest</span>
+                </div>
+
+                <h3 id="live-announcement" class="text-white font-medium hover:underline cursor-pointer">
+                    Loading updates...
+                </h3>
+
+                <!-- This is the list of the most recent 10 announcements -->
+                <div id="announcement-list" class="mt-6 space-y-3"></div>
+            </div>
+
              </div>
         </section>
 
@@ -337,11 +342,8 @@
 
     <script src="Js/Base-games.js"></script>
     <script type="module">
-
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-app.js";
-        import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-analytics.js";
-
-        import { getDatabase, ref, set, onValue } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-database.js";
+        ximport { initializeApp } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-app.js";
+        import { getDatabase, ref, onValue, remove } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-database.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyDWGcagecOrdCn7BuBeA72ICFkeH7QWePc",
@@ -357,21 +359,72 @@
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
 
-        const announcementRef = ref(db, 'announcement');
+        const announcementsRef = ref(db, "announcements");
 
-        onValue(announcementRef, (snapshot) => {
-            const data = snapshot.val();
-            const displayElement = document.getElementById('live-announcement');
-
-        if (data && data.message) {
-
-            displayElement.innerText = data.message;
-
-            displayElement.style.opacity = '0.5';
-            setTimeout(() => displayElement.style.opacity = '1', 300);
-        } else {
-            displayElement.innerText = "No active announcements.";
+        // Utility: Human readable timestamp
+        function timeAgo(timestamp) {
+            const seconds = Math.floor((Date.now() - timestamp) / 1000);
+            const intervals = [
+                { label: "year", seconds: 31536000 },
+                { label: "month", seconds: 2592000 },
+                { label: "day", seconds: 86400 },
+                { label: "hour", seconds: 3600 },
+                { label: "minute", seconds: 60 }
+            ];
+            for (const i of intervals) {
+                const count = Math.floor(seconds / i.seconds);
+                if (count >= 1) {
+                    return `${count} ${i.label}${count > 1 ? "s" : ""} ago`;
+                }
+            }
+            return "Just now";
         }
+
+        onValue(announcementsRef, (snapshot) => {
+            const data = snapshot.val();
+            const mainDisplay = document.getElementById("live-announcement");
+            const listContainer = document.getElementById("announcement-list");
+            const ticker = document.getElementById("announcement-ticker");
+
+            if (!data) {
+                mainDisplay.innerText = "No announcements available.";
+                if (listContainer) listContainer.innerHTML = "";
+                return;
+            }
+
+            // Convert object → sorted array
+            const list = Object.entries(data)
+                .map(([id, v]) => ({ id, ...v }))
+                .sort((a, b) => b.timestamp - a.timestamp);
+
+            // --- DELETE EVERYTHING EXCEPT NEWEST 10 ---
+            const oldOnes = list.slice(10);
+            oldOnes.forEach(item => remove(ref(db, `announcements/${item.id}`)));
+
+            const newest = list[0];
+
+            // --- UPDATE MAIN PINNED ANNOUNCEMENT ---
+            if (newest) {
+                mainDisplay.innerText = `${newest.message} (${timeAgo(newest.timestamp)})`;
+            }
+
+            // --- BUILD ANNOUNCEMENT LIST (10 newest) ---
+            listContainer.innerHTML = "";
+            list.slice(0, 10).forEach(a => {
+                const div = document.createElement("div");
+                div.className = "bg-slate-900/50 p-4 rounded border border-slate-700/50 hover:border-indigo-500 transition-all";
+                div.innerHTML = `
+                    <div class="flex justify-between mb-1">
+                        <span class="text-white font-semibold">${a.title}</span>
+                        <span class="text-slate-500 text-xs">${timeAgo(a.timestamp)}</span>
+                    </div>
+                    <p class="text-slate-300">${a.message}</p>
+                `;
+                listContainer.appendChild(div);
+            });
+
+            // --- SCROLLING TICKER ---
+            ticker.innerHTML = list.slice(0, 10).map(a => a.message).join(" • ");
         });
     </script>
 </body>
