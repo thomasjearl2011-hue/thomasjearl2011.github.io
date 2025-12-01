@@ -1,7 +1,5 @@
 # Hello
 
-hey guy's the lead dev (Fkm-X3) is going to be taking a extended break from updating the website and other things but he will be back eventually
-
 the following website can be accessed at "https://thomasjearl2011-hue.github.io/thomasjearl2011.github.io"
 
 # status'
@@ -29,7 +27,7 @@ Games Tab: 🟢
 
 Test branch: 🟠
 
-    Cube Combat: 🟢 (p2p 🟡, achivements 🔴)
+    Cube Combat: 🟢 (p2p 🟠, achivements 🔴)
 
 Store: 🟠
 
