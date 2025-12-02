@@ -1,0 +1,707 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>THE SKETCHY CASINO: CHAOS EDITION</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Comic+Neue:ital,wght@1,700&display=swap');
+
+        body {
+            font-family: 'Comic Sans MS', 'Comic Neue', cursive;
+            background: linear-gradient(45deg, #ff00ff, #00ffff, #ffff00);
+            background-size: 400% 400%;
+            animation: gradientBG 15s ease infinite;
+            overflow-x: hidden;
+            color: #1a1a1a;
+        }
+
+        @keyframes gradientBG {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        .comic-shadow {
+            text-shadow: 3px 3px 0px #000;
+        }
+
+        .wiggle:hover {
+            animation: wiggle 0.5s infinite;
+        }
+
+        @keyframes wiggle {
+            0% { transform: rotate(0deg); }
+            25% { transform: rotate(5deg); }
+            50% { transform: rotate(0deg); }
+            75% { transform: rotate(-5deg); }
+            100% { transform: rotate(0deg); }
+        }
+
+        .shake {
+            animation: shake 0.5s;
+        }
+
+        @keyframes shake {
+            0% { transform: translate(1px, 1px) rotate(0deg); }
+            10% { transform: translate(-1px, -2px) rotate(-1deg); }
+            20% { transform: translate(-3px, 0px) rotate(1deg); }
+            30% { transform: translate(3px, 2px) rotate(0deg); }
+            40% { transform: translate(1px, -1px) rotate(1deg); }
+            50% { transform: translate(-1px, 2px) rotate(-1deg); }
+            60% { transform: translate(-3px, 1px) rotate(0deg); }
+            70% { transform: translate(3px, 1px) rotate(-1deg); }
+            80% { transform: translate(-1px, -1px) rotate(1deg); }
+            90% { transform: translate(1px, 2px) rotate(0deg); }
+            100% { transform: translate(1px, -2px) rotate(-1deg); }
+        }
+
+        .slot-reel {
+            transition: transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            font-size: 3rem;
+            line-height: 1;
+            height: 60px;
+            overflow: hidden;
+        }
+
+        .win-anim {
+            animation: rainbow-text 0.5s infinite;
+        }
+
+        @keyframes rainbow-text {
+            0% { color: red; transform: scale(1); }
+            50% { color: yellow; transform: scale(1.2); }
+            100% { color: blue; transform: scale(1); }
+        }
+
+        /* CHAOS SPIN ANIMATION */
+        @keyframes chaos-spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .chaos-active * {
+            animation: chaos-spin 0.2s linear infinite !important;
+        }
+
+        /* Confetti */
+        .confetti {
+            position: fixed;
+            width: 10px;
+            height: 10px;
+            pointer-events: none;
+            z-index: 9999;
+        }
+
+        /* Skeleton Runner */
+        .skeleton-runner {
+            position: fixed;
+            z-index: 9998;
+            pointer-events: none;
+            transition-timing-function: linear;
+        }
+
+        /* Custom Scrollbar for extra goofiness */
+        ::-webkit-scrollbar {
+            width: 20px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1; 
+            border: 2px solid black;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #888; 
+            border: 2px solid black;
+            border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #555; 
+        }
+
+        .card-brutal {
+            border: 4px solid black;
+            box-shadow: 8px 8px 0px 0px rgba(0,0,0,1);
+            background: white;
+            transition: all 0.1s;
+        }
+        .card-brutal:active {
+            transform: translate(4px, 4px);
+            box-shadow: 4px 4px 0px 0px rgba(0,0,0,1);
+        }
+
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.8);
+            z-index: 50;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .marquee-container {
+            overflow: hidden;
+            white-space: nowrap;
+            background: black;
+            color: lime;
+            font-family: 'Courier New', monospace;
+            padding: 5px 0;
+            border-bottom: 4px solid yellow;
+        }
+        .marquee-content {
+            display: inline-block;
+            animation: marquee 20s linear infinite;
+        }
+        @keyframes marquee {
+            0% { transform: translateX(100vw); }
+            100% { transform: translateX(-100%); }
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col" id="main-body">
+
+    <!-- The News Ticker -->
+    <div class="marquee-container">
+        <div class="marquee-content text-lg font-bold">
+            BREAKING: LOCAL MAN BETS HOUSE ON SNAIL RACING AND WINS A HALF-EATEN SANDWICH +++ CRYPTO "ELON-TOOTH" CRASHES 99% +++ CASINO MANAGER DENIES RIGGING SLOT MACHINE, SAYS "IT'S JUST A SKILL ISSUE" +++ SKELETON WAR IMMINENT +++
+        </div>
+    </div>
+
+    <!-- Header -->
+    <header class="p-6 text-center border-b-8 border-black bg-yellow-300">
+        <h1 class="text-6xl font-black text-white comic-shadow uppercase transform -rotate-2">
+            🎰 The Sketchy Casino 🎰
+        </h1>
+        <p class="text-xl mt-2 font-bold text-purple-800 bg-white inline-block px-4 py-1 border-2 border-black rotate-1">
+            "We legally cannot guarantee you will win!"
+        </p>
+
+        <div class="mt-6 flex justify-center items-center gap-4 flex-wrap">
+            <div class="card-brutal px-6 py-3 bg-green-200">
+                <span class="text-sm uppercase font-bold">Balance:</span>
+                <div class="text-3xl font-black" id="balance-display">1000</div>
+                <div class="text-xs">Dabloons</div>
+            </div>
+            <div class="card-brutal px-6 py-3 bg-red-200">
+                <span class="text-sm uppercase font-bold">Debt to Grandma:</span>
+                <div class="text-3xl font-black" id="debt-display">0</div>
+                <div class="text-xs">With 5000% Interest</div>
+            </div>
+            <button onclick="takeLoan()" class="card-brutal bg-blue-300 px-4 py-2 font-bold hover:bg-blue-400">
+                💰 Beg for Loan
+            </button>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="flex-grow p-4 md:p-8 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+
+        <!-- GAME 1: EMOJI SLOTS -->
+        <div class="card-brutal p-4 bg-white relative overflow-hidden">
+            <div class="absolute top-0 right-0 bg-red-600 text-white font-bold px-2 py-1 text-xs border-l-2 border-b-2 border-black">RIGGED? NO!</div>
+            <h2 class="text-3xl font-black text-center mb-4 text-pink-600">Slot-o-Matic 9000</h2>
+            
+            <div class="flex justify-center gap-2 mb-6 bg-gray-800 p-4 border-4 border-yellow-500 rounded-lg">
+                <div id="reel1" class="w-16 h-20 bg-white border-2 border-gray-400 flex items-center justify-center text-4xl overflow-hidden">🍒</div>
+                <div id="reel2" class="w-16 h-20 bg-white border-2 border-gray-400 flex items-center justify-center text-4xl overflow-hidden">🍆</div>
+                <div id="reel3" class="w-16 h-20 bg-white border-2 border-gray-400 flex items-center justify-center text-4xl overflow-hidden">🤡</div>
+            </div>
+
+            <div class="flex justify-between items-center mb-4">
+                <label class="font-bold">Bet Amount:</label>
+                <input type="number" id="slot-bet" value="50" class="border-2 border-black p-1 w-20 text-center font-bold" min="1">
+            </div>
+
+            <button onclick="spinSlots()" id="spin-btn" class="w-full card-brutal bg-pink-400 py-4 text-xl font-black hover:bg-pink-300 active:bg-pink-500">
+                SPIN THAT THING!
+            </button>
+            <p id="slot-msg" class="text-center mt-2 font-bold text-sm h-6"></p>
+        </div>
+
+        <!-- GAME 2: CRYPTO SCAM -->
+        <div class="card-brutal p-4 bg-gray-100">
+            <h2 class="text-3xl font-black text-center mb-4 text-green-700">Bitcoin & scams</h2>
+            <div class="bg-black h-40 w-full mb-4 border-4 border-gray-500 relative p-2">
+                <div id="stock-line" class="absolute bottom-0 left-0 h-1 bg-green-500 transition-all duration-300 w-full" style="height: 50%;"></div>
+                <div class="absolute top-2 right-2 text-green-400 font-mono text-xs" id="stock-name">COIN: SCAM-DOGE</div>
+                <div class="absolute bottom-2 right-2 text-white font-mono text-xl" id="stock-price">50.00</div>
+            </div>
+
+            <div class="flex gap-2 mb-2">
+                <button onclick="buyStock()" class="flex-1 card-brutal bg-green-400 py-2 font-bold text-sm">BUY HIGH</button>
+                <button onclick="sellStock()" class="flex-1 card-brutal bg-red-400 py-2 font-bold text-sm">SELL LOW</button>
+            </div>
+            
+            <div class="text-center text-xs mt-2 font-bold">
+                Owned: <span id="stocks-owned">0</span> | Value: <span id="stocks-value">0</span>
+            </div>
+            <p class="text-[10px] text-center mt-2 text-gray-500">*Values are randomized by a monkey with a keyboard.</p>
+        </div>
+
+        <!-- GAME 3: SNAIL RACING -->
+        <div class="card-brutal p-4 bg-orange-100">
+            <h2 class="text-3xl font-black text-center mb-4 text-orange-600">Illegal Snail Racing</h2>
+            
+            <div class="space-y-2 mb-4 bg-green-800 p-2 border-4 border-black rounded">
+                <!-- Track 1 -->
+                <div class="relative h-8 bg-green-600 border-b border-white border-dashed">
+                    <div id="snail1" class="absolute left-0 top-0 text-2xl transition-all duration-300">🐌</div>
+                    <div class="absolute right-0 top-2 text-xs text-white opacity-50">FINISH</div>
+                </div>
+                <!-- Track 2 -->
+                <div class="relative h-8 bg-green-600 border-b border-white border-dashed">
+                    <div id="snail2" class="absolute left-0 top-0 text-2xl transition-all duration-300">🐢</div>
+                </div>
+                <!-- Track 3 -->
+                <div class="relative h-8 bg-green-600">
+                    <div id="snail3" class="absolute left-0 top-0 text-2xl transition-all duration-300">🐛</div>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-3 gap-2 mb-4">
+                <button onclick="selectSnail(1)" class="snail-btn card-brutal bg-yellow-200 py-1 text-xs font-bold" id="btn-snail-1">Bet Gary</button>
+                <button onclick="selectSnail(2)" class="snail-btn card-brutal bg-yellow-200 py-1 text-xs font-bold" id="btn-snail-2">Bet Speedo</button>
+                <button onclick="selectSnail(3)" class="snail-btn card-brutal bg-yellow-200 py-1 text-xs font-bold" id="btn-snail-3">Bet Squirm</button>
+            </div>
+            
+            <input type="number" id="race-bet" value="100" class="w-full border-2 border-black p-1 text-center font-bold mb-2">
+            
+            <button onclick="startRace()" id="race-start-btn" class="w-full card-brutal bg-orange-400 py-2 font-black hover:bg-orange-300">
+                START THE RACE
+            </button>
+        </div>
+
+        <!-- GAME 4: 50/50 BUTTON -->
+        <div class="card-brutal p-4 bg-purple-200 md:col-span-2 lg:col-span-3">
+            <h2 class="text-3xl font-black text-center mb-2 text-purple-900">The "I feel lucky" Button</h2>
+            <p class="text-center text-sm font-bold mb-4">50% chance to double your money. 50% chance to lose half. 100% chance of regret.</p>
+            <div class="flex justify-center">
+                <button onclick="playFiftyFifty()" class="w-32 h-32 rounded-full border-8 border-red-800 bg-red-600 text-white font-black text-xl shadow-[0_10px_0_rgb(100,0,0)] active:shadow-[0_2px_0_rgb(100,0,0)] active:translate-y-2 transition-all">
+                    PRESS<br>ME
+                </button>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-black text-white p-4 text-center border-t-8 border-yellow-400">
+        <p class="font-bold text-sm">© 1998-2024 The Sketchy Casino Inc. | Located in international waters on a raft.</p>
+        <p class="text-[10px] text-gray-400 mt-1">Disclaimer: Not real money. Do not sue us. If you see the clown, do not make eye contact.</p>
+    </footer>
+
+    <!-- Bankruptcy Modal -->
+    <div id="bankruptcy-modal" class="modal-overlay">
+        <div class="card-brutal bg-white p-8 max-w-md text-center">
+            <h2 class="text-4xl font-black text-red-600 mb-4">YOU ARE BROKE!</h2>
+            <img src="https://api.iconify.design/noto:fly.svg" class="w-20 h-20 mx-auto mb-4 animate-bounce">
+            <p class="mb-6 font-bold text-lg">You have lost all your Dabloons. The loan sharks are approaching rapidly.</p>
+            <button onclick="resetGame()" class="card-brutal bg-green-400 px-6 py-3 font-bold text-xl hover:bg-green-300">
+                Sell Kidney (Restart)
+            </button>
+        </div>
+    </div>
+
+    <!-- Skeleton Container -->
+    <div id="skeleton-layer"></div>
+
+    <script>
+        // State
+        let balance = 1000;
+        let debt = 0;
+        let stocks = 0;
+        let stockPrice = 50;
+        let stockTrend = 0;
+        let selectedSnail = null;
+        let isRacing = false;
+
+        // CHAOS SYSTEM
+        function triggerChaos() {
+            // 1. SPIN EVERYTHING
+            const body = document.getElementById('main-body');
+            body.classList.add('chaos-active');
+            
+            setTimeout(() => {
+                body.classList.remove('chaos-active');
+            }, 3000); // Spin for 3 seconds
+
+            // 2. CONFETTI EXPLOSION
+            spawnConfetti();
+        }
+
+        function spawnConfetti() {
+            const colors = ['#ff0000', '#00ff00', '#0000ff', '#ffff00', '#ff00ff', '#00ffff', '#ffffff', '#000000'];
+            for (let i = 0; i < 200; i++) {
+                const conf = document.createElement('div');
+                conf.classList.add('confetti');
+                conf.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                conf.style.left = '50vw';
+                conf.style.top = '50vh';
+                
+                // Random destination
+                const angle = Math.random() * Math.PI * 2;
+                const velocity = 10 + Math.random() * 40;
+                const tx = Math.cos(angle) * velocity * 20; // Spread X
+                const ty = Math.sin(angle) * velocity * 20; // Spread Y
+                const rot = Math.random() * 720;
+                
+                conf.style.transition = `all ${1 + Math.random()}s cubic-bezier(0.25, 1, 0.5, 1)`;
+                document.body.appendChild(conf);
+
+                // Force reflow
+                conf.getBoundingClientRect();
+
+                // Animate
+                setTimeout(() => {
+                    conf.style.transform = `translate(${tx}px, ${ty}px) rotate(${rot}deg)`;
+                    conf.style.opacity = '0';
+                }, 10);
+
+                // Cleanup
+                setTimeout(() => {
+                    conf.remove();
+                }, 2000);
+            }
+        }
+
+        // SKELETON RUNNER LOGIC
+        // Runs every second, 10% chance
+        setInterval(() => {
+            if (Math.random() < 0.1) {
+                spawnSkeleton();
+            }
+        }, 1000);
+
+        function spawnSkeleton() {
+            const skel = document.createElement('img');
+            // Using a common tenor GIF url for the skeleton running meme. Fallback to emoji if it fails.
+            skel.src = "https://media1.tenor.com/m/x8v1o5Q81TEAAAAC/skeleton-running.gif";
+            skel.onerror = function() { this.src = "https://api.iconify.design/noto:skull.svg"; this.style.width="100px"; };
+            
+            skel.classList.add('skeleton-runner');
+            
+            // Random properties
+            const size = 50 + Math.random() * 400; // 50px to 450px
+            const top = Math.random() * 80; // 0% to 80% viewport height
+            const speed = 1 + Math.random() * 4; // 1s to 5s duration
+            const direction = Math.random() > 0.5 ? 1 : -1; // Left-to-right or Right-to-left
+
+            skel.style.width = `${size}px`;
+            skel.style.top = `${top}vh`;
+            
+            if (direction === 1) {
+                // Left to Right
+                skel.style.left = `-${size}px`;
+                skel.style.transform = "scaleX(1)"; // Face right
+            } else {
+                // Right to Left
+                skel.style.left = "100vw";
+                skel.style.transform = "scaleX(-1)"; // Face left
+            }
+
+            document.getElementById('skeleton-layer').appendChild(skel);
+
+            // Animate
+            // Use setTimeout to ensure the element is in DOM before transition
+            requestAnimationFrame(() => {
+                skel.style.transition = `left ${speed}s linear`;
+                requestAnimationFrame(() => {
+                    if (direction === 1) {
+                        skel.style.left = "100vw";
+                    } else {
+                        skel.style.left = `-${size}px`;
+                    }
+                });
+            });
+
+            // Cleanup
+            setTimeout(() => {
+                skel.remove();
+            }, speed * 1000 + 100);
+        }
+
+        // Sounds (simulated)
+        function playSound(type) {
+            const sounds = {
+                win: ["KA-CHING!", "WOWZA!", "MONEY NOISES!"],
+                lose: ["WOMP WOMP", "OOF", "RIP BOZO"],
+                spin: ["BRRRRR...", "CLACK CLACK", "SPIN NOISES"]
+            };
+            const text = document.createElement('div');
+            text.innerText = type === 'win' ? sounds.win[Math.floor(Math.random()*3)] : 
+                             type === 'lose' ? sounds.lose[Math.floor(Math.random()*3)] : 
+                             sounds.spin[Math.floor(Math.random()*3)];
+            text.style.position = 'fixed';
+            text.style.left = Math.random() * 80 + 10 + 'vw';
+            text.style.top = Math.random() * 80 + 10 + 'vh';
+            text.style.fontSize = '2rem';
+            text.style.fontWeight = 'bold';
+            text.style.color = type === 'win' ? 'gold' : type === 'lose' ? 'red' : 'white';
+            text.style.textShadow = '2px 2px 0 #000';
+            text.style.pointerEvents = 'none';
+            text.style.zIndex = 100;
+            text.style.transition = 'all 1s';
+            document.body.appendChild(text);
+
+            setTimeout(() => {
+                text.style.transform = 'translateY(-100px) scale(1.5)';
+                text.style.opacity = '0';
+            }, 50);
+            setTimeout(() => text.remove(), 1000);
+        }
+
+        function updateUI() {
+            document.getElementById('balance-display').innerText = Math.floor(balance);
+            document.getElementById('debt-display').innerText = Math.floor(debt);
+            document.getElementById('stocks-owned').innerText = stocks;
+            document.getElementById('stocks-value').innerText = Math.floor(stocks * stockPrice);
+
+            if (balance <= 0 && stocks === 0) {
+                setTimeout(() => {
+                    if(balance <= 0 && stocks === 0) document.getElementById('bankruptcy-modal').style.display = 'flex';
+                }, 1000);
+            }
+        }
+
+        // --- LOAN SHARK ---
+        function takeLoan() {
+            if (debt > 10000) {
+                alert("GRANDMA SAYS NO MORE!");
+                return;
+            }
+            const amount = 500;
+            balance += amount;
+            debt += amount * 1.5; // 50% instant interest
+            playSound('win');
+            triggerChaos(); // Chaos on loan because why not
+            updateUI();
+            
+            // Random chance for debt to increase randomly
+            if(Math.random() > 0.7) {
+                setTimeout(() => {
+                    alert("The interest rate just adjusted due to inflation!");
+                    debt *= 1.2;
+                    updateUI();
+                }, 2000);
+            }
+        }
+
+        function resetGame() {
+            balance = 1000;
+            debt = 0;
+            stocks = 0;
+            document.getElementById('bankruptcy-modal').style.display = 'none';
+            updateUI();
+        }
+
+        // --- SLOTS ---
+        const symbols = ["🍒", "🍋", "🍆", "💎", "💩", "🤡", "🗿"];
+        
+        function spinSlots() {
+            const betInput = document.getElementById('slot-bet');
+            const bet = parseInt(betInput.value);
+            const msg = document.getElementById('slot-msg');
+            const btn = document.getElementById('spin-btn');
+
+            if (bet > balance) {
+                msg.innerText = "YOU ARE TOO POOR!";
+                msg.style.color = "red";
+                return;
+            }
+            if (bet <= 0) {
+                 msg.innerText = "NICE TRY!";
+                 return;
+            }
+
+            balance -= bet;
+            updateUI();
+            msg.innerText = "SPINNING...";
+            playSound('spin');
+            
+            btn.disabled = true;
+            
+            // Goofy animation logic
+            let spins = 0;
+            const interval = setInterval(() => {
+                document.getElementById('reel1').innerText = symbols[Math.floor(Math.random() * symbols.length)];
+                document.getElementById('reel2').innerText = symbols[Math.floor(Math.random() * symbols.length)];
+                document.getElementById('reel3').innerText = symbols[Math.floor(Math.random() * symbols.length)];
+                spins++;
+                if(spins > 10) {
+                    clearInterval(interval);
+                    finalizeSlots(bet);
+                    btn.disabled = false;
+                }
+            }, 100);
+        }
+
+        function finalizeSlots(bet) {
+            const r1 = symbols[Math.floor(Math.random() * symbols.length)];
+            const r2 = symbols[Math.floor(Math.random() * symbols.length)];
+            const r3 = symbols[Math.floor(Math.random() * symbols.length)];
+
+            document.getElementById('reel1').innerText = r1;
+            document.getElementById('reel2').innerText = r2;
+            document.getElementById('reel3').innerText = r3;
+
+            const msg = document.getElementById('slot-msg');
+
+            // Logic
+            if (r1 === r2 && r2 === r3) {
+                // Jackpot
+                let mult = 10;
+                if (r1 === "🗿") mult = 50; 
+                if (r1 === "💩") mult = 1; 
+                
+                const win = bet * mult;
+                balance += win;
+                msg.innerText = `JACKPOT! YOU WON ${win}!`;
+                msg.classList.add('win-anim');
+                playSound('win');
+                triggerChaos(); // CHAOS
+            } else if (r1 === r2 || r2 === r3 || r1 === r3) {
+                // Small win
+                const win = Math.floor(bet * 1.5);
+                balance += win;
+                msg.innerText = `Small win! ${win} Dabloons.`;
+                msg.classList.remove('win-anim');
+                playSound('win');
+                triggerChaos(); // CHAOS
+            } else {
+                msg.innerText = "L + RATIO + YOU LOST";
+                msg.classList.remove('win-anim');
+                playSound('lose');
+            }
+            updateUI();
+        }
+
+        // --- STONKS ---
+        setInterval(() => {
+            const move = (Math.random() - 0.5) * 5; 
+            stockPrice += move;
+            if (stockPrice < 1) stockPrice = 1; 
+            if (stockPrice > 200) stockPrice = 100; 
+
+            const line = document.getElementById('stock-line');
+            const display = document.getElementById('stock-price');
+            
+            const height = Math.min(Math.max(stockPrice, 0), 100);
+            line.style.height = height + "%";
+            display.innerText = stockPrice.toFixed(2);
+            
+            if (move > 0) {
+                line.className = "absolute bottom-0 left-0 transition-all duration-300 w-full bg-green-500";
+                display.className = "absolute bottom-2 right-2 font-mono text-xl text-green-500";
+            } else {
+                line.className = "absolute bottom-0 left-0 transition-all duration-300 w-full bg-red-600";
+                display.className = "absolute bottom-2 right-2 font-mono text-xl text-red-600";
+            }
+
+            document.getElementById('stocks-value').innerText = Math.floor(stocks * stockPrice);
+        }, 1000);
+
+        function buyStock() {
+            if (balance >= stockPrice) {
+                balance -= stockPrice;
+                stocks++;
+                updateUI();
+            }
+        }
+
+        function sellStock() {
+            if (stocks > 0) {
+                balance += stockPrice;
+                stocks--;
+                updateUI();
+                triggerChaos(); // Selling is winning technically
+            }
+        }
+
+        // --- SNAIL RACE ---
+        function selectSnail(id) {
+            if(isRacing) return;
+            selectedSnail = id;
+            document.querySelectorAll('.snail-btn').forEach(btn => btn.classList.remove('bg-yellow-400', 'border-4', 'border-red-500'));
+            document.getElementById(`btn-snail-${id}`).classList.add('bg-yellow-400', 'border-4', 'border-red-500');
+        }
+
+        function startRace() {
+            if (isRacing) return;
+            if (!selectedSnail) { alert("PICK A SNAIL, COWARD!"); return; }
+            
+            const betInput = document.getElementById('race-bet');
+            const bet = parseInt(betInput.value);
+            
+            if (bet > balance || bet <= 0) return;
+
+            balance -= bet;
+            updateUI();
+            isRacing = true;
+
+            const snails = [
+                { id: 1, pos: 0, el: document.getElementById('snail1') },
+                { id: 2, pos: 0, el: document.getElementById('snail2') },
+                { id: 3, pos: 0, el: document.getElementById('snail3') }
+            ];
+
+            const raceInterval = setInterval(() => {
+                let winner = null;
+
+                snails.forEach(snail => {
+                    if (Math.random() > 0.2) {
+                        snail.pos += Math.random() * 5;
+                    }
+                    if (Math.random() > 0.95) {
+                        snail.pos -= 2;
+                    }
+                    snail.el.style.left = snail.pos + "%";
+
+                    if (snail.pos >= 90 && !winner) {
+                        winner = snail.id;
+                    }
+                });
+
+                if (winner) {
+                    clearInterval(raceInterval);
+                    isRacing = false;
+                    if (winner === selectedSnail) {
+                        const win = bet * 3;
+                        balance += win;
+                        playSound('win');
+                        alert(`SNAIL ${winner} WON! YOU ARE RICH!`);
+                        triggerChaos(); // CHAOS
+                    } else {
+                        playSound('lose');
+                        alert(`SNAIL ${winner} WON! YOU LOST!`);
+                    }
+                    updateUI();
+                    setTimeout(() => {
+                        snails.forEach(s => { s.el.style.left = "0%"; });
+                    }, 1000);
+                }
+            }, 100);
+        }
+
+        // --- 50/50 ---
+        function playFiftyFifty() {
+            if (balance === 0) return;
+            
+            document.body.style.backgroundColor = "black";
+            setTimeout(() => { document.body.style.backgroundColor = ""; }, 100);
+
+            if (Math.random() > 0.5) {
+                balance *= 2;
+                playSound('win');
+                triggerChaos(); // CHAOS
+            } else {
+                balance = Math.floor(balance / 2);
+                playSound('lose');
+            }
+            updateUI();
+        }
+
+        updateUI();
+    </script>
+</body>
+</html>
