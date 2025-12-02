@@ -29,7 +29,7 @@ Games Tab: 🟢
 
 Test branch: 🔵
 
-    Cube Combat: 🟡 (p2p 🟢, achivements 🟢(a few work), cubes 🔵, moveset's 🔵, support for other devices (eg: mobile and controler) 🟡)
+    Cube Combat: 🟡 (p2p 🟢, achivements 🟢(a few work), cubes 🔵, moveset's 🔵, support for other devices (eg: mobile and controler) 🔴)
 
 Store: 🔵 (probably going to be removed)
 
