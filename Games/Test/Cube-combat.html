@@ -32,6 +32,37 @@
             display: block;
         }
 
+        /* RAINBOW OVERLAY STYLE */
+        .rainbow-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            box-sizing: border-box;
+            border: 10px solid transparent;
+            pointer-events: none;
+            z-index: 5;
+            display: none;
+            box-shadow: inset 0 0 50px rgba(0,0,0,0.5);
+            animation: rainbow-border 2s linear infinite;
+        }
+
+        .rainbow-overlay.active {
+            display: block;
+        }
+
+        @keyframes rainbow-border {
+            0% { border-color: #ff0000; box-shadow: inset 0 0 30px #ff0000; }
+            15% { border-color: #ff7f00; box-shadow: inset 0 0 30px #ff7f00; }
+            30% { border-color: #ffff00; box-shadow: inset 0 0 30px #ffff00; }
+            45% { border-color: #00ff00; box-shadow: inset 0 0 30px #00ff00; }
+            60% { border-color: #0000ff; box-shadow: inset 0 0 30px #0000ff; }
+            75% { border-color: #4b0082; box-shadow: inset 0 0 30px #4b0082; }
+            90% { border-color: #9400d3; box-shadow: inset 0 0 30px #9400d3; }
+            100% { border-color: #ff0000; box-shadow: inset 0 0 30px #ff0000; }
+        }
+
         /* RAINBOW TEXT STYLE */
         .rainbow-text {
             position: absolute;
@@ -287,6 +318,7 @@
 <body>
 
 <div id="game-container">
+    <div id="overtime-overlay" class="rainbow-overlay"></div>
     <canvas id="gameCanvas" width="800" height="600"></canvas>
 
     <div id="demo-label" class="rainbow-text hidden">WIP: Unfinished and Unpolished</div>
@@ -420,7 +452,7 @@
         { id: 4, name: "Magic Cube", color: "hotpink", hp: 100, attacks: "Slash, Block (Bar)" },
         { id: 5, name: "The Jorker", color: "#8B4513", hp: 75, attacks: "Kick, Laser (Windup)" },
         { id: 6, name: "Ima Touch You", color: "indigo", hp: 75, attacks: "Slash, Pull (Invert)" },
-        { id: 7, name: "Master Cube", color: "#FFD700", hp: "100", attacks: "Call back, Overtime (Placeholder)" }
+        { id: 7, name: "Master Cube", color: "#FFD700", hp: "100", attacks: "Call back, Overtime" }
     ];
 
     let selectedCubeId = 1; // Default to Cube 1
@@ -1193,20 +1225,38 @@
             this.baseColor = "#FFD700";
             this.masterState = 'MASTER'; // MASTER, SWAPPING_OUT, MINION_MODE, SWAPPING_IN
             this.minion = null;
-            this.placeholderTimer = 0;
             this.swapTargetX = -150;
+            
+            // Overtime Mechanics
+            this.overtimeActive = false;
+            this.overtimeTimer = 0;
+            this.overtimeCooldown = 0;
         }
 
         update() {
             if (this.dead) return;
+
+            // Handle Overtime Timer
+            if (this.overtimeActive) {
+                this.overtimeTimer--;
+                if (this.overtimeTimer <= 0) {
+                    this.overtimeActive = false;
+                    document.getElementById('overtime-overlay').classList.remove('active');
+                    this.overtimeCooldown = 300; // 5 seconds cooldown after effect ends
+                }
+            } else {
+                if (this.overtimeCooldown > 0) this.overtimeCooldown--;
+            }
 
             // --- MASTER STATE ---
             if (this.masterState === 'MASTER') {
                 super.update(); // Normal movement
 
                 // OVERTIME Ability (Space)
-                if (keys['Space']) {
-                    this.placeholderTimer = 2; // Show frame
+                if (keys['Space'] && !this.overtimeActive && this.overtimeCooldown <= 0) {
+                     this.overtimeActive = true;
+                     this.overtimeTimer = 300; // 5 seconds duration
+                     document.getElementById('overtime-overlay').classList.add('active');
                 }
 
                 // CALL BACK Ability (F)
@@ -1219,8 +1269,6 @@
                 this.vx = -15; // Slide left fast
                 this.x += this.vx;
                 this.y += this.vy; 
-                // Gravity applies? Sure
-                if(this.y + this.h >= FLOOR_Y) this.y = FLOOR_Y - this.h;
                 
                 if (this.x < -100) {
                     this.spawnMinion();
@@ -1233,6 +1281,17 @@
                 if (this.minion) {
                     this.minion.update();
                     
+                    // DECREASE COOLDOWNS IF OVERTIME ACTIVE
+                    if (this.overtimeActive) {
+                        // Manually tick down common cooldown properties to simulate "faster cooldowns"
+                        // This effectively doubles the recharge rate (1 normal tick + 1 extra tick)
+                        if (this.minion.slashCooldown > 0) this.minion.slashCooldown--;
+                        if (this.minion.parryCooldown > 0) this.minion.parryCooldown--;
+                        if (this.minion.beamTimer > 0 && this.minion.beamState !== 'FIRING') this.minion.beamTimer--; 
+                        if (this.minion.pullCooldown > 0) this.minion.pullCooldown--;
+                        if (this.minion.blockEnergy < 100 && !this.minion.isBlocking) this.minion.blockEnergy += 0.5;
+                    }
+
                     // Sync position so AI targets the minion (and camera follows logic if exists)
                     this.x = this.minion.x;
                     this.y = this.minion.y;
@@ -1270,10 +1329,23 @@
             this.minion.vx = 20; // Jump in
             this.minion.vy = -10;
             
-            // WEAKEN
+            // WEAKEN (Default)
             this.minion.maxHp = 50;
             this.minion.hp = 50;
             this.minion.damageMult = 0.5;
+
+            // OVERTIME BUFF
+            // If overtime is active when calling back, minion gets FULL power
+            if (this.overtimeActive) {
+                this.minion.maxHp = 100;
+                this.minion.hp = 100;
+                this.minion.damageMult = 1.0;
+                
+                // Visual Indicator for Super Minion
+                this.minion.baseColor = this.minion.color; // Save
+                // We'll let the minion render normally, but maybe add a visual cue later if needed.
+                // The rainbow border on screen is enough indication.
+            }
         }
 
         // Override takeDamage to direct it to minion if active
@@ -1293,12 +1365,24 @@
             } else {
                 super.draw(ctx);
                 
-                // Draw Placeholder text
-                if (keys['Space'] && this.masterState === 'MASTER') {
-                    ctx.fillStyle = "white";
-                    ctx.font = "bold 20px Arial";
-                    ctx.textAlign = "center";
-                    ctx.fillText("Placeholder", this.x + this.w/2, this.y - 20);
+                // Draw Overtime Status text above head
+                if (this.masterState === 'MASTER') {
+                     if (this.overtimeActive) {
+                         ctx.fillStyle = "#FF00FF";
+                         ctx.font = "bold 16px Arial";
+                         ctx.textAlign = "center";
+                         ctx.fillText("OVERTIME!", this.x + this.w/2, this.y - 20);
+                     } else if (this.overtimeCooldown > 0) {
+                         ctx.fillStyle = "gray";
+                         ctx.font = "14px Arial";
+                         ctx.textAlign = "center";
+                         ctx.fillText(Math.ceil(this.overtimeCooldown/60), this.x + this.w/2, this.y - 20);
+                     } else {
+                         ctx.fillStyle = "yellow";
+                         ctx.font = "14px Arial";
+                         ctx.textAlign = "center";
+                         ctx.fillText("Ready", this.x + this.w/2, this.y - 20);
+                     }
                 }
             }
         }
