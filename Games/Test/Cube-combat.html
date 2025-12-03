@@ -452,7 +452,9 @@
         { id: 4, name: "Magic Cube", color: "hotpink", hp: 100, attacks: "Slash, Block (Bar)" },
         { id: 5, name: "The Jorker", color: "#8B4513", hp: 75, attacks: "Kick, Laser (Windup)" },
         { id: 6, name: "Ima Touch You", color: "indigo", hp: 75, attacks: "Slash, Pull (Invert)" },
-        { id: 7, name: "Master Cube", color: "#FFD700", hp: "100", attacks: "Call back, Overtime" }
+        { id: 7, name: "Vigilante", color: "#2F4F4F", hp: 125, attacks: "Takedown, Drone Support" },
+        { id : 8, name: "Fbt_7 (Secret)", color: "black", hp: 200, attacks: "Delete..., you are a mistake, nice try, pathetic" },
+        { id: 9, name: "Master Cube", color: "#FFD700", hp: "100", attacks: "Call back, Overtime" }
     ];
 
     let selectedCubeId = 1; // Default to Cube 1
@@ -462,7 +464,7 @@
         { id: 2, name: "Sharpshooter", desc: "Hit 5 beams in a row (Red Cube)", unlocks: "Magic Cube", unlocked: false },
         { id: 3, name: "Unstoppable", desc: "Win without taking damage", unlocks: "The Jorker", unlocked: false },
         { id: 4, name: "Wombo Combo", desc: "Absolutely combo the red Ai cube", unlocks: "Ima Touch You", unlocked: false },
-        { id: 5, name: "Hacker?", desc: "Die to Fbt_7 (Secret)", unlocks: "Viglanty (Placeholder)", unlocked: false },
+        { id: 5, name: "Hacker?", desc: "Die to Fbt_7 (Secret)", unlocks: "Vigilante", unlocked: false },
         { id: 6, name: "Cube Master", desc: "Unlock all other cubes", unlocks: "Master Cube", unlocked: false }
     ];
 
@@ -547,15 +549,14 @@
         // Prepare display list
         let displayList = [...CUBE_DATA];
         
-        // Find special Master Cube (ID 7)
-        const masterCube = displayList.find(c => c.id === 7);
+        // Find special Master Cube (ID 9) - FIXED FROM ID 7
+        const masterCube = displayList.find(c => c.id === 9);
         const masterUnlocked = ACHIEVEMENT_DATA.find(a => a.id === 6).unlocked;
 
-        // Remove ID 7 from standard list to handle placement manually
-        displayList = displayList.filter(c => c.id !== 7);
+        // Remove ID 9 from standard list to handle placement manually
+        displayList = displayList.filter(c => c.id !== 9);
 
         // Logic: "shows up as the first one ... pushing the rest down"
-        // Only if unlocked. If locked, it stays hidden (default behavior implied by "when you get").
         if (masterUnlocked && masterCube) {
             displayList.unshift(masterCube);
         }
@@ -565,8 +566,8 @@
             
             let isLocked = false;
             
-            // Standard locking logic (skip for ID 7 as visibility handles it)
-            if (cube.id !== 7 && cube.id > 2) {
+            // Standard locking logic (skip for ID 9 as visibility handles it)
+            if (cube.id !== 9 && cube.id > 2) {
                  const unlockingAchievement = ACHIEVEMENT_DATA.find(a => a.unlocks === cube.name);
                  if (unlockingAchievement && !unlockingAchievement.unlocked) {
                      isLocked = true;
@@ -1217,7 +1218,151 @@
         }
     }
 
-    // CUBE 7: MASTER CUBE 
+    // CUBE 7: VIGILANTE
+    class VigilanteCube extends BlueCube {
+        constructor() {
+            super();
+            this.color = "#2F4F4F";
+            this.baseColor = "#2F4F4F";
+            this.maxHp = 125;
+            this.hp = 125;
+            
+            // Dash Vars
+            this.dashActive = false;
+            this.dashTimer = 0;
+            
+            // Drone Vars
+            this.droneActive = false;
+            this.droneTimer = 0;
+            this.droneCooldown = 0;
+            this.droneX = this.x;
+            this.droneY = this.y - 100;
+            this.droneFireTimer = 0;
+        }
+
+        update() {
+            if (this.dead) return;
+            // Cooldowns
+            if (this.slashCooldown > 0) this.slashCooldown--;
+            if (this.droneCooldown > 0) this.droneCooldown--;
+
+            // DRONE UPDATE LOGIC
+            if (this.droneActive) {
+                this.droneTimer--;
+                
+                // Drone Movement (Hover over enemy)
+                let targetX = redCube.x;
+                let targetY = redCube.y - 150;
+                
+                // Smooth Lerp
+                this.droneX += (targetX - this.droneX) * 0.1;
+                this.droneY += (targetY - this.droneY) * 0.1;
+
+                // Fire Logic
+                this.droneFireTimer--;
+                if (this.droneFireTimer <= 0) {
+                    this.droneFireTimer = 60; // Fire every 1 second
+                    // Hitscan check (simple)
+                    if (Math.abs(this.droneX - redCube.x) < 50) {
+                        redCube.takeDamage(10);
+                        // Visual effect handled in draw
+                    }
+                }
+
+                if (this.droneTimer <= 0) {
+                    this.droneActive = false;
+                    this.droneCooldown = 900; // 15 seconds cooldown
+                }
+            }
+
+            // Input Handling (Dash/Attack)
+            // Override 'Space' for Dash-Attack
+            if (keys['Space'] && this.slashCooldown <= 0 && !this.dashActive) {
+                this.performSlash(); 
+            }
+
+            // Override 'F' for Drone
+            if (keys['KeyF'] && !this.droneActive && this.droneCooldown <= 0) {
+                this.droneActive = true;
+                this.droneTimer = 480; // 8 Seconds
+                this.droneX = this.x; // Spawn at player
+                this.droneY = this.y - 50;
+                this.droneFireTimer = 30;
+            }
+            
+            // DASH STATE
+            if (this.dashActive) {
+                this.vx = this.facingRight ? 20 : -20; // High speed
+                this.dashTimer--;
+                
+                // Collision during dash
+                if (rectIntersect(this.x, this.y, this.w, this.h, redCube.x, redCube.y, redCube.w, redCube.h)) {
+                    redCube.takeDamage(20);
+                    redCube.vx = this.facingRight ? 15 : -15; // Knockback
+                    redCube.vy = -5;
+                    
+                    // Stop dash on impact
+                    this.dashActive = false;
+                    this.vx = this.facingRight ? -5 : 5; // Bounce back
+                }
+
+                if (this.dashTimer <= 0) this.dashActive = false;
+                
+                // Gravity applies during dash (optional, but keeps it grounded)
+                this.vy += GRAVITY;
+                this.x += this.vx;
+                this.y += this.vy;
+                 if (this.y + this.h >= FLOOR_Y) {
+                    this.y = FLOOR_Y - this.h;
+                    this.vy = 0;
+                    this.isGrounded = true;
+                }
+            } else {
+                super.update(); // Normal movement when not dashing
+            }
+        }
+
+        performSlash() {
+            // Takedown Dash logic
+            this.dashActive = true;
+            this.dashTimer = 15; // Short burst
+            this.slashCooldown = 60; // 1 second cooldown
+        }
+
+        draw(ctx) {
+            super.draw(ctx);
+            
+            // Draw Dash Afterimage effect
+            if (this.dashActive) {
+                ctx.fillStyle = "rgba(47, 79, 79, 0.5)";
+                ctx.fillRect(this.x - (this.facingRight ? 20 : -20), this.y, this.w, this.h);
+            }
+
+            // Draw Drone
+            if (this.droneActive) {
+                // Drone Body
+                ctx.fillStyle = "#00FFFF";
+                ctx.fillRect(this.droneX, this.droneY, 30, 10);
+                ctx.fillStyle = "white";
+                ctx.fillRect(this.droneX + 10, this.droneY - 5, 10, 5); // Propeller area
+
+                // Laser Beam (Flash)
+                if (this.droneFireTimer > 55) { // Show beam for first 5 frames of cycle
+                    ctx.fillStyle = "rgba(0, 255, 255, 0.8)";
+                    ctx.fillRect(this.droneX + 14, this.droneY + 10, 2, redCube.y - this.droneY);
+                }
+                
+                // Connecting line (optional, high tech look)
+                ctx.strokeStyle = "rgba(0, 255, 255, 0.2)";
+                ctx.beginPath();
+                ctx.moveTo(this.x + this.w/2, this.y);
+                ctx.lineTo(this.droneX + 15, this.droneY + 10);
+                ctx.stroke();
+            }
+        }
+    }
+
+    // CUBE 9: MASTER CUBE 
     class GoldCube extends BlueCube {
         constructor() {
             super();
@@ -1290,6 +1435,7 @@
                         if (this.minion.beamTimer > 0 && this.minion.beamState !== 'FIRING') this.minion.beamTimer--; 
                         if (this.minion.pullCooldown > 0) this.minion.pullCooldown--;
                         if (this.minion.blockEnergy < 100 && !this.minion.isBlocking) this.minion.blockEnergy += 0.5;
+                        if (this.minion.droneCooldown > 0) this.minion.droneCooldown--;
                     }
 
                     // Sync position so AI targets the minion (and camera follows logic if exists)
@@ -1320,7 +1466,7 @@
 
         spawnMinion() {
             // Random class choice (excluding GoldCube/RedCube)
-            const types = [BlueCube, GreenCube, PinkCube, BrownCube, PurpleCube];
+            const types = [BlueCube, GreenCube, PinkCube, BrownCube, PurpleCube, VigilanteCube];
             const RandomClass = types[Math.floor(Math.random() * types.length)];
             
             this.minion = new RandomClass();
@@ -1600,7 +1746,8 @@
             case 4: blueCube = new PinkCube(); break;
             case 5: blueCube = new BrownCube(); break;
             case 6: blueCube = new PurpleCube(); break;
-            case 7: blueCube = new GoldCube(); break;
+            case 7: blueCube = new VigilanteCube(); break;
+            case 9: blueCube = new GoldCube(); break;
             default: blueCube = new BlueCube(); break;
         }
 
