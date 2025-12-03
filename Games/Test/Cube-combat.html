@@ -305,6 +305,8 @@
                 <div style="color: blue" id="p1-name-display">P1 (Blue)</div>
                 <div class="health-bar-container">
                     <div id="p1-health" class="health-bar"></div>
+                    <!-- Minion Health Overlay -->
+                    <div id="p1-minion-health" class="health-bar" style="background-color: #888; position: absolute; top: 0; left: 0; width: 0%; display: none;"></div>
                 </div>
             </div>
             <div style="text-align: right;">
@@ -410,7 +412,7 @@
 
 <script>
 
-    // UPDATED CUBE DATA BASED ON TEXT FILE 
+    // UPDATED CUBE DATA 
     const CUBE_DATA = [
         { id: 1, name: "Sword Master", color: "blue", hp: 100, attacks: "Slash, Parry" },
         { id: 2, name: "Angry Sniper", color: "red", hp: 100, attacks: "Charge, Laser" },
@@ -418,7 +420,7 @@
         { id: 4, name: "Magic Cube", color: "hotpink", hp: 100, attacks: "Slash, Block (Bar)" },
         { id: 5, name: "The Jorker", color: "#8B4513", hp: 75, attacks: "Kick, Laser (Windup)" },
         { id: 6, name: "Ima Touch You", color: "indigo", hp: 75, attacks: "Slash, Pull (Invert)" },
-        { id: 7, name: "Placeholder", color: "#FFD700", hp: "???", attacks: "???" }
+        { id: 7, name: "Master Cube", color: "#FFD700", hp: "100", attacks: "Call back, Overtime (Placeholder)" }
     ];
 
     let selectedCubeId = 1; // Default to Cube 1
@@ -428,7 +430,7 @@
         { id: 2, name: "Sharpshooter", desc: "Hit 5 beams in a row (Red Cube)", unlocks: "Magic Cube", unlocked: false },
         { id: 3, name: "Unstoppable", desc: "Win without taking damage", unlocks: "The Jorker", unlocked: false },
         { id: 4, name: "Wombo Combo", desc: "Absolutely combo the red Ai cube", unlocks: "Ima Touch You", unlocked: false },
-        { id: 5, name: "Hacker?", desc: "Die to Fbt_7 (Secret)", unlocks: "Cube 7", unlocked: false },
+        { id: 5, name: "Hacker?", desc: "Die to Fbt_7 (Secret)", unlocks: "Viglanty (Placeholder)", unlocked: false },
         { id: 6, name: "Cube Master", desc: "Unlock all other cubes", unlocks: "Master Cube", unlocked: false }
     ];
 
@@ -746,6 +748,7 @@
             this.dead = false;
             this.facingRight = true;
             this.invertControlsTimer = 0; // For Cube 6 mechanic
+            this.damageMult = 1.0; // For weak minion logic
         }
 
         update() {
@@ -860,7 +863,12 @@
             if (keys['KeyF'] && this.parryCooldown <= 0 && !this.parryActive) {
                 // Default parry logic (Cube 1 only)
                 // Subclasses will override 'F' behavior or this condition
-                if (selectedCubeId === 1) {
+                // Special exception: Gold Cube subclasses BlueCube, but overrides 'F'.
+                // If this is a MINION GoldCube, it's actually not a GoldCube class, it's just a BlueCube class.
+                // We need to check if this instance is exactly a BlueCube or if selectedCubeId is 1 to allow Parry.
+                // If this is a minion, selectedCubeId is 7, but instance is BlueCube.
+                // Minion BlueCube should be allowed to parry.
+                if (this.constructor.name === 'BlueCube' && !(this instanceof GoldCube)) {
                     this.parryActive = true;
                     this.parryTimer = 30; 
                     this.color = COLORS.BLACK; 
@@ -893,7 +901,8 @@
 
             if (!redCube.dead && rectIntersect(hitX, this.y, reach, this.h, redCube.x, redCube.y, redCube.w, redCube.h)) {
                 if (!redCube.isInvincible) {
-                    redCube.takeDamage(25);
+                    // Apply Damage Multiplier
+                    redCube.takeDamage(25 * this.damageMult);
                     redCube.vx = this.facingRight ? 10 : -10;
                     redCube.vy = -5;
                 }
@@ -965,7 +974,7 @@
             const beamY = this.y + 15;
             
             if (rectIntersect(beamX, beamY, beamW, beamH, redCube.x, redCube.y, redCube.w, redCube.h)) {
-                redCube.takeDamage(25);
+                redCube.takeDamage(25 * this.damageMult);
                 redCube.vx = this.facingRight ? 15 : -15;
             }
         }
@@ -1087,7 +1096,7 @@
             const hitX = this.facingRight ? this.x + this.w : this.x - reach;
 
             if (rectIntersect(hitX, this.y + 20, reach, 30, redCube.x, redCube.y, redCube.w, redCube.h)) {
-                redCube.takeDamage(15); 
+                redCube.takeDamage(15 * this.damageMult); 
                 // HIGH Knockback
                 redCube.vx = this.facingRight ? 25 : -25; 
                 redCube.vy = -10;
@@ -1100,7 +1109,7 @@
             const beamW = 600;
             const beamX = this.facingRight ? this.x + this.w : this.x - beamW;
             if (rectIntersect(beamX, this.y + 15, beamW, 30, redCube.x, redCube.y, redCube.w, redCube.h)) {
-                redCube.takeDamage(25);
+                redCube.takeDamage(25 * this.damageMult);
             }
         }
 
@@ -1176,14 +1185,123 @@
         }
     }
 
-    // CUBE 7: MASTER CUBE (Placeholder)
+    // CUBE 7: MASTER CUBE 
     class GoldCube extends BlueCube {
         constructor() {
             super();
             this.color = "#FFD700";
             this.baseColor = "#FFD700";
+            this.masterState = 'MASTER'; // MASTER, SWAPPING_OUT, MINION_MODE, SWAPPING_IN
+            this.minion = null;
+            this.placeholderTimer = 0;
+            this.swapTargetX = -150;
         }
-        // Behaves just like BlueCube for now, just gold.
+
+        update() {
+            if (this.dead) return;
+
+            // --- MASTER STATE ---
+            if (this.masterState === 'MASTER') {
+                super.update(); // Normal movement
+
+                // OVERTIME Ability (Space)
+                if (keys['Space']) {
+                    this.placeholderTimer = 2; // Show frame
+                }
+
+                // CALL BACK Ability (F)
+                if (keys['KeyF']) {
+                    this.masterState = 'SWAPPING_OUT';
+                }
+            } 
+            // --- SWAPPING OUT (Animation) ---
+            else if (this.masterState === 'SWAPPING_OUT') {
+                this.vx = -15; // Slide left fast
+                this.x += this.vx;
+                this.y += this.vy; 
+                // Gravity applies? Sure
+                if(this.y + this.h >= FLOOR_Y) this.y = FLOOR_Y - this.h;
+                
+                if (this.x < -100) {
+                    this.spawnMinion();
+                    this.masterState = 'MINION_MODE';
+                    this.vx = 0;
+                }
+            }
+            // --- MINION MODE ---
+            else if (this.masterState === 'MINION_MODE') {
+                if (this.minion) {
+                    this.minion.update();
+                    
+                    // Sync position so AI targets the minion (and camera follows logic if exists)
+                    this.x = this.minion.x;
+                    this.y = this.minion.y;
+                    
+                    if (this.minion.dead) {
+                        this.minion = null;
+                        this.masterState = 'SWAPPING_IN';
+                        // Teleport Master Cube to edge
+                        this.x = -100; 
+                        this.y = FLOOR_Y - this.h;
+                    }
+                }
+            }
+            // --- SWAPPING IN (Animation) ---
+            else if (this.masterState === 'SWAPPING_IN') {
+                this.vx = 15;
+                this.x += this.vx;
+                if(this.y + this.h >= FLOOR_Y) this.y = FLOOR_Y - this.h;
+                
+                if (this.x >= 50) { // Original spawn area
+                    this.masterState = 'MASTER';
+                    this.vx = 0;
+                }
+            }
+        }
+
+        spawnMinion() {
+            // Random class choice (excluding GoldCube/RedCube)
+            const types = [BlueCube, GreenCube, PinkCube, BrownCube, PurpleCube];
+            const RandomClass = types[Math.floor(Math.random() * types.length)];
+            
+            this.minion = new RandomClass();
+            this.minion.x = -50; // Start off screen
+            this.minion.y = FLOOR_Y - CUBE_SIZE;
+            this.minion.vx = 20; // Jump in
+            this.minion.vy = -10;
+            
+            // WEAKEN
+            this.minion.maxHp = 50;
+            this.minion.hp = 50;
+            this.minion.damageMult = 0.5;
+        }
+
+        // Override takeDamage to direct it to minion if active
+        takeDamage(amount) {
+            if (this.masterState === 'MINION_MODE' && this.minion) {
+                this.minion.takeDamage(amount);
+            } else if (this.masterState === 'MASTER' || this.masterState === 'SWAPPING_IN') {
+                super.takeDamage(amount);
+            }
+        }
+
+        draw(ctx) {
+            if (this.dead) return;
+
+            if (this.masterState === 'MINION_MODE' && this.minion) {
+                this.minion.draw(ctx);
+            } else {
+                super.draw(ctx);
+                
+                // Draw Placeholder text
+                if (keys['Space'] && this.masterState === 'MASTER') {
+                    ctx.fillStyle = "white";
+                    ctx.font = "bold 20px Arial";
+                    ctx.textAlign = "center";
+                    ctx.fillText("Placeholder", this.x + this.w/2, this.y - 20);
+                }
+            }
+        }
     }
 
     // CUBE 2: ANGRY SNIPER (Red) - AI/P2
@@ -1414,6 +1532,16 @@
         const p2Pct = (redCube.hp / redCube.maxHp) * 100;
         document.getElementById('p1-health').style.width = p1Pct + '%';
         document.getElementById('p2-health').style.width = p2Pct + '%';
+        
+        // Check for minion overlay
+        const minionBar = document.getElementById('p1-minion-health');
+        if (blueCube instanceof GoldCube && blueCube.masterState === 'MINION_MODE' && blueCube.minion) {
+            minionBar.style.display = 'block';
+            const mPct = (blueCube.minion.hp / blueCube.minion.maxHp) * 100;
+            minionBar.style.width = mPct + '%';
+        } else {
+            minionBar.style.display = 'none';
+        }
 
         let name = "AI (Red)";
         if(gameMode === 'pvp') name = "P2 (Local)";
@@ -1479,6 +1607,8 @@
 
         redCube.draw(ctx);
         blueCube.draw(ctx);
+        
+        updateUI(); // Moved here to update per frame for smooth bars
 
         animationId = requestAnimationFrame(gameLoop);
     }
