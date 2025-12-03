@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cube Combat</title>
+    <title>Cube Combat - Expanded Edition</title>
     <script src="https://unpkg.com/peerjs@1.5.1/dist/peerjs.min.js"></script>
     <style>
         body {
@@ -417,7 +417,8 @@
         { id: 3, name: "Sniper Cube", color: "green", hp: 100, attacks: "Slash, Laser (Windup)" },
         { id: 4, name: "Magic Cube", color: "hotpink", hp: 100, attacks: "Slash, Block (Bar)" },
         { id: 5, name: "The Jorker", color: "#8B4513", hp: 75, attacks: "Kick, Laser (Windup)" },
-        { id: 6, name: "Ima Touch You", color: "indigo", hp: 75, attacks: "Slash, Pull (Invert)" }
+        { id: 6, name: "Ima Touch You", color: "indigo", hp: 75, attacks: "Slash, Pull (Invert)" },
+        { id: 7, name: "Placeholder", color: "#FFD700", hp: "???", attacks: "???" }
     ];
 
     let selectedCubeId = 1; // Default to Cube 1
@@ -427,7 +428,7 @@
         { id: 2, name: "Sharpshooter", desc: "Hit 5 beams in a row (Red Cube)", unlocks: "Magic Cube", unlocked: false },
         { id: 3, name: "Unstoppable", desc: "Win without taking damage", unlocks: "The Jorker", unlocked: false },
         { id: 4, name: "Wombo Combo", desc: "Absolutely combo the red Ai cube", unlocks: "Ima Touch You", unlocked: false },
-        { id: 5, name: "Hacker?", desc: "Die to Fbt_7 (Secret)", unlocks: "Placeholder", unlocked: false },
+        { id: 5, name: "Hacker?", desc: "Die to Fbt_7 (Secret)", unlocks: "Cube 7", unlocked: false },
         { id: 6, name: "Cube Master", desc: "Unlock all other cubes", unlocks: "Master Cube", unlocked: false }
     ];
 
@@ -509,14 +510,33 @@
         const container = document.getElementById('cubes-grid-container');
         container.innerHTML = '';
 
-        CUBE_DATA.forEach((cube) => {
+        // Prepare display list
+        let displayList = [...CUBE_DATA];
+        
+        // Find special Master Cube (ID 7)
+        const masterCube = displayList.find(c => c.id === 7);
+        const masterUnlocked = ACHIEVEMENT_DATA.find(a => a.id === 6).unlocked;
+
+        // Remove ID 7 from standard list to handle placement manually
+        displayList = displayList.filter(c => c.id !== 7);
+
+        // Logic: "shows up as the first one ... pushing the rest down"
+        // Only if unlocked. If locked, it stays hidden (default behavior implied by "when you get").
+        if (masterUnlocked && masterCube) {
+            displayList.unshift(masterCube);
+        }
+
+        displayList.forEach((cube) => {
             const div = document.createElement('div');
-            // Check unlocks
-            const unlockingAchievement = ACHIEVEMENT_DATA.find(a => a.unlocks === cube.name);
+            
             let isLocked = false;
-            // Cubes 1 and 2 are defaults
-            if (cube.id > 2) {
-                isLocked = unlockingAchievement && !unlockingAchievement.unlocked;
+            
+            // Standard locking logic (skip for ID 7 as visibility handles it)
+            if (cube.id !== 7 && cube.id > 2) {
+                 const unlockingAchievement = ACHIEVEMENT_DATA.find(a => a.unlocks === cube.name);
+                 if (unlockingAchievement && !unlockingAchievement.unlocked) {
+                     isLocked = true;
+                 }
             }
 
             div.className = 'cube-icon' + (isLocked ? ' locked' : '') + (selectedCubeId === cube.id ? ' selected' : '');
@@ -901,7 +921,7 @@
         }
     }
 
-    // CUBE 3: SNIPER CUBE [cite: 1]
+    // CUBE 3: SNIPER CUBE
     class GreenCube extends BlueCube {
         constructor() {
             super();
@@ -961,7 +981,7 @@
         }
     }
 
-    // CUBE 4: MAGIC CUBE [cite: 2]
+    // CUBE 4: MAGIC CUBE
     class PinkCube extends BlueCube {
         constructor() {
             super();
@@ -1017,7 +1037,7 @@
         }
     }
 
-    // CUBE 5: THE JORKER [cite: 2]
+    // CUBE 5: THE JORKER
     class BrownCube extends BlueCube {
         constructor() {
             super();
@@ -1095,7 +1115,7 @@
         }
     }
 
-    // CUBE 6: IMA TOUCH YOU [cite: 2]
+    // CUBE 6: IMA TOUCH YOU
     class PurpleCube extends BlueCube {
         constructor() {
             super();
@@ -1154,6 +1174,16 @@
                 ctx.stroke();
             }
         }
+    }
+
+    // CUBE 7: MASTER CUBE (Placeholder)
+    class GoldCube extends BlueCube {
+        constructor() {
+            super();
+            this.color = "#FFD700";
+            this.baseColor = "#FFD700";
+        }
+        // Behaves just like BlueCube for now, just gold.
     }
 
     // CUBE 2: ANGRY SNIPER (Red) - AI/P2
@@ -1368,6 +1398,7 @@
             case 4: blueCube = new PinkCube(); break;
             case 5: blueCube = new BrownCube(); break;
             case 6: blueCube = new PurpleCube(); break;
+            case 7: blueCube = new GoldCube(); break;
             default: blueCube = new BlueCube(); break;
         }
 
