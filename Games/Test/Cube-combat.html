@@ -32,7 +32,7 @@
             display: block;
         }
 
-        /* NEW RAINBOW TEXT STYLE */
+        /* RAINBOW TEXT STYLE */
         .rainbow-text {
             position: absolute;
             top: 10px;
@@ -95,10 +95,9 @@
         #p1-health { background-color: blue; width: 100%; }
         #p2-health { background-color: red; width: 100%; }
 
-        /* ACHIEVEMENT TOAST NOTIFICATION */
+        /* ACHIEVEMENT TOAST */
         #achievement-toast {
             position: absolute;
-            /* CHANGED: Move it far up and off-screen initially */
             top: -400px; 
             right: 20px; 
             width: 350px;
@@ -108,29 +107,17 @@
             padding: 15px;
             display: flex;
             align-items: center;
-            /* CHANGED: Transition 'top' instead of 'right' for vertical drop-in */
             transition: top 0.5s ease-in-out; 
             z-index: 2000;
         }
         
         #achievement-toast.show {
-            /* NEW: Drop down from the top */
             top: 20px;
         }
 
-        .toast-icon {
-            font-size: 40px;
-            margin-right: 15px;
-        }
-        .toast-text {
-            color: white;
-        }
-        .toast-title {
-            color: #00FF00;
-            font-weight: bold;
-            font-size: 18px;
-            margin-bottom: 5px;
-        }
+        .toast-icon { font-size: 40px; margin-right: 15px; }
+        .toast-text { color: white; }
+        .toast-title { color: #00FF00; font-weight: bold; font-size: 18px; margin-bottom: 5px; }
 
         #menu-overlay {
             position: absolute;
@@ -158,9 +145,7 @@
             display: none; 
         }
 
-        .menu-screen.active {
-            display: flex;
-        }
+        .menu-screen.active { display: flex; }
 
         .menu-title {
             font-size: 72px;
@@ -170,11 +155,7 @@
             text-shadow: 2px 2px 0 blue;
         }
 
-        .sub-title {
-            font-size: 50px;
-            color: white;
-            margin-bottom: 30px;
-        }
+        .sub-title { font-size: 50px; color: white; margin-bottom: 30px; }
 
         .btn {
             color: white;
@@ -191,11 +172,7 @@
             display: block;
         }
 
-        .btn:hover {
-            transform: scale(1.05);
-            filter: brightness(1.2);
-        }
-
+        .btn:hover { transform: scale(1.05); filter: brightness(1.2); }
         .btn-green { background: #00C800; color: black; } 
         .btn-blue { background: #0000FF; color: white; } 
         .btn-pink { background: #FFC0CB; color: black; } 
@@ -230,7 +207,7 @@
             transition: transform 0.1s;
         }
         .cube-icon:hover { transform: scale(1.1); }
-        .cube-icon.selected { border: 4px solid #00FF00; }
+        .cube-icon.selected { border: 4px solid #00FF00; box-shadow: 0 0 15px #00FF00; }
 
         .cube-icon.locked {
             position: relative;
@@ -312,7 +289,7 @@
 <div id="game-container">
     <canvas id="gameCanvas" width="800" height="600"></canvas>
 
-    <div id="demo-label" class="rainbow-text hidden">Demo build (all issues are known)</div>
+    <div id="demo-label" class="rainbow-text hidden">WIP: Unfinished and Unpolished</div>
 
     <div id="achievement-toast">
         <div class="toast-icon">🏆</div>
@@ -325,7 +302,7 @@
     <div id="ui-layer">
         <div class="hud" id="hud">
             <div>
-                <div style="color: blue">P1 (Blue)</div>
+                <div style="color: blue" id="p1-name-display">P1 (Blue)</div>
                 <div class="health-bar-container">
                     <div id="p1-health" class="health-bar"></div>
                 </div>
@@ -345,7 +322,7 @@
             <div class="menu-title">CUBE COMBAT</div>
 
             <button class="btn btn-green" onclick="navTo('screen-modes')">START GAME</button>
-            <button class="btn btn-blue" onclick="navTo('screen-cubes'); renderCubes()">COLLECTED CUBES</button>
+            <button class="btn btn-blue" onclick="navTo('screen-cubes'); renderCubes()">SELECT CUBE</button>
             <button class="btn btn-pink" onclick="navTo('screen-achievements'); renderAchievements()">ACHIEVEMENTS</button>
             <button class="btn btn-red" onclick="confirmResetProgress()">RESET PROGRESS</button>
             <button class="btn btn-gray" onclick="quitGame()">QUIT</button>
@@ -396,7 +373,7 @@
         </div>
 
         <div id="screen-cubes" class="menu-screen">
-            <div class="sub-title">COLLECTED CUBES</div>
+            <div class="sub-title">SELECT YOUR CUBE</div>
             <button class="btn btn-gray" style="width: 150px; position: absolute; top: 20px; left: 20px;" onclick="navTo('screen-main')">BACK (ESC)</button>
 
             <div class="cubes-layout">
@@ -411,6 +388,8 @@
         <div id="screen-achievements" class="menu-screen">
             <div class="sub-title">ACHIEVEMENTS</div>
             <button class="btn btn-gray" style="width: 150px; position: absolute; top: 20px; left: 20px;" onclick="navTo('screen-main')">BACK (ESC)</button>
+            
+            <button class="btn btn-orange" style="width: 200px; position: absolute; top: 20px; right: 20px; font-size: 16px;" onclick="unlockAllAchievements()">DEBUG: UNLOCK ALL</button>
 
             <div class="achievements-list" id="achievements-container">
                 </div>
@@ -431,27 +410,29 @@
 
 <script>
 
+    // UPDATED CUBE DATA BASED ON TEXT FILE 
     const CUBE_DATA = [
-        { id: 1, name: "Cube 1", color: "blue", hp: 100, attacks: "Slash, Parry" },
-        { id: 2, name: "Cube 2", color: "red", hp: 100, attacks: "Charge, Beam" },
-        { id: 3, name: "Cube 3", color: "green", hp: 100, attacks: "Placeholder" },
-        { id: 4, name: "Cube 4", color: "pink", hp: 100, attacks: "Placeholder" },
-        { id: 5, name: "Cube 5", color: "brown", hp: 75, attacks: "Placeholder" },
-        { id: 6, name: "Cube 6", color: "purple", hp: 75, attacks: "Placeholder" }
+        { id: 1, name: "Sword Master", color: "blue", hp: 100, attacks: "Slash, Parry" },
+        { id: 2, name: "Angry Sniper", color: "red", hp: 100, attacks: "Charge, Laser" },
+        { id: 3, name: "Sniper Cube", color: "green", hp: 100, attacks: "Slash, Laser (Windup)" },
+        { id: 4, name: "Magic Cube", color: "hotpink", hp: 100, attacks: "Slash, Block (Bar)" },
+        { id: 5, name: "The Jorker", color: "#8B4513", hp: 75, attacks: "Kick, Laser (Windup)" },
+        { id: 6, name: "Ima Touch You", color: "indigo", hp: 75, attacks: "Slash, Pull (Invert)" }
     ];
 
+    let selectedCubeId = 1; // Default to Cube 1
+
     let ACHIEVEMENT_DATA = [
-        { id: 1, name: "First Blood", desc: "Win your first battle", unlocks: "Cube 3", unlocked: false },
-        { id: 2, name: "Sharpshooter", desc: "Hit 5 beams in a row (Red Cube)", unlocks: "Cube 4", unlocked: false },
-        { id: 3, name: "Unstoppable", desc: "Win without taking damage", unlocks: "Cube 5", unlocked: false },
-        { id: 4, name: "Wombo Combo", desc: "Absolutely combo the red Ai cube", unlocks: "Cube 6", unlocked: false },
-        { id: 5, name: "What...No, this is guy hacking", desc: "Die to Fbt_7", unlocks: "Cube 7", unlocked: false },
+        { id: 1, name: "First Blood", desc: "Win your first battle", unlocks: "Sniper Cube", unlocked: false },
+        { id: 2, name: "Sharpshooter", desc: "Hit 5 beams in a row (Red Cube)", unlocks: "Magic Cube", unlocked: false },
+        { id: 3, name: "Unstoppable", desc: "Win without taking damage", unlocks: "The Jorker", unlocked: false },
+        { id: 4, name: "Wombo Combo", desc: "Absolutely combo the red Ai cube", unlocks: "Ima Touch You", unlocked: false },
+        { id: 5, name: "Hacker?", desc: "Die to Fbt_7 (Secret)", unlocks: "Placeholder", unlocked: false },
         { id: 6, name: "Cube Master", desc: "Unlock all other cubes", unlocks: "Master Cube", unlocked: false }
     ];
 
     // --- ACHIEVEMENT SYSTEM ---
     
-    // Load from local storage on startup
     const savedData = localStorage.getItem('cubeCombatData');
     if (savedData) {
         const parsed = JSON.parse(savedData);
@@ -467,23 +448,20 @@
     }
 
     function confirmResetProgress() {
-        const confirmed = window.confirm("WARNING: This will erase all unlocked cubes and achievements. Are you sure you want to reset your progress?");
-        if (confirmed) {
-            resetGameProgress();
+        if (window.confirm("WARNING: Reset all progress?")) {
+            localStorage.removeItem('cubeCombatData');
+            ACHIEVEMENT_DATA.forEach(ach => ach.unlocked = false);
+            selectedCubeId = 1;
+            alert("Progress reset.");
+            navTo('screen-main');
         }
     }
 
-    function resetGameProgress() {
-        localStorage.removeItem('cubeCombatData');
-        // Reset the in-memory data
-        ACHIEVEMENT_DATA.forEach(ach => ach.unlocked = false);
-        // Re-initialize to ensure cubes 1 and 2 are still available (they are not tied to achievements)
-        
-        alert("Game progress has been reset.");
-        navTo('screen-main'); // Go back to main screen after reset
-        // Re-render the achievement and cube screens if they were active
-        if (document.getElementById('screen-achievements').classList.contains('active')) renderAchievements();
-        if (document.getElementById('screen-cubes').classList.contains('active')) renderCubes();
+    function unlockAllAchievements() {
+        ACHIEVEMENT_DATA.forEach(ach => ach.unlocked = true);
+        saveGameData();
+        renderAchievements();
+        alert("All achievements unlocked for testing!");
     }
 
     function unlockAchievement(id) {
@@ -493,11 +471,7 @@
             showAchievementToast(ach.name);
             saveGameData();
             
-            // Check for Cube Master
-            const allOthers = ACHIEVEMENT_DATA.filter(a => a.id !== 6);
-            if (allOthers.every(a => a.unlocked)) {
-                unlockAchievement(6);
-            }
+            if (ACHIEVEMENT_DATA.filter(a => a.id !== 6).every(a => a.unlocked)) unlockAchievement(6);
         }
     }
 
@@ -505,18 +479,12 @@
         const toast = document.getElementById('achievement-toast');
         document.getElementById('toast-message').innerText = name;
         toast.classList.add('show');
-        setTimeout(() => {
-            toast.classList.remove('show');
-        }, 4000);
+        setTimeout(() => toast.classList.remove('show'), 4000);
     }
 
-    // Temporary session stats to track complex achievements
-    let sessionStats = {
-        beamStreak: 0
-    };
+    let sessionStats = { beamStreak: 0 };
 
-    // --------------------------
-
+    // --- NETWORK VARS ---
     let peer = null;
     let conn = null;
     let p2pRole = null; 
@@ -526,52 +494,52 @@
         if (window.parent && typeof window.parent.closeGame === 'function') {
             window.parent.closeGame();
         } else {
-            window.location.href = '/index.html';
+            window.location.href = 'about:blank';
         }
     }
     
     function navTo(screenId) {
         document.querySelectorAll('.menu-screen').forEach(el => el.classList.remove('active'));
         document.getElementById(screenId).classList.add('active');
-
-        const demoLabel = document.getElementById('demo-label');
-        if (screenId === 'screen-main') {
-            demoLabel.classList.add('hidden');
-        } else {
-            demoLabel.classList.remove('hidden');
-        }
+        if (screenId === 'screen-main') document.getElementById('demo-label').classList.add('hidden');
+        else document.getElementById('demo-label').classList.remove('hidden');
     }
 
     function renderCubes() {
         const container = document.getElementById('cubes-grid-container');
         container.innerHTML = '';
 
-        CUBE_DATA.forEach((cube, index) => {
+        CUBE_DATA.forEach((cube) => {
             const div = document.createElement('div');
-            // Check if cube is unlocked by achievement
+            // Check unlocks
             const unlockingAchievement = ACHIEVEMENT_DATA.find(a => a.unlocks === cube.name);
-            // Default cubes 1 and 2 are always unlocked. Others depend on achievements.
             let isLocked = false;
+            // Cubes 1 and 2 are defaults
             if (cube.id > 2) {
                 isLocked = unlockingAchievement && !unlockingAchievement.unlocked;
             }
 
-            div.className = 'cube-icon' + (isLocked ? ' locked' : '');
+            div.className = 'cube-icon' + (isLocked ? ' locked' : '') + (selectedCubeId === cube.id ? ' selected' : '');
             div.style.backgroundColor = cube.color;
 
             if (!isLocked) {
-                div.onclick = () => selectCube(cube, div);
+                div.onclick = () => {
+                    selectedCubeId = cube.id;
+                    selectCube(cube, div);
+                    renderCubes(); 
+                };
             } else {
-                div.title = 'Locked - unlock "' + (unlockingAchievement ? unlockingAchievement.name : 'Unknown') + '" to use this cube';
+                div.title = 'Locked';
             }
             container.appendChild(div);
         });
-        document.getElementById('cube-details-panel').innerHTML = '<div style="text-align: center; margin-top: 50px; color: #aaa;">Select a cube to view details</div>';
+        
+        // Restore detail view if something is selected
+        const currentCube = CUBE_DATA.find(c => c.id === selectedCubeId);
+        if(currentCube) selectCube(currentCube, null);
     }
 
     function selectCube(cube, element) {
-        document.querySelectorAll('.cube-icon').forEach(el => el.classList.remove('selected'));
-        element.classList.add('selected');
         const panel = document.getElementById('cube-details-panel');
         panel.innerHTML = `
             <div style="text-align:center; margin-bottom:20px;">
@@ -581,13 +549,13 @@
             <div class="detail-row"><div class="detail-label">Color:</div><div class="detail-value" style="text-transform:capitalize;">${cube.color}</div></div>
             <div class="detail-row"><div class="detail-label">Max HP:</div><div class="detail-value">${cube.hp}</div></div>
             <div class="detail-row"><div class="detail-label">Attacks:</div><div class="detail-value">${cube.attacks}</div></div>
+            <div style="margin-top:20px; color:#00FF00; font-weight:bold; text-align:center;">${selectedCubeId === cube.id ? 'SELECTED' : ''}</div>
         `;
     }
 
     function renderAchievements() {
         const container = document.getElementById('achievements-container');
         container.innerHTML = '';
-
         ACHIEVEMENT_DATA.forEach(ach => {
             const div = document.createElement('div');
             div.className = `achievement-item ${ach.unlocked ? 'unlocked' : 'locked'}`;
@@ -613,14 +581,7 @@
     const MOVE_SPEED = 5;
     const JUMP_FORCE = 14;
     const FLOOR_Y = HEIGHT - 50; 
-
     const CUBE_SIZE = 50;
-    const MAX_HP = 100;
-
-    const ATTACK_DMG = 20; 
-    const SLASH_DMG = 25;
-    const BEAM_DMG = 30;
-    const CHARGE_DMG = 25;
 
     const COLORS = {
         BLUE: '#0000FF',
@@ -644,29 +605,22 @@
             if (gameState === 'playing') showMainMenu();
             else if (gameState === 'menu' && !document.getElementById('screen-main').classList.contains('active')) navTo('screen-main');
         }
-
-        if (e.code === 'KeyR') {
-            if (gameState === 'gameover') {
-                requestRestart();
-            }
-        }
+        if (e.code === 'KeyR' && gameState === 'gameover') requestRestart();
     });
     window.addEventListener('keyup', e => keys[e.code] = false);
 
+    // --- P2P LOGIC ---
     function initP2PHost() {
         resetP2P();
         document.getElementById('p2p-buttons').style.display = 'none';
         document.getElementById('p2p-host-section').style.display = 'block';
         document.getElementById('p2p-status-msg').innerText = "Initializing Peer...";
-
         peer = new Peer(); 
-
         peer.on('open', (id) => {
             document.getElementById('host-id-display').value = id;
             document.getElementById('p2p-status-msg').innerText = "Wait for Player 2 to join...";
             p2pRole = 'host';
         });
-
         peer.on('connection', (c) => {
             conn = c;
             setupConnection();
@@ -683,35 +637,25 @@
     function connectToHost() {
         const hostId = document.getElementById('join-id-input').value.trim();
         if(!hostId) return alert("Please enter the Host ID");
-
         document.getElementById('p2p-status-msg').innerText = "Connecting...";
         peer = new Peer();
-
         peer.on('open', () => {
             conn = peer.connect(hostId);
             setupConnection();
         });
-
-        peer.on('error', (err) => alert("Connection Error: " + err));
     }
 
     function setupConnection() {
         conn.on('open', () => {
             document.getElementById('p2p-status-msg').innerText = "Connected! Starting Game...";
-
             if (p2pRole === 'host') {
                 setTimeout(() => {
-                    // Send start signal to client before starting
                     conn.send({ type: 'START_GAME' });
                     startGame('p2p');
                 }, 1000);
             }
         });
-
-        conn.on('data', (data) => {
-            handleNetworkData(data);
-        });
-
+        conn.on('data', (data) => handleNetworkData(data));
         conn.on('close', () => {
             alert("Connection lost");
             showMainMenu();
@@ -733,15 +677,10 @@
 
     function handleNetworkData(data) {
         if (data.type === 'INPUT') {
-
             networkKeys = data.keys;
         } else if (data.type === 'START_GAME') {
-            // Client receives explicit start signal from host
-            if (p2pRole === 'client') {
-                startGame('p2p');
-            }
+            if (p2pRole === 'client') startGame('p2p');
         } else if (data.type === 'STATE') {
-            // Only apply state if game is already playing
             if (gameState === 'playing') {
                 applyStateToCube(blueCube, data.p1);
                 applyStateToCube(redCube, data.p2);
@@ -759,50 +698,43 @@
     function applyStateToCube(cube, state) {
         cube.x = state.x;
         cube.y = state.y;
-        cube.w = state.w;
-        cube.h = state.h;
         cube.color = state.color;
         cube.hp = state.hp;
-
-        if (cube.hp <= 0) {
-            cube.dead = true;
-        } else {
-            cube.dead = false;
-        }
-
+        cube.dead = cube.hp <= 0;
         cube.facingRight = state.facingRight;
-        cube.slashActive = state.slashActive;
-        cube.parryActive = state.parryActive;
+    }
 
-        if(cube instanceof RedCube) {
-            cube.state = state.state; 
-            cube.beamActive = (state.state === 'BEAM_FIRING');
-        }
+    // --- GAME CLASSES ---
+
+    function rectIntersect(x1, y1, w1, h1, x2, y2, w2, h2) {
+        return x2 < x1 + w1 && x2 + w2 > x1 && y2 < y1 + h1 && y2 + h2 > y1;
     }
 
     class Entity {
-        constructor(x, y, color) {
+        constructor(x, y, color, maxHp) {
             this.x = x;
             this.y = y;
             this.w = CUBE_SIZE;
             this.h = CUBE_SIZE;
             this.color = color;
+            this.baseColor = color;
             this.vx = 0;
             this.vy = 0;
             this.isGrounded = false;
-            this.hp = MAX_HP;
+            this.maxHp = maxHp;
+            this.hp = maxHp;
             this.dead = false;
             this.facingRight = true;
+            this.invertControlsTimer = 0; // For Cube 6 mechanic
         }
 
         update() {
-
             if (gameMode === 'p2p' && p2pRole === 'client') return;
-
             if (this.dead) return;
+            
+            if (this.invertControlsTimer > 0) this.invertControlsTimer--;
 
             this.vy += GRAVITY;
-
             this.x += this.vx;
             this.y += this.vy;
 
@@ -830,15 +762,20 @@
             ctx.lineWidth = 2;
             ctx.strokeRect(this.x, this.y, this.w, this.h);
 
+            // Invert indicator
+            if (this.invertControlsTimer > 0) {
+                ctx.font = "20px Arial";
+                ctx.fillStyle = "white";
+                ctx.fillText("?", this.x + 20, this.y - 10);
+            }
+
             ctx.fillStyle = "white";
             const eyeX = this.facingRight ? this.x + 30 : this.x + 10;
             ctx.fillRect(eyeX, this.y + 10, 10, 10);
         }
 
         takeDamage(amount) {
-
             if (gameMode === 'p2p' && p2pRole === 'client') return;
-
             if (this.dead) return;
             this.hp -= amount;
             if (this.hp <= 0) {
@@ -850,9 +787,12 @@
         }
     }
 
+    // --- PLAYER CUBES ---
+
+    // CUBE 1: SWORD MASTER (Base)
     class BlueCube extends Entity {
         constructor() {
-            super(50, FLOOR_Y - CUBE_SIZE, COLORS.BLUE);
+            super(50, FLOOR_Y - CUBE_SIZE, COLORS.BLUE, 100);
             this.slashCooldown = 0;
             this.slashActive = false;
             this.slashTimer = 0;
@@ -863,37 +803,48 @@
 
         update() {
             super.update();
-            if (gameMode === 'p2p' && p2pRole === 'client') return; 
-
+            if (gameMode === 'p2p' && p2pRole === 'client') return;
             if (this.dead) return;
 
             if (this.slashCooldown > 0) this.slashCooldown--;
             if (this.parryCooldown > 0) this.parryCooldown--;
 
-            const input = keys; 
+            // Handle Control Inversion
+            let inputLeft = keys['KeyA'];
+            let inputRight = keys['KeyD'];
+            
+            if (this.invertControlsTimer > 0) {
+                const temp = inputLeft;
+                inputLeft = inputRight;
+                inputRight = temp;
+            }
 
             if (!this.parryActive) {
-                if (input['KeyA']) {
+                if (inputLeft) {
                     this.vx = -MOVE_SPEED;
                     this.facingRight = false;
                 }
-                if (input['KeyD']) {
+                if (inputRight) {
                     this.vx = MOVE_SPEED;
                     this.facingRight = true;
                 }
-                if (input['KeyW'] && this.isGrounded) {
+                if (keys['KeyW'] && this.isGrounded) {
                     this.vy = -JUMP_FORCE;
                 }
 
-                if (input['Space'] && this.slashCooldown <= 0) {
+                if (keys['Space'] && this.slashCooldown <= 0) {
                     this.performSlash();
                 }
             }
 
-            if (input['KeyF'] && this.parryCooldown <= 0 && !this.parryActive) {
-                this.parryActive = true;
-                this.parryTimer = 30; 
-                this.color = COLORS.BLACK; 
+            if (keys['KeyF'] && this.parryCooldown <= 0 && !this.parryActive) {
+                // Default parry logic (Cube 1 only)
+                // Subclasses will override 'F' behavior or this condition
+                if (selectedCubeId === 1) {
+                    this.parryActive = true;
+                    this.parryTimer = 30; 
+                    this.color = COLORS.BLACK; 
+                }
             }
 
             if (this.parryActive) {
@@ -901,16 +852,14 @@
                 this.vx = 0; 
                 if (this.parryTimer <= 0) {
                     this.parryActive = false;
-                    this.color = COLORS.BLUE;
+                    this.color = this.baseColor;
                     this.parryCooldown = 60;
                 }
             }
 
             if (this.slashActive) {
                 this.slashTimer--;
-                if (this.slashTimer <= 0) {
-                    this.slashActive = false;
-                }
+                if (this.slashTimer <= 0) this.slashActive = false;
             }
         }
 
@@ -921,11 +870,10 @@
 
             const reach = 70;
             const hitX = this.facingRight ? this.x + this.w : this.x - reach;
-            const hitY = this.y;
 
-            if (!redCube.dead && rectIntersect(hitX, hitY, reach, this.h, redCube.x, redCube.y, redCube.w, redCube.h)) {
+            if (!redCube.dead && rectIntersect(hitX, this.y, reach, this.h, redCube.x, redCube.y, redCube.w, redCube.h)) {
                 if (!redCube.isInvincible) {
-                    redCube.takeDamage(SLASH_DMG);
+                    redCube.takeDamage(25);
                     redCube.vx = this.facingRight ? 10 : -10;
                     redCube.vy = -5;
                 }
@@ -953,9 +901,265 @@
         }
     }
 
+    // CUBE 3: SNIPER CUBE [cite: 1]
+    class GreenCube extends BlueCube {
+        constructor() {
+            super();
+            this.color = "green";
+            this.baseColor = "green";
+            this.beamState = 'IDLE'; // IDLE, WINDUP, FIRING
+            this.beamTimer = 0;
+        }
+
+        update() {
+            super.update(); // Handles slash (Space)
+            if (this.dead) return;
+
+            if (this.beamState !== 'IDLE') {
+                this.vx = 0; 
+                this.beamTimer--;
+                
+                if (this.beamState === 'WINDUP') {
+                    this.color = (Math.floor(Date.now() / 100) % 2 === 0) ? "green" : "white";
+                    if (this.beamTimer <= 0) {
+                        this.beamState = 'FIRING';
+                        this.beamTimer = 15;
+                        this.fireBeam();
+                    }
+                } else if (this.beamState === 'FIRING') {
+                    this.color = "green";
+                    if (this.beamTimer <= 0) this.beamState = 'IDLE';
+                }
+            } else {
+                if (keys['KeyF']) {
+                    this.beamState = 'WINDUP';
+                    this.beamTimer = 40; 
+                }
+            }
+        }
+
+        fireBeam() {
+            const beamW = 600;
+            const beamH = 30;
+            const beamX = this.facingRight ? this.x + this.w : this.x - beamW;
+            const beamY = this.y + 15;
+            
+            if (rectIntersect(beamX, beamY, beamW, beamH, redCube.x, redCube.y, redCube.w, redCube.h)) {
+                redCube.takeDamage(25);
+                redCube.vx = this.facingRight ? 15 : -15;
+            }
+        }
+
+        draw(ctx) {
+            super.draw(ctx);
+            if (this.beamState === 'FIRING') {
+                ctx.fillStyle = "#00FF00";
+                const beamW = 600;
+                const beamX = this.facingRight ? this.x + this.w : this.x - beamW;
+                ctx.fillRect(beamX, this.y + 15, beamW, 30);
+            }
+        }
+    }
+
+    // CUBE 4: MAGIC CUBE [cite: 2]
+    class PinkCube extends BlueCube {
+        constructor() {
+            super();
+            this.color = "hotpink";
+            this.baseColor = "hotpink";
+            this.blockEnergy = 100;
+            this.isBlocking = false;
+        }
+
+        update() {
+            // Regen
+            if (!this.isBlocking && this.blockEnergy < 100) this.blockEnergy += 0.5;
+
+            // Block Logic (Override F from Base)
+            if (keys['KeyF'] && this.blockEnergy > 0) {
+                this.isBlocking = true;
+                this.blockEnergy -= 1.5; 
+                this.vx = 0; 
+                this.color = "#FFC0CB"; 
+                // Disable slash while blocking
+            } else {
+                this.isBlocking = false;
+                this.color = this.baseColor;
+                super.update(); // Normal movement/slash
+            }
+        }
+
+        takeDamage(amount) {
+            if (this.isBlocking) {
+                // Negate damage, drain energy
+                this.blockEnergy -= 20;
+                if (this.blockEnergy < 0) this.blockEnergy = 0;
+            } else {
+                super.takeDamage(amount);
+            }
+        }
+
+        draw(ctx) {
+            super.draw(ctx);
+            // Draw Block Bar
+            ctx.fillStyle = "#333";
+            ctx.fillRect(this.x, this.y - 15, this.w, 8);
+            ctx.fillStyle = "cyan";
+            ctx.fillRect(this.x, this.y - 15, this.w * (this.blockEnergy / 100), 8);
+
+            if (this.isBlocking) {
+                ctx.strokeStyle = "cyan";
+                ctx.lineWidth = 4;
+                ctx.beginPath();
+                ctx.arc(this.x + this.w/2, this.y + this.h/2, 45, 0, Math.PI*2);
+                ctx.stroke();
+            }
+        }
+    }
+
+    // CUBE 5: THE JORKER [cite: 2]
+    class BrownCube extends BlueCube {
+        constructor() {
+            super();
+            this.maxHp = 75; 
+            this.hp = 75;
+            this.color = "#8B4513";
+            this.baseColor = "#8B4513";
+            this.beamState = 'IDLE';
+            this.beamTimer = 0;
+        }
+
+        update() {
+            // Laser Logic
+            if (this.beamState !== 'IDLE') {
+                this.vx = 0;
+                this.beamTimer--;
+                if (this.beamState === 'WINDUP') {
+                    this.color = (Math.floor(Date.now() / 100) % 2 === 0) ? this.baseColor : "yellow";
+                    if (this.beamTimer <= 0) {
+                        this.beamState = 'FIRING';
+                        this.beamTimer = 15;
+                        this.fireBeam();
+                    }
+                } else if (this.beamState === 'FIRING') {
+                    this.color = this.baseColor;
+                    if (this.beamTimer <= 0) this.beamState = 'IDLE';
+                }
+                return;
+            }
+
+            if (keys['KeyF'] && this.beamState === 'IDLE') {
+                this.beamState = 'WINDUP';
+                this.beamTimer = 40;
+            }
+
+            // Standard movement
+            super.update();
+        }
+
+        // Override Slash with Kick
+        performSlash() {
+            this.slashActive = true; 
+            this.slashTimer = 10; 
+            this.slashCooldown = 50;
+
+            const reach = 60;
+            const hitX = this.facingRight ? this.x + this.w : this.x - reach;
+
+            if (rectIntersect(hitX, this.y + 20, reach, 30, redCube.x, redCube.y, redCube.w, redCube.h)) {
+                redCube.takeDamage(15); 
+                // HIGH Knockback
+                redCube.vx = this.facingRight ? 25 : -25; 
+                redCube.vy = -10;
+                redCube.state = 'STUNNED'; // Mini stun
+                redCube.stateTimer = 20;
+            }
+        }
+        
+        fireBeam() {
+            const beamW = 600;
+            const beamX = this.facingRight ? this.x + this.w : this.x - beamW;
+            if (rectIntersect(beamX, this.y + 15, beamW, 30, redCube.x, redCube.y, redCube.w, redCube.h)) {
+                redCube.takeDamage(25);
+            }
+        }
+
+        draw(ctx) {
+            super.draw(ctx);
+            if (this.beamState === 'FIRING') {
+                ctx.fillStyle = "yellow";
+                const beamW = 600;
+                const beamX = this.facingRight ? this.x + this.w : this.x - beamW;
+                ctx.fillRect(beamX, this.y + 15, beamW, 30);
+            }
+        }
+    }
+
+    // CUBE 6: IMA TOUCH YOU [cite: 2]
+    class PurpleCube extends BlueCube {
+        constructor() {
+            super();
+            this.maxHp = 75;
+            this.hp = 75;
+            this.color = "indigo";
+            this.baseColor = "indigo";
+            this.pullActive = false;
+            this.pullTimer = 0;
+            this.pullCooldown = 0;
+        }
+
+        update() {
+            if (this.pullCooldown > 0) this.pullCooldown--;
+
+            if (this.pullActive) {
+                this.pullTimer--;
+                this.vx = 0;
+                
+                // Pull mechanics
+                const dx = this.x - redCube.x;
+                const dist = Math.abs(dx);
+                
+                // If close enough, drag them
+                if (dist < 500) { 
+                     redCube.vx = (dx > 0) ? 8 : -8; 
+                     
+                     // Invert Controls Effect (3 seconds = ~180 frames)
+                     // Apply if we actually "touch" them (get close)
+                     if (dist < 80) {
+                         redCube.invertControlsTimer = 180; 
+                     }
+                }
+
+                if (this.pullTimer <= 0) this.pullActive = false;
+                return;
+            }
+
+            if (keys['KeyF'] && this.pullCooldown <= 0) {
+                this.pullActive = true;
+                this.pullTimer = 30; 
+                this.pullCooldown = 120;
+            }
+
+            super.update();
+        }
+
+        draw(ctx) {
+            super.draw(ctx);
+            if (this.pullActive) {
+                ctx.strokeStyle = "purple";
+                ctx.lineWidth = 5;
+                ctx.beginPath();
+                ctx.moveTo(this.x + this.w/2, this.y + this.h/2);
+                ctx.lineTo(redCube.x + redCube.w/2, redCube.y + redCube.h/2);
+                ctx.stroke();
+            }
+        }
+    }
+
+    // CUBE 2: ANGRY SNIPER (Red) - AI/P2
     class RedCube extends Entity {
         constructor() {
-            super(WIDTH - 100, FLOOR_Y - CUBE_SIZE, COLORS.RED);
+            super(WIDTH - 100, FLOOR_Y - CUBE_SIZE, COLORS.RED, 100);
             this.facingRight = false;
             this.state = 'IDLE'; 
             this.stateTimer = 0;
@@ -970,14 +1174,16 @@
             if (this.state !== 'CHARGING') this.isInvincible = false;
             if (this.dead) return;
 
-            if (gameMode === 'pvp') {
-                this.updatePvP(keys); 
-            } else if (gameMode === 'p2p') {
-                this.updatePvP(networkKeys); 
+            let controlSource = keys;
+            if (gameMode === 'p2p') controlSource = networkKeys;
+
+            if (gameMode === 'pvp' || gameMode === 'p2p') {
+                this.updatePvP(controlSource); 
             } else {
                 this.updateAI();
             }
 
+            // State Machine for Attacks
             if (this.state === 'CHARGE_WINDUP') {
                 this.color = (Math.floor(Date.now() / 100) % 2 === 0) ? COLORS.RED : COLORS.BLACK; 
                 this.stateTimer--;
@@ -990,14 +1196,9 @@
             } 
             else if (this.state === 'CHARGING') {
                 this.color = COLORS.RED;
-                
-                // --- FIX: Check for wall collision ---
-                if (this.x <= 0 || this.x + this.w >= WIDTH) {
-                    this.handleWallHit();
-                }
-
+                if (this.x <= 0 || this.x + this.w >= WIDTH) this.handleWallHit();
                 if (rectIntersect(this.x, this.y, this.w, this.h, blueCube.x, blueCube.y, blueCube.w, blueCube.h)) {
-                    this.hitPlayer(CHARGE_DMG, true);
+                    this.hitPlayer(25, true);
                 }
                 this.stateTimer--;
                 if (this.stateTimer <= 0) {
@@ -1017,9 +1218,7 @@
             else if (this.state === 'BEAM_FIRING') {
                 this.color = COLORS.RED;
                 this.stateTimer--;
-                if (this.stateTimer <= 0) {
-                    this.state = 'IDLE';
-                }
+                if (this.stateTimer <= 0) this.state = 'IDLE';
             }
             else if (this.state === 'STUNNED') {
                 this.color = COLORS.GRAY;
@@ -1034,11 +1233,20 @@
         updatePvP(inputSource) {
             if (this.state !== 'IDLE') return; 
 
-            if (inputSource['ArrowLeft']) {
+            let left = inputSource['ArrowLeft'];
+            let right = inputSource['ArrowRight'];
+
+            if (this.invertControlsTimer > 0) {
+                const temp = left;
+                left = right;
+                right = temp;
+            }
+
+            if (left) {
                 this.vx = -MOVE_SPEED;
                 this.facingRight = false;
             }
-            if (inputSource['ArrowRight']) {
+            if (right) {
                 this.vx = MOVE_SPEED;
                 this.facingRight = true;
             }
@@ -1052,10 +1260,16 @@
 
         updateAI() {
             if (this.state !== 'IDLE') return;
+            
+            // If controls are inverted, the AI "panics" (moves opposite to intent)
+            const invertMult = (this.invertControlsTimer > 0) ? -1 : 1;
+
             const dx = blueCube.x - this.x;
             const dy = blueCube.y - this.y;
             const dist = Math.hypot(dx, dy);
-            this.facingRight = dx > 0;
+            
+            if (invertMult === 1) this.facingRight = dx > 0;
+            
             const rand = Math.random();
 
             if (dist < 400 && Math.abs(dy) < 50 && rand < 0.02) {
@@ -1064,9 +1278,9 @@
                 return;
             }
             if (dist > 300) {
-                this.vx = this.facingRight ? MOVE_SPEED * 0.6 : -MOVE_SPEED * 0.6;
+                this.vx = (this.facingRight ? MOVE_SPEED * 0.6 : -MOVE_SPEED * 0.6) * invertMult;
             } else if (dist < 150) {
-                this.vx = this.facingRight ? -MOVE_SPEED * 0.6 : MOVE_SPEED * 0.6;
+                this.vx = (this.facingRight ? -MOVE_SPEED * 0.6 : MOVE_SPEED * 0.6) * invertMult;
             }
             if (blueCube.y < this.y - 100 && this.isGrounded && Math.random() < 0.05) {
                 this.vy = -JUMP_FORCE;
@@ -1091,38 +1305,32 @@
             const beamX = this.facingRight ? this.x + this.w : this.x - beamW;
             const beamY = this.y + (this.h/2) - (beamH/2);
             if (rectIntersect(beamX, beamY, beamW, beamH, blueCube.x, blueCube.y, blueCube.w, blueCube.h)) {
-                this.hitPlayer(BEAM_DMG, false);
-                
-                // Achievement Logic: Consecutive Hits
+                this.hitPlayer(30, false);
                 sessionStats.beamStreak++;
-                if (sessionStats.beamStreak >= 5) {
-                    unlockAchievement(2); // Sharpshooter
-                }
+                if (sessionStats.beamStreak >= 5) unlockAchievement(2); 
             } else {
-                // Reset streak if missed
                 sessionStats.beamStreak = 0;
             }
         }
 
         handleWallHit() {
-            // Apply Stun
             this.state = 'STUNNED';
             this.stateTimer = 60; 
             this.vx = this.facingRight ? -5 : 5; 
             this.takeDamage(10); 
-            
-            // Snap to edge so it doesn't get stuck out of bounds
             if (this.x < 0) this.x = 0;
             if (this.x + this.w > WIDTH) this.x = WIDTH - this.w;
         }
 
         hitPlayer(dmg, isCharge) {
-            if (blueCube.parryActive) {
+            // Check Parry (Only BlueCube standard parry works for now)
+            if (blueCube instanceof BlueCube && blueCube.parryActive) {
                 this.state = 'STUNNED';
                 this.stateTimer = 90; 
                 this.vx = this.facingRight ? -10 : 10; 
                 return;
             }
+            // Check Block (Magic Cube)
             blueCube.takeDamage(dmg);
             blueCube.vx = this.facingRight ? 10 : -10;
             blueCube.vy = -5;
@@ -1135,7 +1343,6 @@
 
         draw(ctx) {
             super.draw(ctx);
-
             if (this.state === 'BEAM_FIRING' || (gameMode === 'p2p' && p2pRole === 'client' && this.beamActive)) {
                 ctx.fillStyle = COLORS.CYAN;
                 const beamW = 600;
@@ -1143,7 +1350,6 @@
                 const beamX = this.facingRight ? this.x + this.w : this.x - beamW;
                 const beamY = this.y + (this.h/2) - (beamH/2);
                 ctx.fillRect(beamX, beamY, beamW, beamH);
-
                 ctx.shadowBlur = 20;
                 ctx.shadowColor = "cyan";
                 ctx.fillRect(beamX, beamY, beamW, beamH);
@@ -1152,26 +1358,29 @@
         }
     }
 
-    function rectIntersect(x1, y1, w1, h1, x2, y2, w2, h2) {
-        return x2 < x1 + w1 && x2 + w2 > x1 && y2 < y1 + h1 && y2 + h2 > y1;
-    }
-
     let blueCube;
     let redCube;
 
     function initGame() {
-        blueCube = new BlueCube();
+        // FACTORY SPAWN BASED ON SELECTION
+        switch(selectedCubeId) {
+            case 3: blueCube = new GreenCube(); break;
+            case 4: blueCube = new PinkCube(); break;
+            case 5: blueCube = new BrownCube(); break;
+            case 6: blueCube = new PurpleCube(); break;
+            default: blueCube = new BlueCube(); break;
+        }
+
         redCube = new RedCube();
         
-        // Reset session stats
+        // Reset stats
         sessionStats.beamStreak = 0;
-        
         updateUI();
     }
 
     function updateUI() {
-        const p1Pct = (blueCube.hp / MAX_HP) * 100;
-        const p2Pct = (redCube.hp / MAX_HP) * 100;
+        const p1Pct = (blueCube.hp / blueCube.maxHp) * 100;
+        const p2Pct = (redCube.hp / redCube.maxHp) * 100;
         document.getElementById('p1-health').style.width = p1Pct + '%';
         document.getElementById('p2-health').style.width = p2Pct + '%';
 
@@ -1179,16 +1388,14 @@
         if(gameMode === 'pvp') name = "P2 (Local)";
         if(gameMode === 'p2p') name = "P2 (Online)";
         document.getElementById('p2-name').innerText = name;
+        
+        document.getElementById('p1-name-display').innerText = blueCube.constructor.name.replace('Cube', '') + " (P1)";
     }
 
     function checkGameOver() {
         if (gameState !== 'playing') return;
-
-        if (blueCube.dead) {
-            finishGame('RED CUBE');
-        } else if (redCube.dead) {
-            finishGame('BLUE CUBE');
-        }
+        if (blueCube.dead) finishGame('RED CUBE');
+        else if (redCube.dead) finishGame('BLUE CUBE');
     }
 
     function finishGame(winnerName) {
@@ -1199,15 +1406,11 @@
             conn.send({ type: 'GAMEOVER', winner: winnerName });
         }
         
-        // --- ACHIEVEMENT CHECKS ---
+        // Achievements
         if (winnerName === 'BLUE CUBE') {
-            unlockAchievement(1); // First Blood
-            
-            if (blueCube.hp === MAX_HP) {
-                unlockAchievement(3); // Unstoppable
-            }
+            unlockAchievement(1); 
+            if (blueCube.hp === blueCube.maxHp) unlockAchievement(3); 
         }
-        // --------------------------
 
         showGameOver();
     }
@@ -1222,37 +1425,23 @@
 
         if (gameMode === 'p2p') {
             if (p2pRole === 'host') {
-
                 blueCube.update();
                 redCube.update();
-
                 if(conn && conn.open) {
                     conn.send({
                         type: 'STATE',
                         p1: { 
-                            x: blueCube.x, y: blueCube.y, w: blueCube.w, h: blueCube.h, 
-                            color: blueCube.color, hp: blueCube.hp, facingRight: blueCube.facingRight,
-                            slashActive: blueCube.slashActive, parryActive: blueCube.parryActive 
+                            x: blueCube.x, y: blueCube.y, color: blueCube.color, hp: blueCube.hp, facingRight: blueCube.facingRight
                         },
                         p2: { 
-                            x: redCube.x, y: redCube.y, w: redCube.w, h: redCube.h, 
-                            color: redCube.color, hp: redCube.hp, facingRight: redCube.facingRight,
-                            state: redCube.state 
+                            x: redCube.x, y: redCube.y, color: redCube.color, hp: redCube.hp, facingRight: redCube.facingRight 
                         }
                     });
                 }
             } else if (p2pRole === 'client') {
-
-                if(conn && conn.open) {
-                    conn.send({
-                        type: 'INPUT',
-                        keys: keys
-                    });
-                }
-
+                if(conn && conn.open) conn.send({ type: 'INPUT', keys: keys });
             }
         } else {
-
             blueCube.update();
             redCube.update();
         }
@@ -1266,22 +1455,12 @@
     function startGame(mode) {
         gameMode = mode;
         gameState = 'playing';
-
         document.getElementById('menu-overlay').classList.add('hidden');
         document.getElementById('demo-label').classList.remove('hidden');
 
         initGame();
 
-        if(mode === 'p2p' && p2pRole === 'host') {
-            blueCube.hp = MAX_HP; blueCube.dead = false;
-            redCube.hp = MAX_HP; redCube.dead = false;
-            redCube.x = WIDTH - 100; redCube.y = FLOOR_Y - CUBE_SIZE;
-            blueCube.x = 50; blueCube.y = FLOOR_Y - CUBE_SIZE;
-        }
-
-        if (animationId) {
-             cancelAnimationFrame(animationId);
-        }
+        if (animationId) cancelAnimationFrame(animationId);
         animationId = requestAnimationFrame(gameLoop);
     }
 
@@ -1296,23 +1475,12 @@
         txt.style.color = color;
 
         const restartBtn = document.getElementById('restart-btn');
-        const waitMsg = document.getElementById('waiting-msg');
-
         if (gameMode === 'p2p' && p2pRole === 'client') {
-            // Client sees the same layout but with different button text
-            restartBtn.style.display = 'block';
-            restartBtn.disabled = true;
-            restartBtn.style.pointerEvents = 'none';
-            restartBtn.innerText = 'Waiting for host to restart...';
-            restartBtn.style.cursor = 'default';
-            waitMsg.style.display = 'none';
+            restartBtn.style.display = 'none';
+            document.getElementById('waiting-msg').style.display = 'block';
         } else {
             restartBtn.style.display = 'block';
-            restartBtn.disabled = false;
-            restartBtn.style.pointerEvents = '';
-            restartBtn.style.cursor = 'pointer';
-            waitMsg.style.display = 'none';
-            restartBtn.innerText = 'RESTART (R)';
+            document.getElementById('waiting-msg').style.display = 'none';
         }
     }
 
@@ -1321,9 +1489,6 @@
             if (p2pRole === 'host') {
                 if (conn && conn.open) conn.send({ type: 'RESTART' });
                 restartGame(false);
-            } else {
-
-                console.log('Client: waiting for host to restart');
             }
         } else {
             restartGame(false);
@@ -1331,7 +1496,6 @@
     }
 
     function restartGame(isRemoteTrigger = false) {
-
         document.getElementById('game-over-screen').classList.add('hidden');
         document.getElementById('menu-overlay').classList.add('hidden');
         gameState = 'playing';
@@ -1340,29 +1504,21 @@
             initGame();
         }
 
-        if (animationId) {
-            cancelAnimationFrame(animationId);
-        }
+        if (animationId) cancelAnimationFrame(animationId);
         animationId = requestAnimationFrame(gameLoop);
     }
 
     function showMainMenu() {
         gameState = 'menu';
-        if(conn) {
-            conn.close();
-            resetP2P();
-        }
-
-        if (animationId) {
-            cancelAnimationFrame(animationId);
-            animationId = null;
-        }
+        if(conn) { conn.close(); resetP2P(); }
+        if (animationId) { cancelAnimationFrame(animationId); animationId = null; }
         document.getElementById('menu-overlay').classList.remove('hidden');
         document.getElementById('game-over-screen').classList.add('hidden');
         document.getElementById('demo-label').classList.add('hidden');
         navTo('screen-main');
     }
 
+    // Init first render
     ctx.fillStyle = "#333";
     ctx.fillRect(0, 0, WIDTH, HEIGHT);
 
