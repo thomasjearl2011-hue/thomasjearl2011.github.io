@@ -29,8 +29,7 @@ Games Tab: 🟢
 
 Test branch: 🔵
 
-    Cube Combat: 🟡 (p2p 🟢, achivements 🟢(a few work), Red cube charge 🔴, support for other devices (eg: mobile and controler) 🔴,) 1 More ability
-
+    Cube Combat: 🟡 (p2p 🟢, achivements 🟢(a few work), Red cube charge 🔴) Not much left :3
     Sketchy Caisno: 🟢
 
 Store: 🔵 (probably going to be removed)
