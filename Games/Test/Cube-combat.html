@@ -453,7 +453,7 @@
         { id: 5, name: "The Jorker", color: "#8B4513", hp: 75, attacks: "Kick, Laser (Windup)" },
         { id: 6, name: "Ima Touch You", color: "indigo", hp: 75, attacks: "Slash, Pull (Invert)" },
         { id: 7, name: "Vigilante", color: "#2F4F4F", hp: 125, attacks: "Takedown, Drone Support" },
-        { id : 8, name: "Fbt_7 (Secret)", color: "black", hp: 200, attacks: "Delete..., you are a mistake, nice try, pathetic" },
+        { id : 8, name: "Fbt_7 (Secret)", color: "black", hp: 200, attacks: "Delete (Poison Slash), Error 404 (Disrupt+Clone), Hatred (Rage), Termination (Locked)" },
         { id: 9, name: "Master Cube", color: "#FFD700", hp: "100", attacks: "Call back, Overtime" }
     ];
 
@@ -464,7 +464,7 @@
         { id: 2, name: "Sharpshooter", desc: "Hit 5 beams in a row (Red Cube)", unlocks: "Magic Cube", unlocked: false },
         { id: 3, name: "Unstoppable", desc: "Win without taking damage", unlocks: "The Jorker", unlocked: false },
         { id: 4, name: "Wombo Combo", desc: "Absolutely combo the red Ai cube", unlocks: "Ima Touch You", unlocked: false },
-        { id: 5, name: "Hacker?", desc: "Die to Fbt_7 (Secret)", unlocks: "Vigilante", unlocked: false },
+        { id: 5, name: "In every timeline I kill you...", desc: "Lose to Fbt_7", unlocks: "Vigilante", unlocked: false },
         { id: 6, name: "Cube Master", desc: "Unlock all other cubes", unlocks: "Master Cube", unlocked: false }
     ];
 
@@ -1362,6 +1362,390 @@
         }
     }
 
+    // CUBE 8: Fbt_7 (Secret/Dev)
+    class Fbt7Cube extends BlueCube {
+        constructor() {
+            super();
+            this.color = "black";
+            this.baseColor = "black";
+            this.hp = 200;
+            this.maxHp = 200;
+            
+            // DELETE ability (poison slash)
+            this.deleteSlashActive = false;
+            this.deleteSlashTimer = 0;
+            this.deleteCooldown = 0;
+            this.poisonTargets = []; // Track poisoned enemies
+            
+            // ERROR 404 ability
+            this.error404Active = false;
+            this.error404Timer = 0;
+            this.error404Cooldown = 0;
+            this.clone = null;
+            
+            // HATRED ability (rage mode)
+            this.hatredActive = false;
+            this.hatredTimer = 0;
+            this.hatredCooldown = 0;
+            this.originalSpeed = MOVE_SPEED;
+            
+            // TERMINATION ability (placeholder)
+            this.terminationCooldown = 0;
+        }
+
+        update() {
+            if (this.dead) return;
+            
+            // Update cooldowns
+            if (this.deleteCooldown > 0) this.deleteCooldown--;
+            if (this.error404Cooldown > 0) this.error404Cooldown--;
+            if (this.hatredCooldown > 0) this.hatredCooldown--;
+            if (this.terminationCooldown > 0) this.terminationCooldown--;
+            
+            // Process poison damage
+            this.processPoisonDamage();
+            
+            // HATRED mode effects
+            if (this.hatredActive) {
+                this.hatredTimer--;
+                this.color = (Math.floor(Date.now() / 80) % 2 === 0) ? "#8B0000" : "black";
+                this.damageMult = 2.0; // Double damage
+                
+                if (this.hatredTimer <= 0) {
+                    this.hatredActive = false;
+                    this.color = this.baseColor;
+                    this.damageMult = 1.0;
+                    this.hatredCooldown = 600; // 10 second cooldown
+                }
+            }
+            
+            // ERROR 404 effects
+            if (this.error404Active) {
+                this.error404Timer--;
+                // Enemy attack disruption - increase their cooldowns
+                if (redCube && !redCube.dead) {
+                    redCube.stateTimer += 0.5; // Slow their attacks
+                }
+                
+                if (this.error404Timer <= 0) {
+                    this.error404Active = false;
+                    if (this.clone) {
+                        this.clone = null;
+                    }
+                    this.error404Cooldown = 480; // 8 second cooldown
+                }
+            }
+            
+            // Update clone if exists
+            if (this.clone) {
+                this.updateClone();
+            }
+            
+            // DELETE SLASH animation
+            if (this.deleteSlashActive) {
+                this.deleteSlashTimer--;
+                if (this.deleteSlashTimer <= 0) {
+                    this.deleteSlashActive = false;
+                }
+            }
+
+            // ABILITY 1: DELETE (Space) - Poison Slash
+            if (keys['Space'] && this.deleteCooldown <= 0 && !this.deleteSlashActive) {
+                this.performDeleteSlash();
+            }
+            
+            // ABILITY 2: ERROR 404 (F) - Disruption + Clone
+            if (keys['KeyF'] && this.error404Cooldown <= 0 && !this.error404Active) {
+                this.performError404();
+            }
+            
+            // ABILITY 3: HATRED (Q) - Rage Mode
+            if (keys['KeyQ'] && this.hatredCooldown <= 0 && !this.hatredActive) {
+                this.activateHatred();
+            }
+            
+            // ABILITY 4: TERMINATION (E) - Placeholder
+            if (keys['KeyE'] && this.terminationCooldown <= 0) {
+                this.performTermination();
+            }
+
+            // Movement handling with hatred speed boost
+            let inputLeft = keys['KeyA'];
+            let inputRight = keys['KeyD'];
+            
+            if (this.invertControlsTimer > 0) {
+                const temp = inputLeft;
+                inputLeft = inputRight;
+                inputRight = temp;
+            }
+
+            const currentSpeed = this.hatredActive ? MOVE_SPEED * 1.8 : MOVE_SPEED;
+            
+            if (inputLeft) {
+                this.vx = -currentSpeed;
+                this.facingRight = false;
+            }
+            if (inputRight) {
+                this.vx = currentSpeed;
+                this.facingRight = true;
+            }
+            if (keys['KeyW'] && this.isGrounded) {
+                this.vy = this.hatredActive ? -JUMP_FORCE * 1.2 : -JUMP_FORCE;
+            }
+
+            // Physics update from Entity
+            this.vy += GRAVITY;
+            this.x += this.vx;
+            this.y += this.vy;
+
+            if (this.y + this.h >= FLOOR_Y) {
+                this.y = FLOOR_Y - this.h;
+                this.vy = 0;
+                this.isGrounded = true;
+            } else {
+                this.isGrounded = false;
+            }
+
+            if (this.x < 0) this.x = 0;
+            if (this.x + this.w > WIDTH) this.x = WIDTH - this.w;
+
+            this.vx *= FRICTION;
+            if (Math.abs(this.vx) < 0.1) this.vx = 0;
+        }
+        
+        // DELETE: Large poison slash
+        performDeleteSlash() {
+            this.deleteSlashActive = true;
+            this.deleteSlashTimer = 20;
+            this.deleteCooldown = 90;
+            
+            const reach = 120; // Much larger than normal slash
+            const hitX = this.facingRight ? this.x + this.w : this.x - reach;
+            
+            if (!redCube.dead && rectIntersect(hitX, this.y - 20, reach, this.h + 40, redCube.x, redCube.y, redCube.w, redCube.h)) {
+                if (!redCube.isInvincible) {
+                    redCube.takeDamage(15 * this.damageMult);
+                    redCube.vx = this.facingRight ? 12 : -12;
+                    redCube.vy = -8;
+                    
+                    // Apply poison - 5 ticks of 8 damage each
+                    this.poisonTargets.push({
+                        target: redCube,
+                        ticksRemaining: 5,
+                        tickTimer: 60
+                    });
+                }
+            }
+        }
+        
+        // Process poison damage over time
+        processPoisonDamage() {
+            for (let i = this.poisonTargets.length - 1; i >= 0; i--) {
+                const poison = this.poisonTargets[i];
+                poison.tickTimer--;
+                
+                if (poison.tickTimer <= 0) {
+                    poison.tickTimer = 60; // 1 second between ticks
+                    poison.ticksRemaining--;
+                    
+                    if (!poison.target.dead) {
+                        poison.target.takeDamage(8);
+                        // Flash green to indicate poison
+                        poison.target.color = "#00FF00";
+                        setTimeout(() => {
+                            if (!poison.target.dead) {
+                                poison.target.color = poison.target.baseColor || COLORS.RED;
+                            }
+                        }, 100);
+                    }
+                    
+                    if (poison.ticksRemaining <= 0) {
+                        this.poisonTargets.splice(i, 1);
+                    }
+                }
+            }
+        }
+        
+        // ERROR 404: Disruption + clone chance
+        performError404() {
+            this.error404Active = true;
+            this.error404Timer = 180; // 3 seconds
+            this.error404Cooldown = 480;
+            
+            // Scramble enemy controls
+            if (!redCube.dead) {
+                redCube.invertControlsTimer = 180;
+                redCube.state = 'STUNNED';
+                redCube.stateTimer = 30;
+            }
+            
+            // 40% chance to create a clone
+            if (Math.random() < 0.4) {
+                this.spawnClone();
+            }
+        }
+        
+        // Spawn a clone of Fbt_7
+        spawnClone() {
+            this.clone = {
+                x: this.facingRight ? this.x - 60 : this.x + 60,
+                y: this.y,
+                w: this.w,
+                h: this.h,
+                facingRight: this.facingRight,
+                hp: 50,
+                dead: false,
+                attackTimer: 60,
+                alpha: 0.6
+            };
+        }
+        
+        // Update clone AI
+        updateClone() {
+            if (!this.clone || this.clone.dead) return;
+            
+            // Simple AI: Move toward enemy and attack
+            const dx = redCube.x - this.clone.x;
+            if (Math.abs(dx) > 100) {
+                this.clone.x += dx > 0 ? 3 : -3;
+                this.clone.facingRight = dx > 0;
+            }
+            
+            this.clone.attackTimer--;
+            if (this.clone.attackTimer <= 0) {
+                this.clone.attackTimer = 90;
+                // Clone attack
+                const reach = 70;
+                const hitX = this.clone.facingRight ? this.clone.x + this.clone.w : this.clone.x - reach;
+                
+                if (!redCube.dead && rectIntersect(hitX, this.clone.y, reach, this.clone.h, redCube.x, redCube.y, redCube.w, redCube.h)) {
+                    redCube.takeDamage(10);
+                }
+            }
+            
+            // Clone takes damage if hit (simplified)
+            if (!this.error404Active) {
+                this.clone = null;
+            }
+        }
+        
+        // HATRED: Rage mode activation
+        activateHatred() {
+            this.hatredActive = true;
+            this.hatredTimer = 300; // 5 seconds
+            this.hatredCooldown = 600;
+        }
+        
+        // TERMINATION: Placeholder
+        performTermination() {
+            this.terminationCooldown = 120;
+            // Placeholder - visual effect only for now
+            console.log("TERMINATION: [ABILITY LOCKED - COMING SOON]");
+        }
+
+        draw(ctx) {
+            if (this.dead) return;
+            
+            // Draw main cube
+            ctx.fillStyle = this.color;
+            ctx.fillRect(this.x, this.y, this.w, this.h);
+            
+            // Hatred glow effect
+            if (this.hatredActive) {
+                ctx.shadowColor = "#FF0000";
+                ctx.shadowBlur = 20;
+                ctx.strokeStyle = "#FF0000";
+                ctx.lineWidth = 4;
+                ctx.strokeRect(this.x - 2, this.y - 2, this.w + 4, this.h + 4);
+                ctx.shadowBlur = 0;
+            } else {
+                ctx.strokeStyle = "#444";
+                ctx.lineWidth = 2;
+                ctx.strokeRect(this.x, this.y, this.w, this.h);
+            }
+            
+            // Eye
+            ctx.fillStyle = this.hatredActive ? "#FF0000" : "#00FF00";
+            const eyeX = this.facingRight ? this.x + 30 : this.x + 10;
+            ctx.fillRect(eyeX, this.y + 10, 10, 10);
+
+            // DELETE SLASH visual
+            if (this.deleteSlashActive) {
+                const reach = 120;
+                const hitX = this.facingRight ? this.x + this.w : this.x - reach;
+                
+                // Poison green slash
+                ctx.fillStyle = "rgba(0, 255, 0, 0.6)";
+                ctx.fillRect(hitX, this.y - 20, reach, this.h + 40);
+                
+                // Dripping poison effect
+                for (let i = 0; i < 5; i++) {
+                    ctx.fillStyle = "rgba(0, 180, 0, 0.8)";
+                    ctx.beginPath();
+                    ctx.arc(hitX + Math.random() * reach, this.y + this.h + Math.random() * 20, 3, 0, Math.PI * 2);
+                    ctx.fill();
+                }
+            }
+            
+            // ERROR 404 visual
+            if (this.error404Active) {
+                ctx.fillStyle = "rgba(255, 0, 0, 0.3)";
+                ctx.font = "bold 16px monospace";
+                ctx.fillText("ERROR 404", this.x - 10, this.y - 30);
+                
+                // Glitch lines
+                for (let i = 0; i < 3; i++) {
+                    ctx.strokeStyle = `rgba(255, 0, 0, ${0.5 - i * 0.1})`;
+                    ctx.lineWidth = 1;
+                    ctx.beginPath();
+                    ctx.moveTo(this.x + Math.random() * this.w, this.y);
+                    ctx.lineTo(this.x + Math.random() * this.w, this.y + this.h);
+                    ctx.stroke();
+                }
+            }
+            
+            // Draw clone
+            if (this.clone && !this.clone.dead) {
+                ctx.globalAlpha = this.clone.alpha;
+                ctx.fillStyle = "black";
+                ctx.fillRect(this.clone.x, this.clone.y, this.clone.w, this.clone.h);
+                ctx.strokeStyle = "#00FF00";
+                ctx.lineWidth = 2;
+                ctx.strokeRect(this.clone.x, this.clone.y, this.clone.w, this.clone.h);
+                
+                // Clone eye
+                ctx.fillStyle = "#00FF00";
+                const cloneEyeX = this.clone.facingRight ? this.clone.x + 30 : this.clone.x + 10;
+                ctx.fillRect(cloneEyeX, this.clone.y + 10, 10, 10);
+                ctx.globalAlpha = 1.0;
+            }
+            
+            // Draw ability cooldown indicators
+            ctx.font = "10px Arial";
+            ctx.textAlign = "left";
+            let indicatorY = this.y - 45;
+            
+            // DELETE cooldown
+            ctx.fillStyle = this.deleteCooldown > 0 ? "#666" : "#00FF00";
+            ctx.fillText(`[SPACE] DELETE ${this.deleteCooldown > 0 ? Math.ceil(this.deleteCooldown/60) + 's' : 'READY'}`, this.x - 20, indicatorY);
+            indicatorY += 12;
+            
+            // ERROR 404 cooldown
+            ctx.fillStyle = this.error404Cooldown > 0 ? "#666" : "#FF0000";
+            ctx.fillText(`[F] 404 ${this.error404Active ? 'ACTIVE' : (this.error404Cooldown > 0 ? Math.ceil(this.error404Cooldown/60) + 's' : 'READY')}`, this.x - 20, indicatorY);
+            indicatorY += 12;
+            
+            // HATRED cooldown
+            ctx.fillStyle = this.hatredCooldown > 0 ? "#666" : "#8B0000";
+            ctx.fillText(`[Q] HATRED ${this.hatredActive ? 'ACTIVE' : (this.hatredCooldown > 0 ? Math.ceil(this.hatredCooldown/60) + 's' : 'READY')}`, this.x - 20, indicatorY);
+            indicatorY += 12;
+            
+            // TERMINATION placeholder
+            ctx.fillStyle = "#444";
+            ctx.fillText(`[E] TERMINATION [LOCKED]`, this.x - 20, indicatorY);
+        }
+    }
+
     // CUBE 9: MASTER CUBE 
     class GoldCube extends BlueCube {
         constructor() {
@@ -1747,6 +2131,7 @@
             case 5: blueCube = new BrownCube(); break;
             case 6: blueCube = new PurpleCube(); break;
             case 7: blueCube = new VigilanteCube(); break;
+            case 8: blueCube = new Fbt7Cube(); break; // Added custom class for Fbt_7
             case 9: blueCube = new GoldCube(); break;
             default: blueCube = new BlueCube(); break;
         }
