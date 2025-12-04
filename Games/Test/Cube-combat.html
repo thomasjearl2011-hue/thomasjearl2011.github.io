@@ -453,7 +453,7 @@
         { id: 5, name: "The Jorker", color: "#8B4513", hp: 75, attacks: "Kick, Laser (Windup)" },
         { id: 6, name: "Ima Touch You", color: "indigo", hp: 75, attacks: "Slash, Pull (Invert)" },
         { id: 7, name: "Vigilante", color: "#2F4F4F", hp: 125, attacks: "Takedown, Drone Support" },
-        { id : 8, name: "Fbt_7 (Secret)", color: "black", hp: 200, attacks: "Delete (Poison Slash), Error 404 (Disrupt+Clone), Hatred (Rage), Termination (Locked)" },
+        { id : 8, name: "Fbt_7 (Secret)", color: "black", hp: 200, attacks: "Delete (Poison Slash), Error 404 (Disrupt+Clone), Hatred (Rage), Termination (Reality Shatter)" },
         { id: 9, name: "Master Cube", color: "#FFD700", hp: "100", attacks: "Call back, Overtime" }
     ];
 
@@ -464,7 +464,7 @@
         { id: 2, name: "Sharpshooter", desc: "Hit 5 beams in a row (Red Cube)", unlocks: "Magic Cube", unlocked: false },
         { id: 3, name: "Unstoppable", desc: "Win without taking damage", unlocks: "The Jorker", unlocked: false },
         { id: 4, name: "Wombo Combo", desc: "Absolutely combo the red Ai cube", unlocks: "Ima Touch You", unlocked: false },
-        { id: 5, name: "In every timeline I kill you...", desc: "Lose to Fbt_7", unlocks: "Vigilante", unlocked: false },
+        { id: 5, name: "In every timeline I kill you...", desc: "Lose to Fbt_7  ", unlocks: "Vigilante", unlocked: false },
         { id: 6, name: "Cube Master", desc: "Unlock all other cubes", unlocks: "Master Cube", unlocked: false }
     ];
 
@@ -520,6 +520,11 @@
     }
 
     let sessionStats = { beamStreak: 0 };
+    
+    // --- GLOBAL GAME MODES ---
+    let isRetroMode = false;
+    let shatterActive = false;
+    let shatterShards = [];
 
     // --- NETWORK VARS ---
     let peer = null;
@@ -531,7 +536,7 @@
         if (window.parent && typeof window.parent.closeGame === 'function') {
             window.parent.closeGame();
         } else {
-            window.location.href = 'about:blank';
+            window.location.href = 'https://thomasjearl2011-hue.github.io/thomasjearl2011.github.io/';
         }
     }
     
@@ -740,6 +745,11 @@
                 applyStateToCube(blueCube, data.p1);
                 applyStateToCube(redCube, data.p2);
                 updateUI(); 
+                
+                // Sync global modes
+                isRetroMode = data.isRetroMode;
+                shatterActive = data.shatterActive;
+                if (data.shards) shatterShards = data.shards;
             }
         } else if (data.type === 'GAMEOVER') {
              gameState = 'gameover';
@@ -790,27 +800,60 @@
             
             if (this.invertControlsTimer > 0) this.invertControlsTimer--;
 
-            this.vy += GRAVITY;
-            this.x += this.vx;
-            this.y += this.vy;
+            if (isRetroMode) {
+                // Retro Physics: Top Down, No Gravity, X/Y Friction
+                this.x += this.vx;
+                this.y += this.vy;
+                
+                // Wall bounds (all 4 sides)
+                if (this.x < 0) this.x = 0;
+                if (this.x + this.w > WIDTH) this.x = WIDTH - this.w;
+                if (this.y < 0) this.y = 0;
+                if (this.y + this.h > HEIGHT) this.y = HEIGHT - this.h;
 
-            if (this.y + this.h >= FLOOR_Y) {
-                this.y = FLOOR_Y - this.h;
-                this.vy = 0;
-                this.isGrounded = true;
+                this.vx *= FRICTION;
+                this.vy *= FRICTION;
+                
+                if (Math.abs(this.vx) < 0.1) this.vx = 0;
+                if (Math.abs(this.vy) < 0.1) this.vy = 0;
+                
             } else {
-                this.isGrounded = false;
+                // Normal Physics
+                this.vy += GRAVITY;
+                this.x += this.vx;
+                this.y += this.vy;
+
+                if (this.y + this.h >= FLOOR_Y) {
+                    this.y = FLOOR_Y - this.h;
+                    this.vy = 0;
+                    this.isGrounded = true;
+                } else {
+                    this.isGrounded = false;
+                }
+
+                if (this.x < 0) this.x = 0;
+                if (this.x + this.w > WIDTH) this.x = WIDTH - this.w;
+
+                this.vx *= FRICTION;
+                if (Math.abs(this.vx) < 0.1) this.vx = 0;
             }
-
-            if (this.x < 0) this.x = 0;
-            if (this.x + this.w > WIDTH) this.x = WIDTH - this.w;
-
-            this.vx *= FRICTION;
-            if (Math.abs(this.vx) < 0.1) this.vx = 0;
         }
 
         draw(ctx) {
             if (this.dead) return;
+            
+            if (isRetroMode) {
+                // Simple Retro Draw
+                ctx.fillStyle = this.color === COLORS.BLACK ? 'blue' : (this.color === COLORS.RED ? 'red' : this.color);
+                // Force P1 blue/P2 red for retro aesthetic unless strictly defined otherwise
+                if (this === blueCube) ctx.fillStyle = "blue";
+                if (this === redCube) ctx.fillStyle = "red";
+                
+                ctx.fillRect(this.x, this.y, this.w, this.h);
+                return;
+            }
+
+            // Normal Draw
             ctx.fillStyle = this.color;
             ctx.fillRect(this.x, this.y, this.w, this.h);
 
@@ -868,39 +911,60 @@
             // Handle Control Inversion
             let inputLeft = keys['KeyA'];
             let inputRight = keys['KeyD'];
+            let inputUp = keys['KeyW'];
+            let inputDown = keys['KeyS'];
             
             if (this.invertControlsTimer > 0) {
                 const temp = inputLeft;
                 inputLeft = inputRight;
                 inputRight = temp;
+                const tempY = inputUp;
+                inputUp = inputDown;
+                inputDown = tempY;
             }
 
             if (!this.parryActive) {
-                if (inputLeft) {
-                    this.vx = -MOVE_SPEED;
-                    this.facingRight = false;
-                }
-                if (inputRight) {
-                    this.vx = MOVE_SPEED;
-                    this.facingRight = true;
-                }
-                if (keys['KeyW'] && this.isGrounded) {
-                    this.vy = -JUMP_FORCE;
+                // Movement Logic
+                if (isRetroMode) {
+                    if (inputLeft) this.vx = -MOVE_SPEED;
+                    if (inputRight) this.vx = MOVE_SPEED;
+                    if (inputUp) this.vy = -MOVE_SPEED;
+                    if (inputDown) this.vy = MOVE_SPEED;
+                    
+                    if (inputRight) this.facingRight = true;
+                    if (inputLeft) this.facingRight = false;
+                    
+                    // Allow simple collision attack in retro mode
+                    if (rectIntersect(this.x, this.y, this.w, this.h, redCube.x, redCube.y, redCube.w, redCube.h)) {
+                        if (this.slashCooldown <= 0) {
+                            redCube.takeDamage(10);
+                            redCube.vx = this.facingRight ? 10 : -10;
+                            redCube.vy = inputUp ? -10 : 10;
+                            this.slashCooldown = 30;
+                        }
+                    }
+
+                } else {
+                    if (inputLeft) {
+                        this.vx = -MOVE_SPEED;
+                        this.facingRight = false;
+                    }
+                    if (inputRight) {
+                        this.vx = MOVE_SPEED;
+                        this.facingRight = true;
+                    }
+                    if (keys['KeyW'] && this.isGrounded) {
+                        this.vy = -JUMP_FORCE;
+                    }
                 }
 
+                // Attack Logic (Only in Normal Mode usually, but let's allow it in Retro for gameplay)
                 if (keys['Space'] && this.slashCooldown <= 0) {
                     this.performSlash();
                 }
             }
 
-            if (keys['KeyF'] && this.parryCooldown <= 0 && !this.parryActive) {
-                // Default parry logic (Cube 1 only)
-                // Subclasses will override 'F' behavior or this condition
-                // Special exception: Gold Cube subclasses BlueCube, but overrides 'F'.
-                // If this is a MINION GoldCube, it's actually not a GoldCube class, it's just a BlueCube class.
-                // We need to check if this instance is exactly a BlueCube or if selectedCubeId is 1 to allow Parry.
-                // If this is a minion, selectedCubeId is 7, but instance is BlueCube.
-                // Minion BlueCube should be allowed to parry.
+            if (keys['KeyF'] && this.parryCooldown <= 0 && !this.parryActive && !isRetroMode) {
                 if (this.constructor.name === 'BlueCube' && !(this instanceof GoldCube)) {
                     this.parryActive = true;
                     this.parryTimer = 30; 
@@ -945,6 +1009,7 @@
         draw(ctx) {
             super.draw(ctx);
             if (this.dead) return;
+            if (isRetroMode) return; // No slash visuals in Retro
 
             if (this.slashActive) {
                 ctx.fillStyle = "rgba(128, 0, 128, 0.6)"; 
@@ -976,6 +1041,7 @@
         update() {
             super.update(); // Handles slash (Space)
             if (this.dead) return;
+            if (isRetroMode) return; // No special moves in retro
 
             if (this.beamState !== 'IDLE') {
                 this.vx = 0; 
@@ -1014,6 +1080,8 @@
 
         draw(ctx) {
             super.draw(ctx);
+            if (isRetroMode) return;
+
             if (this.beamState === 'FIRING') {
                 ctx.fillStyle = "#00FF00";
                 const beamW = 600;
@@ -1034,6 +1102,10 @@
         }
 
         update() {
+            if (isRetroMode) {
+                super.update();
+                return;
+            }
             // Regen
             if (!this.isBlocking && this.blockEnergy < 100) this.blockEnergy += 0.5;
 
@@ -1063,6 +1135,7 @@
 
         draw(ctx) {
             super.draw(ctx);
+            if (isRetroMode) return;
             // Draw Block Bar
             ctx.fillStyle = "#333";
             ctx.fillRect(this.x, this.y - 15, this.w, 8);
@@ -1092,6 +1165,10 @@
         }
 
         update() {
+            if (isRetroMode) {
+                super.update();
+                return;
+            }
             // Laser Logic
             if (this.beamState !== 'IDLE') {
                 this.vx = 0;
@@ -1148,6 +1225,7 @@
 
         draw(ctx) {
             super.draw(ctx);
+            if (isRetroMode) return;
             if (this.beamState === 'FIRING') {
                 ctx.fillStyle = "yellow";
                 const beamW = 600;
@@ -1171,6 +1249,10 @@
         }
 
         update() {
+            if (isRetroMode) {
+                super.update();
+                return;
+            }
             if (this.pullCooldown > 0) this.pullCooldown--;
 
             if (this.pullActive) {
@@ -1207,6 +1289,7 @@
 
         draw(ctx) {
             super.draw(ctx);
+            if (isRetroMode) return;
             if (this.pullActive) {
                 ctx.strokeStyle = "purple";
                 ctx.lineWidth = 5;
@@ -1242,6 +1325,11 @@
 
         update() {
             if (this.dead) return;
+            if (isRetroMode) {
+                super.update();
+                return;
+            }
+
             // Cooldowns
             if (this.slashCooldown > 0) this.slashCooldown--;
             if (this.droneCooldown > 0) this.droneCooldown--;
@@ -1331,6 +1419,7 @@
 
         draw(ctx) {
             super.draw(ctx);
+            if (isRetroMode) return;
             
             // Draw Dash Afterimage effect
             if (this.dashActive) {
@@ -1371,11 +1460,11 @@
             this.hp = 200;
             this.maxHp = 200;
             
-            // DELETE ability (poison slash)
+            // DELETE ability
             this.deleteSlashActive = false;
             this.deleteSlashTimer = 0;
             this.deleteCooldown = 0;
-            this.poisonTargets = []; // Track poisoned enemies
+            this.poisonTargets = [];
             
             // ERROR 404 ability
             this.error404Active = false;
@@ -1383,13 +1472,13 @@
             this.error404Cooldown = 0;
             this.clone = null;
             
-            // HATRED ability (rage mode)
+            // HATRED ability
             this.hatredActive = false;
             this.hatredTimer = 0;
             this.hatredCooldown = 0;
             this.originalSpeed = MOVE_SPEED;
             
-            // TERMINATION ability (placeholder)
+            // TERMINATION ability
             this.terminationCooldown = 0;
         }
 
@@ -1402,6 +1491,13 @@
             if (this.hatredCooldown > 0) this.hatredCooldown--;
             if (this.terminationCooldown > 0) this.terminationCooldown--;
             
+            // If Retro Mode, handle basic movement and skip abilities visually, but maybe keep effects?
+            // For simplicity, disable advanced abilities in Retro Mode
+            if (isRetroMode) {
+                super.update();
+                return;
+            }
+
             // Process poison damage
             this.processPoisonDamage();
             
@@ -1409,22 +1505,21 @@
             if (this.hatredActive) {
                 this.hatredTimer--;
                 this.color = (Math.floor(Date.now() / 80) % 2 === 0) ? "#8B0000" : "black";
-                this.damageMult = 2.0; // Double damage
+                this.damageMult = 2.0; 
                 
                 if (this.hatredTimer <= 0) {
                     this.hatredActive = false;
                     this.color = this.baseColor;
                     this.damageMult = 1.0;
-                    this.hatredCooldown = 600; // 10 second cooldown
+                    this.hatredCooldown = 600; 
                 }
             }
             
             // ERROR 404 effects
             if (this.error404Active) {
                 this.error404Timer--;
-                // Enemy attack disruption - increase their cooldowns
                 if (redCube && !redCube.dead) {
-                    redCube.stateTimer += 0.5; // Slow their attacks
+                    redCube.stateTimer += 0.5;
                 }
                 
                 if (this.error404Timer <= 0) {
@@ -1432,16 +1527,14 @@
                     if (this.clone) {
                         this.clone = null;
                     }
-                    this.error404Cooldown = 480; // 8 second cooldown
+                    this.error404Cooldown = 480; 
                 }
             }
             
-            // Update clone if exists
             if (this.clone) {
                 this.updateClone();
             }
             
-            // DELETE SLASH animation
             if (this.deleteSlashActive) {
                 this.deleteSlashTimer--;
                 if (this.deleteSlashTimer <= 0) {
@@ -1449,27 +1542,27 @@
                 }
             }
 
-            // ABILITY 1: DELETE (Space) - Poison Slash
+            // ABILITY 1: DELETE (Space)
             if (keys['Space'] && this.deleteCooldown <= 0 && !this.deleteSlashActive) {
                 this.performDeleteSlash();
             }
             
-            // ABILITY 2: ERROR 404 (F) - Disruption + Clone
+            // ABILITY 2: ERROR 404 (F)
             if (keys['KeyF'] && this.error404Cooldown <= 0 && !this.error404Active) {
                 this.performError404();
             }
             
-            // ABILITY 3: HATRED (Q) - Rage Mode
+            // ABILITY 3: HATRED (Q)
             if (keys['KeyQ'] && this.hatredCooldown <= 0 && !this.hatredActive) {
                 this.activateHatred();
             }
             
-            // ABILITY 4: TERMINATION (E) - Placeholder
+            // ABILITY 4: TERMINATION (E)
             if (keys['KeyE'] && this.terminationCooldown <= 0) {
                 this.performTermination();
             }
 
-            // Movement handling with hatred speed boost
+            // Movement handling
             let inputLeft = keys['KeyA'];
             let inputRight = keys['KeyD'];
             
@@ -1493,7 +1586,6 @@
                 this.vy = this.hatredActive ? -JUMP_FORCE * 1.2 : -JUMP_FORCE;
             }
 
-            // Physics update from Entity
             this.vy += GRAVITY;
             this.x += this.vx;
             this.y += this.vy;
@@ -1513,13 +1605,12 @@
             if (Math.abs(this.vx) < 0.1) this.vx = 0;
         }
         
-        // DELETE: Large poison slash
         performDeleteSlash() {
             this.deleteSlashActive = true;
             this.deleteSlashTimer = 20;
             this.deleteCooldown = 90;
             
-            const reach = 120; // Much larger than normal slash
+            const reach = 120;
             const hitX = this.facingRight ? this.x + this.w : this.x - reach;
             
             if (!redCube.dead && rectIntersect(hitX, this.y - 20, reach, this.h + 40, redCube.x, redCube.y, redCube.w, redCube.h)) {
@@ -1528,7 +1619,6 @@
                     redCube.vx = this.facingRight ? 12 : -12;
                     redCube.vy = -8;
                     
-                    // Apply poison - 5 ticks of 8 damage each
                     this.poisonTargets.push({
                         target: redCube,
                         ticksRemaining: 5,
@@ -1538,19 +1628,17 @@
             }
         }
         
-        // Process poison damage over time
         processPoisonDamage() {
             for (let i = this.poisonTargets.length - 1; i >= 0; i--) {
                 const poison = this.poisonTargets[i];
                 poison.tickTimer--;
                 
                 if (poison.tickTimer <= 0) {
-                    poison.tickTimer = 60; // 1 second between ticks
+                    poison.tickTimer = 60;
                     poison.ticksRemaining--;
                     
                     if (!poison.target.dead) {
                         poison.target.takeDamage(8);
-                        // Flash green to indicate poison
                         poison.target.color = "#00FF00";
                         setTimeout(() => {
                             if (!poison.target.dead) {
@@ -1566,26 +1654,22 @@
             }
         }
         
-        // ERROR 404: Disruption + clone chance
         performError404() {
             this.error404Active = true;
-            this.error404Timer = 180; // 3 seconds
+            this.error404Timer = 180;
             this.error404Cooldown = 480;
             
-            // Scramble enemy controls
             if (!redCube.dead) {
                 redCube.invertControlsTimer = 180;
                 redCube.state = 'STUNNED';
                 redCube.stateTimer = 30;
             }
             
-            // 40% chance to create a clone
             if (Math.random() < 0.4) {
                 this.spawnClone();
             }
         }
         
-        // Spawn a clone of Fbt_7
         spawnClone() {
             this.clone = {
                 x: this.facingRight ? this.x - 60 : this.x + 60,
@@ -1600,11 +1684,9 @@
             };
         }
         
-        // Update clone AI
         updateClone() {
             if (!this.clone || this.clone.dead) return;
             
-            // Simple AI: Move toward enemy and attack
             const dx = redCube.x - this.clone.x;
             if (Math.abs(dx) > 100) {
                 this.clone.x += dx > 0 ? 3 : -3;
@@ -1614,7 +1696,6 @@
             this.clone.attackTimer--;
             if (this.clone.attackTimer <= 0) {
                 this.clone.attackTimer = 90;
-                // Clone attack
                 const reach = 70;
                 const hitX = this.clone.facingRight ? this.clone.x + this.clone.w : this.clone.x - reach;
                 
@@ -1623,28 +1704,73 @@
                 }
             }
             
-            // Clone takes damage if hit (simplified)
             if (!this.error404Active) {
                 this.clone = null;
             }
         }
         
-        // HATRED: Rage mode activation
         activateHatred() {
             this.hatredActive = true;
-            this.hatredTimer = 300; // 5 seconds
+            this.hatredTimer = 300; 
             this.hatredCooldown = 600;
         }
         
-        // TERMINATION: Placeholder
+        // TERMINATION: Reality Shatter and Retro Transition
         performTermination() {
-            this.terminationCooldown = 120;
-            // Placeholder - visual effect only for now
-            console.log("TERMINATION: [ABILITY LOCKED - COMING SOON]");
+            this.terminationCooldown = 1200; // Long cooldown
+
+            // 1. Shatter Effect
+            triggerShatter();
+
+            // 2. Start Sequence
+            // Sequence: Retro(2s) -> Normal(1s) -> Retro(2s) -> Normal(1s) -> Retro(2s) -> Normal(1s) -> Retro(2s) -> Normal(End)
+            // Times in ms
+            const phase1 = 1000; // Wait for shatter anim
+            const retroDur = 2000;
+            const normalDur = 1000;
+
+            let time = phase1;
+
+            // Phase 1 Retro
+            setTimeout(() => { isRetroMode = true; }, time);
+            time += retroDur;
+
+            // Phase 1 Normal
+            setTimeout(() => { isRetroMode = false; triggerShatter(); }, time);
+            time += normalDur;
+
+            // Phase 2 Retro
+            setTimeout(() => { isRetroMode = true; }, time);
+            time += retroDur;
+
+            // Phase 2 Normal
+            setTimeout(() => { isRetroMode = false; triggerShatter(); }, time);
+            time += normalDur;
+
+            // Phase 3 Retro
+            setTimeout(() => { isRetroMode = true; }, time);
+            time += retroDur;
+            
+            // Phase 3 Normal
+            setTimeout(() => { isRetroMode = false; triggerShatter(); }, time);
+            time += normalDur;
+
+             // Phase 4 Retro
+            setTimeout(() => { isRetroMode = true; }, time);
+            time += retroDur;
+
+            // Final Normal
+            setTimeout(() => { isRetroMode = false; triggerShatter(); }, time);
         }
 
         draw(ctx) {
             if (this.dead) return;
+            if (isRetroMode) {
+                 // Simple retro draw override
+                 ctx.fillStyle = "black";
+                 ctx.fillRect(this.x, this.y, this.w, this.h);
+                 return;
+            }
             
             // Draw main cube
             ctx.fillStyle = this.color;
@@ -1740,10 +1866,35 @@
             ctx.fillText(`[Q] HATRED ${this.hatredActive ? 'ACTIVE' : (this.hatredCooldown > 0 ? Math.ceil(this.hatredCooldown/60) + 's' : 'READY')}`, this.x - 20, indicatorY);
             indicatorY += 12;
             
-            // TERMINATION placeholder
-            ctx.fillStyle = "#444";
-            ctx.fillText(`[E] TERMINATION [LOCKED]`, this.x - 20, indicatorY);
+            // TERMINATION
+            ctx.fillStyle = this.terminationCooldown > 0 ? "#666" : "#000000";
+            ctx.fillText(`[E] TERMINATION ${this.terminationCooldown > 0 ? Math.ceil(this.terminationCooldown/60) + 's' : 'READY'}`, this.x - 20, indicatorY);
         }
+    }
+    
+    // --- SHATTER EFFECT UTILS ---
+    function triggerShatter() {
+        shatterActive = true;
+        shatterShards = [];
+        
+        // Create 30 random shards
+        for(let i=0; i<30; i++) {
+            shatterShards.push({
+                x: WIDTH/2,
+                y: HEIGHT/2,
+                vx: (Math.random() - 0.5) * 30,
+                vy: (Math.random() - 0.5) * 30,
+                w: Math.random() * 50 + 20,
+                h: Math.random() * 50 + 20,
+                angle: Math.random() * Math.PI,
+                rotSpeed: (Math.random() - 0.5) * 0.5,
+                color: Math.random() > 0.5 ? '#333' : '#111',
+                alpha: 1.0
+            });
+        }
+        
+        // Stop shatter after 1 sec
+        setTimeout(() => { shatterActive = false; }, 800);
     }
 
     // CUBE 9: MASTER CUBE 
@@ -1764,6 +1915,17 @@
 
         update() {
             if (this.dead) return;
+            if (isRetroMode) {
+                // If minion active, use minion for retro pos
+                if (this.masterState === 'MINION_MODE' && this.minion) {
+                    this.minion.update();
+                    this.x = this.minion.x;
+                    this.y = this.minion.y;
+                } else {
+                    super.update();
+                }
+                return;
+            }
 
             // Handle Overtime Timer
             if (this.overtimeActive) {
@@ -1812,8 +1974,6 @@
                     
                     // DECREASE COOLDOWNS IF OVERTIME ACTIVE
                     if (this.overtimeActive) {
-                        // Manually tick down common cooldown properties to simulate "faster cooldowns"
-                        // This effectively doubles the recharge rate (1 normal tick + 1 extra tick)
                         if (this.minion.slashCooldown > 0) this.minion.slashCooldown--;
                         if (this.minion.parryCooldown > 0) this.minion.parryCooldown--;
                         if (this.minion.beamTimer > 0 && this.minion.beamState !== 'FIRING') this.minion.beamTimer--; 
@@ -1865,20 +2025,14 @@
             this.minion.damageMult = 0.5;
 
             // OVERTIME BUFF
-            // If overtime is active when calling back, minion gets FULL power
             if (this.overtimeActive) {
                 this.minion.maxHp = 100;
                 this.minion.hp = 100;
                 this.minion.damageMult = 1.0;
-                
-                // Visual Indicator for Super Minion
-                this.minion.baseColor = this.minion.color; // Save
-                // We'll let the minion render normally, but maybe add a visual cue later if needed.
-                // The rainbow border on screen is enough indication.
+                this.minion.baseColor = this.minion.color; 
             }
         }
 
-        // Override takeDamage to direct it to minion if active
         takeDamage(amount) {
             if (this.masterState === 'MINION_MODE' && this.minion) {
                 this.minion.takeDamage(amount);
@@ -1889,6 +2043,11 @@
 
         draw(ctx) {
             if (this.dead) return;
+            if (isRetroMode) {
+                if (this.masterState === 'MINION_MODE' && this.minion) this.minion.draw(ctx);
+                else super.draw(ctx);
+                return;
+            }
 
             if (this.masterState === 'MINION_MODE' && this.minion) {
                 this.minion.draw(ctx);
@@ -1944,6 +2103,8 @@
             } else {
                 this.updateAI();
             }
+            
+            if (isRetroMode) return; // No complex state attacks in retro
 
             // State Machine for Attacks
             if (this.state === 'CHARGE_WINDUP') {
@@ -1993,6 +2154,42 @@
         }
 
         updatePvP(inputSource) {
+            // Retro input handling
+            if (isRetroMode) {
+                let left = inputSource['ArrowLeft'];
+                let right = inputSource['ArrowRight'];
+                let up = inputSource['ArrowUp'];
+                let down = inputSource['ArrowDown'];
+
+                if (this.invertControlsTimer > 0) {
+                    const temp = left;
+                    left = right;
+                    right = temp;
+                    const tempY = up;
+                    up = down;
+                    down = tempY;
+                }
+                
+                if (left) this.vx = -MOVE_SPEED;
+                if (right) this.vx = MOVE_SPEED;
+                if (up) this.vy = -MOVE_SPEED;
+                if (down) this.vy = MOVE_SPEED;
+                
+                if (left) this.facingRight = false;
+                if (right) this.facingRight = true;
+                
+                // Allow simple collision hit in retro
+                if (rectIntersect(this.x, this.y, this.w, this.h, blueCube.x, blueCube.y, blueCube.w, blueCube.h)) {
+                     // Check if not just hit
+                     if (Math.random() < 0.1) { // Chance to damage on touch
+                        blueCube.takeDamage(5);
+                        blueCube.vx = this.facingRight ? 10 : -10;
+                     }
+                }
+                return;
+            }
+
+            // Normal Input
             if (this.state !== 'IDLE') return; 
 
             let left = inputSource['ArrowLeft'];
@@ -2021,9 +2218,26 @@
         }
 
         updateAI() {
+            // Retro AI
+            if (isRetroMode) {
+                const dx = blueCube.x - this.x;
+                const dy = blueCube.y - this.y;
+                
+                // Simple chase
+                if (Math.abs(dx) > 10) this.vx = dx > 0 ? MOVE_SPEED : -MOVE_SPEED;
+                if (Math.abs(dy) > 10) this.vy = dy > 0 ? MOVE_SPEED : -MOVE_SPEED;
+                
+                // Collision damage
+                 if (rectIntersect(this.x, this.y, this.w, this.h, blueCube.x, blueCube.y, blueCube.w, blueCube.h)) {
+                     if (Math.random() < 0.05) {
+                        blueCube.takeDamage(5);
+                     }
+                 }
+                return;
+            }
+        
             if (this.state !== 'IDLE') return;
             
-            // If controls are inverted, the AI "panics" (moves opposite to intent)
             const invertMult = (this.invertControlsTimer > 0) ? -1 : 1;
 
             const dx = blueCube.x - this.x;
@@ -2105,6 +2319,7 @@
 
         draw(ctx) {
             super.draw(ctx);
+            if (isRetroMode) return;
             if (this.state === 'BEAM_FIRING' || (gameMode === 'p2p' && p2pRole === 'client' && this.beamActive)) {
                 ctx.fillStyle = COLORS.CYAN;
                 const beamW = 600;
@@ -2138,12 +2353,23 @@
 
         redCube = new RedCube();
         
+        isRetroMode = false;
+        shatterActive = false;
+
         // Reset stats
         sessionStats.beamStreak = 0;
         updateUI();
     }
 
     function updateUI() {
+        // If in retro mode, UI is drawn in gameLoop to canvas directly
+        if (isRetroMode) {
+             document.getElementById('ui-layer').style.display = 'none';
+             return;
+        } else {
+             document.getElementById('ui-layer').style.display = 'flex';
+        }
+
         const p1Pct = (blueCube.hp / blueCube.maxHp) * 100;
         const p2Pct = (redCube.hp / redCube.maxHp) * 100;
         document.getElementById('p1-health').style.width = p1Pct + '%';
@@ -2193,10 +2419,19 @@
     function gameLoop() {
         if (gameState !== 'playing') return;
 
-        ctx.fillStyle = "#fff";
+        // DRAW BG
+        if (isRetroMode) {
+            ctx.fillStyle = "white";
+        } else {
+            ctx.fillStyle = "#fff";
+        }
         ctx.fillRect(0, 0, WIDTH, HEIGHT);
-        ctx.fillStyle = "#333";
-        ctx.fillRect(0, FLOOR_Y, WIDTH, HEIGHT - FLOOR_Y);
+        
+        // Draw Floor (Only normal mode)
+        if (!isRetroMode) {
+            ctx.fillStyle = "#333";
+            ctx.fillRect(0, FLOOR_Y, WIDTH, HEIGHT - FLOOR_Y);
+        }
 
         if (gameMode === 'p2p') {
             if (p2pRole === 'host') {
@@ -2210,7 +2445,10 @@
                         },
                         p2: { 
                             x: redCube.x, y: redCube.y, color: redCube.color, hp: redCube.hp, facingRight: redCube.facingRight 
-                        }
+                        },
+                        isRetroMode: isRetroMode,
+                        shatterActive: shatterActive,
+                        shards: shatterShards
                     });
                 }
             } else if (p2pRole === 'client') {
@@ -2224,7 +2462,59 @@
         redCube.draw(ctx);
         blueCube.draw(ctx);
         
-        updateUI(); // Moved here to update per frame for smooth bars
+        // Shatter Effects Draw
+        if (shatterActive) {
+            ctx.save();
+            shatterShards.forEach(shard => {
+                shard.x += shard.vx;
+                shard.y += shard.vy;
+                shard.angle += shard.rotSpeed;
+                shard.alpha -= 0.02;
+                
+                ctx.translate(shard.x, shard.y);
+                ctx.rotate(shard.angle);
+                ctx.fillStyle = shard.color;
+                ctx.globalAlpha = Math.max(0, shard.alpha);
+                ctx.fillRect(-shard.w/2, -shard.h/2, shard.w, shard.h);
+                ctx.rotate(-shard.angle);
+                ctx.translate(-shard.x, -shard.y);
+                ctx.globalAlpha = 1.0;
+            });
+            ctx.restore();
+        }
+
+        // Draw Retro UI if needed
+        if (isRetroMode) {
+             // Top bars
+             const p1Pct = Math.max(0, (blueCube.hp / blueCube.maxHp));
+             const p2Pct = Math.max(0, (redCube.hp / redCube.maxHp));
+             
+             // Left Bar (Blue) in screenshot right, but usually P1 left. I will put P1 left.
+             // Screenshot has Red Left, Blue Right. I will follow screenshot.
+             // Red Left
+             ctx.fillStyle = "red";
+             ctx.fillRect(20, 20, 300 * p2Pct, 30);
+             ctx.strokeStyle = "black";
+             ctx.strokeRect(20, 20, 300, 30);
+             
+             // Blue Right
+             ctx.fillStyle = "blue";
+             ctx.fillRect(WIDTH - 320, 20, 300 * p1Pct, 30);
+             ctx.strokeStyle = "black";
+             ctx.strokeRect(WIDTH - 320, 20, 300, 30);
+             
+             // Text
+             ctx.fillStyle = "red";
+             ctx.font = "bold 24px Arial";
+             ctx.textAlign = "left";
+             ctx.fillText("Red Kills: 0", 20, HEIGHT - 20);
+             
+             ctx.fillStyle = "blue";
+             ctx.textAlign = "right";
+             ctx.fillText("Blue Kills: 0", WIDTH - 20, HEIGHT - 20);
+        }
+        
+        updateUI(); 
 
         animationId = requestAnimationFrame(gameLoop);
     }
