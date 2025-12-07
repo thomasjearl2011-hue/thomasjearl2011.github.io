@@ -1,470 +1,1011 @@
-    <!DOCTYPE html>
-    <html lang="en">
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Nexus Gaming Hub</title>
-        <script src="https://cdn.tailwindcss.com"></script>
-        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-        <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
-        <link rel="stylesheet type" type="text/css" href="Css/Style.css"></link>
-    </head>
-    <body class="h-screen flex overflow-hidden selection:bg-indigo-500 selection:text-white">
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Nexus Gaming Hub</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- FontAwesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Google Fonts: Outfit for a modern gaming look -->
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 
-        <aside class="w-20 lg:w-64 flex-shrink-0 bg-slate-900 border-r border-slate-800 flex flex-col transition-all duration-300">
+    <!-- Tailwind Config for Custom Colors/Fonts -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Outfit', 'sans-serif'],
+                    },
+                    colors: {
+                        nexus: {
+                            base: '#09090b', // zinc-950
+                            card: '#18181b', // zinc-900
+                            highlight: '#27272a', // zinc-800
+                            primary: '#6366f1', // indigo-500
+                            accent: '#ec4899', // pink-500
+                        }
+                    },
+                    animation: {
+                        'float': 'float 6s ease-in-out infinite',
+                        'pulse-slow': 'pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                        'fade-in': 'fadeIn 0.5s ease-out forwards',
+                        'slide-up': 'slideUp 0.5s ease-out forwards',
+                    },
+                    keyframes: {
+                        float: {
+                            '0%, 100%': { transform: 'translateY(0)' },
+                            '50%': { transform: 'translateY(-10px)' },
+                        },
+                        fadeIn: {
+                            '0%': { opacity: '0' },
+                            '100%': { opacity: '1' },
+                        },
+                        slideUp: {
+                            '0%': { opacity: '0', transform: 'translateY(20px)' },
+                            '100%': { opacity: '1', transform: 'translateY(0)' },
+                        }
+                    }
+                }
+            }
+        }
+    </script>
 
-            <div class="h-16 flex items-center justify-center lg:justify-start lg:px-6 border-b border-slate-800">
-                <i class="fa-solid fa-gamepad text-indigo-500 text-2xl"></i>
-                <span class="ml-3 font-bold text-xl hidden lg:block text-white tracking-tight">NEXUS</span>
+    <style>
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #09090b; 
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #3f3f46; 
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #6366f1; 
+        }
+
+        /* Glassmorphism Utilities */
+        .glass {
+            background: rgba(24, 24, 27, 0.6);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        
+        .glass-hover:hover {
+            background: rgba(39, 39, 42, 0.8);
+            border-color: rgba(99, 102, 241, 0.3);
+            box-shadow: 0 0 20px rgba(99, 102, 241, 0.1);
+        }
+
+        /* Hide Scrollbar for specific elements */
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+
+        /* Game Overlay Styles */
+        .game-active body {
+            overflow: hidden;
+        }
+        
+        /* Mobile specific fixes */
+        body {
+            -webkit-tap-highlight-color: transparent;
+        }
+    </style>
+</head>
+<body class="bg-nexus-base text-white h-screen flex flex-col md:flex-row overflow-hidden selection:bg-indigo-500 selection:text-white font-sans">
+
+    <!-- BACKGROUND EFFECTS -->
+    <div class="fixed inset-0 z-0 pointer-events-none overflow-hidden">
+        <div class="absolute top-0 left-1/4 w-96 h-96 bg-indigo-600/10 rounded-full blur-[100px] animate-pulse-slow"></div>
+        <div class="absolute bottom-0 right-1/4 w-96 h-96 bg-pink-600/10 rounded-full blur-[100px] animate-pulse-slow" style="animation-delay: 2s;"></div>
+    </div>
+
+    <!-- SIDEBAR (DESKTOP) -->
+    <aside class="hidden md:flex w-20 lg:w-72 flex-col glass z-20 border-r border-white/5 transition-all duration-300">
+        <!-- Logo -->
+        <div class="h-20 flex items-center justify-center lg:justify-start lg:px-8 border-b border-white/5">
+            <div class="w-10 h-10 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-xl flex items-center justify-center shadow-lg shadow-indigo-500/20">
+                <i class="fa-solid fa-gamepad text-white text-lg"></i>
             </div>
+            <span class="ml-4 font-bold text-2xl tracking-tight hidden lg:block bg-clip-text text-transparent bg-gradient-to-r from-white to-slate-400">NEXUS</span>
+        </div>
 
-            <nav class="flex-1 py-6 space-y-2 px-2">
-                <button onclick="switchTab('home')" class="nav-btn w-full flex items-center p-3 rounded-lg text-slate-400 hover:bg-slate-800 hover:text-white transition-colors group relative" id="nav-home">
-                    <i class="fa-solid fa-house text-xl w-8 text-center group-hover:text-indigo-400"></i>
-                    <span class="ml-3 font-medium hidden lg:block">Home</span>
-                    <div class="absolute left-0 top-2 bottom-2 w-1 bg-indigo-500 rounded-r opacity-0 transition-opacity" id="indicator-home"></div>
-                </button>
+        <!-- Nav Items -->
+        <nav class="flex-1 py-8 px-4 space-y-2">
+            <button onclick="switchTab('home')" class="nav-item w-full flex items-center p-3.5 rounded-xl text-slate-400 hover:text-white hover:bg-white/5 transition-all group active" id="desk-nav-home">
+                <i class="fa-solid fa-house text-xl w-6 text-center group-hover:text-indigo-400 transition-colors"></i>
+                <span class="ml-4 font-medium hidden lg:block">Home</span>
+            </button>
 
-                <button onclick="switchTab('games')" class="nav-btn w-full flex items-center p-3 rounded-lg text-slate-400 hover:bg-slate-800 hover:text-white transition-colors group relative" id="nav-games">
-                    <i class="fa-solid fa-rocket text-xl w-8 text-center group-hover:text-pink-400"></i>
-                    <span class="ml-3 font-medium hidden lg:block">Games Library</span>
-                    <div class="absolute left-0 top-2 bottom-2 w-1 bg-pink-500 rounded-r opacity-0 transition-opacity" id="indicator-games"></div>
-                </button>
+            <button onclick="switchTab('games')" class="nav-item w-full flex items-center p-3.5 rounded-xl text-slate-400 hover:text-white hover:bg-white/5 transition-all group" id="desk-nav-games">
+                <i class="fa-solid fa-ghost text-xl w-6 text-center group-hover:text-pink-400 transition-colors"></i>
+                <span class="ml-4 font-medium hidden lg:block">Games</span>
+            </button>
 
-                <!-- UPDATED: This button now navigates directly to store.html -->
-                <button onclick="window.location.href='store.html'" class="nav-btn w-full flex items-center p-3 rounded-lg text-slate-400 hover:bg-slate-800 hover:text-white transition-colors group relative" id="nav-store">
-                    <i class="fa-solid fa-bag-shopping text-xl w-8 text-center group-hover:text-emerald-400"></i>
-                    <span class="ml-3 font-medium hidden lg:block">Store</span>
-                    <div class="absolute left-0 top-2 bottom-2 w-1 bg-emerald-500 rounded-r opacity-0 transition-opacity" id="indicator-store"></div>
-                </button>
+            <button onclick="switchTab('community')" class="nav-item w-full flex items-center p-3.5 rounded-xl text-slate-400 hover:text-white hover:bg-white/5 transition-all group" id="desk-nav-community">
+                <i class="fa-solid fa-users text-xl w-6 text-center group-hover:text-emerald-400 transition-colors"></i>
+                <span class="ml-4 font-medium hidden lg:block">Community</span>
+            </button>
 
-                <button onclick="switchTab('community')" class="nav-btn w-full flex items-center p-3 rounded-lg text-slate-400 hover:bg-slate-800 hover:text-white transition-colors group relative" id="nav-community">
-                    <i class="fa-solid fa-users text-xl w-8 text-center group-hover:text-amber-400"></i>
-                    <span class="ml-3 font-medium hidden lg:block">Anouncements</span>
-                    <div class="absolute left-0 top-2 bottom-2 w-1 bg-amber-500 rounded-r opacity-0 transition-opacity" id="indicator-community"></div>
-                </button>
-            </nav>
+            <div class="my-4 border-t border-white/5 mx-2"></div>
+        </nav>
 
-            <div class="p-4 border-t border-slate-800">
-                <button onclick="switchTab('settings')" class="w-full flex items-center p-2 rounded-lg text-slate-400 hover:text-white transition-colors mb-2" id="nav-settings">
-                    <i class="fa-solid fa-gear w-8 text-center"></i>
-                    <span class="ml-3 font-medium hidden lg:block">Settings</span>
-                </button>
-                <div class="flex items-center p-2 mt-2 rounded-lg bg-slate-800/50">
-                    <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Felix" alt="User" class="w-8 h-8 rounded-full bg-indigo-500">
-                    <div class="ml-3 hidden lg:block overflow-hidden">
-                        <p class="text-sm font-medium text-white truncate">PlayerOne</p>
-                        <p class="text-xs text-slate-500 truncate">Lvl 42 • Premium</p>
-                    </div>
+        <!-- User Profile -->
+        <div class="p-4 border-t border-white/5">
+            <button onclick="switchTab('settings')" class="w-full flex items-center p-3 rounded-xl bg-white/5 hover:bg-white/10 transition-colors border border-white/5">
+                <div class="relative">
+                    <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Felix" alt="User" class="w-10 h-10 rounded-lg bg-indigo-500/20">
+                    <div class="absolute -bottom-1 -right-1 w-3 h-3 bg-emerald-500 rounded-full border-2 border-[#18181b]"></div>
                 </div>
+                <div class="ml-3 hidden lg:block text-left overflow-hidden">
+                    <p class="text-sm font-bold text-white truncate">PlayerOne</p>
+                    <p class="text-xs text-indigo-400 font-medium">Lvl 42 Premium</p>
+                </div>
+                <i class="fa-solid fa-gear ml-auto text-slate-500 hover:text-white transition-colors hidden lg:block"></i>
+            </button>
+        </div>
+    </aside>
+
+    <!-- MOBILE HEADER -->
+    <header class="md:hidden h-16 glass fixed top-0 left-0 right-0 z-30 flex items-center justify-between px-4 border-b border-white/5">
+        <div class="flex items-center gap-3">
+            <div class="w-8 h-8 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-lg flex items-center justify-center shadow-lg shadow-indigo-500/20">
+                <i class="fa-solid fa-gamepad text-white text-sm"></i>
             </div>
-        </aside>
+            <span class="font-bold text-lg tracking-tight">NEXUS</span>
+        </div>
+        <button onclick="switchTab('settings')" class="w-8 h-8 rounded-full overflow-hidden border border-white/10">
+            <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Felix" alt="User" class="w-full h-full bg-indigo-500/20">
+        </button>
+    </header>
 
-        <main class="flex-1 overflow-y-auto relative bg-gradient-to-br from-slate-900 via-slate-900 to-slate-800">
-
-            <header class="lg:hidden h-16 bg-slate-900 border-b border-slate-800 flex items-center px-4 justify-between sticky top-0 z-20">
-                <span class="font-bold text-xl text-white">NEXUS</span>
-                <button class="text-slate-400"><i class="fa-solid fa-bars text-xl"></i></button>
-            </header>
-
-            <section id="view-home" class="p-6 lg:p-10 max-w-7xl mx-auto animate-fade-in">
-
-                <div class="relative rounded-2xl overflow-hidden bg-slate-800 h-64 md:h-80 flex items-end p-8 mb-10 shadow-2xl">
-                    <div class="absolute inset-0 bg-gradient-to-t from-slate-900 via-slate-900/40 to-transparent z-10"></div>
-
-                    <div class="absolute inset-0 z-0 opacity-60">
-                        <div class="absolute top-0 left-0 w-full h-full bg-[url('https://i.ytimg.com/vi/PcEjw0nW3VY/hq720.jpg?sqp=-oaymwEhCK4FEIIDSFryq4qpAxMIARUAAAAAGAElAADIQj0AgKJD&rs=AOn4CLBCF-21EYyYCFleSu7pY3g8JShemg')] bg-cover bg-center"></div>
-                    </div>
-
-                    <div class="relative z-20 w-full max-w-2xl">
-                        <span class="inline-block px-3 py-1 bg-indigo-500 text-xs font-bold rounded-full text-white mb-3">FEATURED UPDATE</span>
-                        <h1 class="text-3xl md:text-5xl font-black text-white mb-2 leading-tight">Test: Season 1</h1>
-                        <p class="text-slate-300 mb-6 line-clamp-2">Hello users this website is currently in its very first stages exept a ton of bugs and problems that will eventually be fixed.</p>
-                        <div class="flex gap-4">
-                            <button onclick="switchTab('games')" class="px-6 py-3 bg-white text-slate-900 font-bold rounded-lg hover:bg-indigo-50 transition-colors flex items-center">
-                                <i class="fa-solid fa-play mr-2"></i> Play Now
-                            </button>
-                            <button class="px-6 py-3 bg-slate-800/80 backdrop-blur text-white font-bold rounded-lg hover:bg-slate-700 transition-colors">
-                                More Info
-                            </button>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
-                    <div class="glass-panel p-6 rounded-xl flex items-center border border-slate-700/50">
-                        <div class="w-12 h-12 rounded-lg bg-indigo-500/20 text-indigo-400 flex items-center justify-center text-2xl mr-4">
-                            <i class="fa-solid fa-trophy"></i>
-                        </div>
-                        <div>
-                            <p class="text-slate-400 text-sm">Total Trophies</p>
-                            <p class="text-2xl font-bold text-white">1</p>
-                        </div>
-                    </div>
-                    <div class="glass-panel p-6 rounded-xl flex items-center border border-slate-700/50">
-                        <div class="w-12 h-12 rounded-lg bg-emerald-500/20 text-emerald-400 flex items-center justify-center text-2xl mr-4">
-                            <i class="fa-solid fa-clock"></i>
-                        </div>
-                        <div>
-                            <p class="text-slate-400 text-sm">Hours Played</p>
-                            <p class="text-2xl font-bold text-white">67,441</p>
-                        </div>
-                    </div>
-                    <div class="glass-panel p-6 rounded-xl flex items-center border border-slate-700/50">
-                        <div class="w-12 h-12 rounded-lg bg-pink-500/20 text-pink-400 flex items-center justify-center text-2xl mr-4">
-                            <i class="fa-solid fa-users"></i>
-                        </div>
-                        <div>
-                            <p class="text-slate-400 text-sm">Friends Online</p>
-                            <p class="text-2xl font-bold text-white">0 <span class="text-sm font-normal text-slate-500">/ 67</span></p>
-                        </div>
-                    </div>
-                </div>
-
-                <h2 class="text-xl font-bold text-white mb-6 flex items-center">
-                    <i class="fa-solid fa-fire text-orange-500 mr-2"></i> Trending Now
-                </h2>
-
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-
-                    <div onclick="switchTab('games')" class="group cursor-pointer">
-                        <div class="aspect-video bg-slate-800 rounded-xl overflow-hidden mb-3 relative">
-                            <img src="https://www.nomadfoods.com/wp-content/uploads/2018/08/placeholder-1-e1533569576673-960x960.png" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110">
-                            <div class="absolute inset-0 bg-black/20 group-hover:bg-black/0 transition-colors"></div>
-                        </div>
-                        <h3 class="font-bold text-white group-hover:text-indigo-400 transition-colors">Neon Tic-Tac-Toe</h3>
-                        <p class="text-xs text-slate-500">Puzzle • Arcade</p>
-                    </div>
-
-                    <div onclick="switchTab('games')" class="group cursor-pointer">
-                        <div class="aspect-video bg-slate-800 rounded-xl overflow-hidden mb-3 relative">
-                            <img src="https://www.nomadfoods.com/wp-content/uploads/2018/08/placeholder-1-e1533569576673-960x960.png" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110">
-                        </div>
-                        <h3 class="font-bold text-white group-hover:text-indigo-400 transition-colors">Cyber Snake</h3>
-                        <p class="text-xs text-slate-500">Arcade • Fun</p>
-                    </div>
-
-                    <div onclick="switchTab('games')" class="group cursor-pointer">
-                        <div class="aspect-video bg-slate-800 rounded-xl overflow-hidden mb-3 relative">
-                            <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTIZ6BWPtTgZujyHCqJkW-TKqv3Jy2QibC77w&s" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110">
-                        </div>
-                        <h3 class="font-bold text-white group-hover:text-indigo-400 transition-colors">Reflex Tester</h3>
-                        <p class="text-xs text-slate-500">Reaction • Fast</p>
-                    </div>
-                </div>
-            </section>
-
-            <section id="view-games" class="p-6 lg:p-10 max-w-7xl mx-auto hidden animate-fade-in">
-                <div class="flex items-center justify-between mb-8">
-                    <div>
-                        <h1 class="text-3xl font-bold text-white">Library</h1>
-                        <p class="text-slate-400">Your collection</p>
-                    </div>
-                    <div class="flex gap-2">
-                        <input type="text" placeholder="Search games..." class="bg-slate-800 border border-slate-700 text-white px-4 py-2 rounded-lg text-sm focus:outline-none focus:border-indigo-500 w-48 md:w-64">
-                    </div>
-                </div>
-
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-
-                    <div class="bg-slate-800 rounded-xl overflow-hidden border border-slate-700 hover:border-indigo-500 transition-all hover:shadow-lg hover:shadow-indigo-500/10 group">
-                        <div class="h-40 bg-gradient-to-br from-indigo-600 to-purple-700 flex items-center justify-center relative overflow-hidden">
-                            <i class="fa-solid fa-x absolute text-9xl text-white opacity-10 -left-4 -bottom-4"></i>
-                            <i class="fa-regular fa-circle absolute text-9xl text-white opacity-10 -right-4 -top-4"></i>
-                            <i class="fa-solid fa-table-cells text-5xl text-white z-10"></i>
-                        </div>
-                        <div class="p-5">
-                            <h3 class="font-bold text-lg text-white mb-1">Neon Tic-Tac-Toe</h3>
-                            <p class="text-slate-400 text-sm mb-4">The classic game of X and O with a futuristic twist. Play against the AI.</p>
-                            <button onclick="launchGame('tictactoe')" class="w-full py-2 bg-indigo-500 hover:bg-indigo-600 text-white rounded font-medium transition-colors">
-                                <i class="fa-solid fa-play mr-2"></i> Play Now
-                            </button>
-                        </div>
-                    </div>
-
-                    <div class="bg-slate-800 rounded-xl overflow-hidden border border-slate-700 hover:border-emerald-500 transition-all hover:shadow-lg hover:shadow-emerald-500/10 group">
-                        <div class="h-40 bg-gradient-to-br from-emerald-600 to-teal-700 flex items-center justify-center relative overflow-hidden">
-                            <i class="fa-solid fa-worm absolute text-9xl text-white opacity-10 -right-2 top-2"></i>
-                            <i class="fa-solid fa-square text-5xl text-white z-10"></i>
-                        </div>
-                        <div class="p-5">
-                            <h3 class="font-bold text-lg text-white mb-1">Cyber Snake</h3>
-                            <p class="text-slate-400 text-sm mb-4">Navigate the grid, eat the energy pellets, and don't crash into the walls.</p>
-                            <button onclick="launchGame('snake')" class="w-full py-2 bg-emerald-500 hover:bg-emerald-600 text-white rounded font-medium transition-colors">
-                                <i class="fa-solid fa-play mr-2"></i> Play Now
-                            </button>
-                        </div>
-                    </div>
-
-                    <div class="bg-slate-800 rounded-xl overflow-hidden border border-slate-700 hover:border-orange-500 transition-all hover:shadow-lg hover:shadow-orange-500/10 group">
-                        <div class="h-40 bg-gradient-to-br from-orange-600 to-red-700 flex items-center justify-center relative overflow-hidden">
-                            <i class="fa-solid fa-bolt absolute text-9xl text-white opacity-10 left-10 top-0"></i>
-                            <i class="fa-solid fa-stopwatch text-5xl text-white z-10"></i>
-                        </div>
-                        <div class="p-5">
-                            <h3 class="font-bold text-lg text-white mb-1">Reflex Tester</h3>
-                            <p class="text-slate-400 text-sm mb-4">How fast are you? Click the target as soon as it turns green.</p>
-                            <button onclick="launchGame('reflex')" class="w-full py-2 bg-orange-500 hover:bg-orange-600 text-white rounded font-medium transition-colors">
-                                <i class="fa-solid fa-play mr-2"></i> Play Now
-                            </button>
-                        </div>
-                    </div>
-
-                    <div class="bg-slate-800 rounded-xl overflow-hidden border border-slate-700 hover:border-orange-500 transition-all hover:shadow-lg hover:shadow-orange-500/10 group"> 
-                    <div class="h-40 bg-gradient-to-br from-orange-600 to-red-700 flex items-center justify-center relative overflow-hidden">
-                        <i class="fa-solid fa-bolt absolute text-9xl text-white opacity-10 left-10 top-0"></i>
-                        <i class="fa-solid fa-stopwatch text-5xl text-white z-10"></i>
-                    </div>
-                    <div class="p-5">
-                        <h3 class="font-bold text-lg text-white mb-1">Test branch</h3>
-                        <p class="text-slate-400 text-sm mb-4">Would you like to test out games in development? Well, now you can.</p>
-
-                        <button onclick="window.location.href='Games/Test/Testbranch.html'"
-                                class="w-full py-2 bg-orange-500 hover:bg-orange-600 text-white rounded font-medium transition-colors">
+    <!-- MAIN CONTENT -->
+    <main class="flex-1 relative overflow-y-auto overflow-x-hidden pt-16 pb-24 md:pt-0 md:pb-0 z-10" id="main-scroll">
+        
+        <!-- VIEW: HOME -->
+        <section id="view-home" class="p-6 lg:p-10 max-w-7xl mx-auto space-y-8 animate-fade-in">
+            <!-- Hero Banner -->
+            <div class="relative w-full rounded-3xl overflow-hidden h-[50vh] min-h-[400px] shadow-2xl shadow-indigo-500/10 group">
+                <div class="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1542751371-adc38448a05e?q=80&w=2670&auto=format&fit=crop')] bg-cover bg-center transition-transform duration-1000 group-hover:scale-105"></div>
+                <div class="absolute inset-0 bg-gradient-to-t from-nexus-base via-nexus-base/80 to-transparent"></div>
+                
+                <div class="absolute bottom-0 left-0 p-6 md:p-12 w-full max-w-3xl">
+                    <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 backdrop-blur-md mb-4">
+                        <span class="w-2 h-2 rounded-full bg-indigo-400 animate-pulse mr-2"></span> BETA ACCESS
+                    </span>
+                    <h1 class="text-4xl md:text-6xl font-black text-white mb-4 leading-tight tracking-tight">
+                        Experience the <br> <span class="text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-pink-400">Next Level</span>
+                    </h1>
+                    <p class="text-slate-300 text-lg mb-8 max-w-xl leading-relaxed">
+                        Welcome to the reimagined Nexus Hub. Dive into a collection of arcade classics and experimental prototypes, all in one place.
+                    </p>
+                    <div class="flex flex-wrap gap-4">
+                        <button onclick="switchTab('games')" class="px-8 py-4 bg-white text-black font-bold rounded-xl hover:bg-slate-200 transition-all transform hover:scale-105 shadow-lg shadow-white/10 flex items-center">
                             <i class="fa-solid fa-play mr-2"></i> Play Now
+                        </button>
+                        <button onclick="switchTab('community')" class="px-8 py-4 glass text-white font-bold rounded-xl hover:bg-white/10 transition-all border border-white/10 backdrop-blur-md">
+                            What's New
                         </button>
                     </div>
                 </div>
-
-                    <div class="bg-slate-800/50 rounded-xl overflow-hidden border border-slate-700 border-dashed flex items-center justify-center flex-col p-8 opacity-70 hover:opacity-100 transition-opacity">
-                        <div class="w-16 h-16 rounded-full bg-slate-700 flex items-center justify-center mb-4">
-                            <i class="fa-solid fa-plus text-slate-400"></i>
-                        </div>
-                        <p class="text-slate-400 font-medium">Coming Soon</p>
-                    </div>
-
-                </div>
-            </section>
-
-            <!-- The view-store section has been removed as the 'Store' link now navigates externally. -->
-
-            <section id="view-community" class="p-6 lg:p-10 max-w-7xl mx-auto hidden animate-fade-in">
-                <!-- 🔵 SCROLLING MARQUEE -->
-                <div class="w-full overflow-hidden border-b border-slate-700">
-                    <div id="scrolling-announcements"
-                        class="whitespace-nowrap animate-marquee py-2 text-slate-300 text-sm">
-                        Loading...
-                    </div>
-                </div>
-
-                <!-- 📌 PINNED -->
-                <div id="pinned-announcement" class="hidden p-4 bg-indigo-600/20 border border-indigo-500/20 rounded my-4">
-                    <h3 id="pinned-title" class="font-bold text-white"></h3>
-                    <p id="pinned-msg" class="text-slate-200 mt-1"></p>
-                    <p id="pinned-time" class="text-xs text-slate-400 mt-1"></p>
-                </div>
-
-                <!-- 📰 LATEST ANNOUNCEMENTS -->
-                <div id="announcement-list"></div>
-            </section>
-
-            <section id="view-settings" class="p-6 lg:p-10 max-w-3xl mx-auto hidden animate-fade-in">
-                <h1 class="text-3xl font-bold text-white mb-8">Settings</h1>
-
-                <div class="space-y-6">
-
-                    <div class="bg-slate-800 rounded-xl p-6 border border-slate-700">
-                        <h2 class="text-lg font-bold text-white mb-4 flex items-center">
-                            <i class="fa-solid fa-display text-slate-400 mr-2"></i> Display
-                        </h2>
-                        <div class="space-y-4">
-                            <div class="flex items-center justify-between">
-                                <span class="text-slate-300">Streamer Mode</span>
-                                <div class="w-12 h-6 bg-slate-600 rounded-full relative cursor-pointer">
-                                    <div class="absolute left-1 top-1 w-4 h-4 bg-white rounded-full"></div>
-                                </div>
-                            </div>
-                            <div class="flex items-center justify-between">
-                                <span class="text-slate-300">Show FPS Counter</span>
-                                <div class="w-12 h-6 bg-indigo-500 rounded-full relative cursor-pointer">
-                                    <div class="absolute right-1 top-1 w-4 h-4 bg-white rounded-full"></div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="bg-slate-800 rounded-xl p-6 border border-slate-700">
-                        <h2 class="text-lg font-bold text-white mb-4 flex items-center">
-                            <i class="fa-solid fa-volume-high text-slate-400 mr-2"></i> Audio
-                        </h2>
-                        <div class="space-y-4">
-                            <div>
-                                <div class="flex justify-between mb-1">
-                                    <span class="text-slate-300">Master Volume</span>
-                                    <span class="text-slate-400 text-sm">80%</span>
-                                </div>
-                                <div class="h-2 bg-slate-600 rounded-full overflow-hidden">
-                                    <div class="h-full bg-indigo-500 w-[80%]"></div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </section>
-
-        </main>
-
-        <div id="game-overlay" class="fixed inset-0 bg-slate-900/95 z-50 hidden flex-col items-center justify-center backdrop-blur-sm">
-
-            <div class="w-full max-w-4xl flex justify-between items-center px-6 py-4 absolute top-0">
-                <h2 id="active-game-title" class="text-2xl font-bold text-white tracking-wider">GAME TITLE</h2>
-                <button onclick="closeGame()" class="px-4 py-2 bg-slate-800 hover:bg-red-500/20 text-slate-300 hover:text-red-400 rounded-lg transition-colors border border-slate-700">
-                    <i class="fa-solid fa-xmark mr-2"></i> Exit Game
-                </button>
             </div>
 
-            <div class="relative bg-black rounded-lg shadow-2xl border border-slate-700 p-1 flex flex-col items-center">
+            <!-- Stats Row -->
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <div class="glass p-5 rounded-2xl border border-white/5 flex flex-col justify-between h-32 hover:border-indigo-500/30 transition-colors">
+                    <div class="w-10 h-10 rounded-lg bg-indigo-500/10 text-indigo-400 flex items-center justify-center text-xl mb-2">
+                        <i class="fa-solid fa-trophy"></i>
+                    </div>
+                    <div>
+                        <p class="text-3xl font-bold text-white">1</p>
+                        <p class="text-slate-400 text-xs font-medium uppercase tracking-wider">Trophies</p>
+                    </div>
+                </div>
+                <div class="glass p-5 rounded-2xl border border-white/5 flex flex-col justify-between h-32 hover:border-emerald-500/30 transition-colors">
+                    <div class="w-10 h-10 rounded-lg bg-emerald-500/10 text-emerald-400 flex items-center justify-center text-xl mb-2">
+                        <i class="fa-solid fa-clock"></i>
+                    </div>
+                    <div>
+                        <p class="text-3xl font-bold text-white">67.4k</p>
+                        <p class="text-slate-400 text-xs font-medium uppercase tracking-wider">Hours</p>
+                    </div>
+                </div>
+                <div class="glass p-5 rounded-2xl border border-white/5 flex flex-col justify-between h-32 hover:border-pink-500/30 transition-colors">
+                    <div class="w-10 h-10 rounded-lg bg-pink-500/10 text-pink-400 flex items-center justify-center text-xl mb-2">
+                        <i class="fa-solid fa-fire"></i>
+                    </div>
+                    <div>
+                        <p class="text-3xl font-bold text-white">3</p>
+                        <p class="text-slate-400 text-xs font-medium uppercase tracking-wider">Streak</p>
+                    </div>
+                </div>
+                <div class="glass p-5 rounded-2xl border border-white/5 flex flex-col justify-between h-32 hover:border-amber-500/30 transition-colors">
+                    <div class="w-10 h-10 rounded-lg bg-amber-500/10 text-amber-400 flex items-center justify-center text-xl mb-2">
+                        <i class="fa-solid fa-users"></i>
+                    </div>
+                    <div>
+                        <p class="text-3xl font-bold text-white">Online</p>
+                        <p class="text-slate-400 text-xs font-medium uppercase tracking-wider">67 Friends</p>
+                    </div>
+                </div>
+            </div>
 
-                <canvas id="game-canvas" width="400" height="400" class="hidden bg-slate-800 cursor-crosshair"></canvas>
+            <!-- Trending Section -->
+            <div>
+                <div class="flex items-center justify-between mb-6">
+                    <h2 class="text-2xl font-bold text-white flex items-center gap-2">
+                        <i class="fa-solid fa-fire text-orange-500"></i> Trending Now
+                    </h2>
+                    <button onclick="switchTab('games')" class="text-sm text-indigo-400 hover:text-indigo-300 font-medium">View All</button>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <!-- Game Card 1 -->
+                    <div onclick="launchGame('tictactoe')" class="group cursor-pointer relative rounded-2xl overflow-hidden aspect-video">
+                        <img src="https://www.nomadfoods.com/wp-content/uploads/2018/08/placeholder-1-e1533569576673-960x960.png" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110">
+                        <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent p-6 flex flex-col justify-end">
+                            <h3 class="font-bold text-xl text-white group-hover:text-indigo-400 transition-colors">Neon Tic-Tac-Toe</h3>
+                            <p class="text-slate-300 text-sm">Classic Strategy</p>
+                        </div>
+                    </div>
+                    <!-- Game Card 2 -->
+                    <div onclick="launchGame('snake')" class="group cursor-pointer relative rounded-2xl overflow-hidden aspect-video">
+                        <img src="https://www.coolmathgames.com/sites/default/files/styles/mobile_game_image/public/Snake_OG-logo.jpg.webp?itok=EOKYMydV" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110">
+                        <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent p-6 flex flex-col justify-end">
+                            <h3 class="font-bold text-xl text-white group-hover:text-emerald-400 transition-colors">Cyber Snake</h3>
+                            <p class="text-slate-300 text-sm">Arcade Retro</p>
+                        </div>
+                    </div>
+                    <!-- Game Card 3 -->
+                    <div onclick="launchGame('reflex')" class="group cursor-pointer relative rounded-2xl overflow-hidden aspect-video">
+                        <img src="https://www.nomadfoods.com/wp-content/uploads/2018/08/placeholder-1-e1533569576673-960x960.png" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110">
+                        <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent p-6 flex flex-col justify-end">
+                            <h3 class="font-bold text-xl text-white group-hover:text-orange-400 transition-colors">Reflex Tester</h3>
+                            <p class="text-slate-300 text-sm">Speed Challenge</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
 
-                <div id="ttt-board" class="hidden grid-cols-3 gap-2 bg-slate-700 p-2 w-[320px] h-[320px]">
+        <!-- VIEW: GAMES -->
+        <section id="view-games" class="hidden p-6 lg:p-10 max-w-7xl mx-auto min-h-full animate-fade-in">
+            <div class="flex flex-col md:flex-row md:items-center justify-between mb-8 gap-4">
+                <div>
+                    <h1 class="text-4xl font-bold text-white mb-2">Game Library</h1>
+                    <p class="text-slate-400">Browse your collection of installed games.</p>
+                </div>
+                <div class="relative">
+                    <i class="fa-solid fa-search absolute left-4 top-1/2 -translate-y-1/2 text-slate-500"></i>
+                    <input type="text" placeholder="Search library..." class="pl-10 pr-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white w-full md:w-64 focus:outline-none focus:border-indigo-500 transition-colors">
+                </div>
+            </div>
 
+            <!-- Tags -->
+            <div class="flex gap-2 overflow-x-auto pb-4 mb-6 no-scrollbar">
+                <button class="px-4 py-2 bg-white text-black font-bold rounded-lg text-sm whitespace-nowrap">All Games</button>
+                <button class="px-4 py-2 bg-white/5 text-slate-300 hover:text-white font-medium rounded-lg text-sm whitespace-nowrap border border-white/5 transition-colors">Arcade</button>
+                <button class="px-4 py-2 bg-white/5 text-slate-300 hover:text-white font-medium rounded-lg text-sm whitespace-nowrap border border-white/5 transition-colors">Puzzle</button>
+                <button class="px-4 py-2 bg-white/5 text-slate-300 hover:text-white font-medium rounded-lg text-sm whitespace-nowrap border border-white/5 transition-colors">Action</button>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                <!-- Game 1 -->
+                <div class="glass p-4 rounded-2xl border border-white/5 hover:border-indigo-500/50 transition-all group hover:-translate-y-1">
+                    <div class="h-40 rounded-xl bg-gradient-to-br from-indigo-600 to-violet-800 relative overflow-hidden mb-4 flex items-center justify-center">
+                        <i class="fa-solid fa-gamepad text-6xl text-white/20 absolute -right-4 -bottom-4 rotate-12"></i>
+                        <i class="fa-solid fa-x text-5xl text-white drop-shadow-lg z-10"></i>
+                    </div>
+                    <div class="flex justify-between items-start mb-2">
+                        <div>
+                            <h3 class="font-bold text-lg text-white">Neon Tic-Tac-Toe</h3>
+                            <p class="text-xs text-slate-400">Puzzle • Strategy</p>
+                        </div>
+                        <div class="w-8 h-8 rounded bg-indigo-500/20 text-indigo-400 flex items-center justify-center text-xs font-bold">AI</div>
+                    </div>
+                    <button onclick="launchGame('tictactoe')" class="w-full mt-4 py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg font-semibold transition-colors flex items-center justify-center gap-2">
+                        <i class="fa-solid fa-play"></i> Play
+                    </button>
                 </div>
 
-                <div id="game-ui-layer" class="absolute inset-0 flex flex-col items-center justify-center bg-black/80 z-10">
-                    <h3 id="game-status-title" class="text-3xl font-black text-white mb-2 uppercase italic tracking-widest">Ready?</h3>
-                    <p id="game-status-desc" class="text-slate-300 mb-6 text-center px-4">Press start to play</p>
-                    <button id="start-btn" class="px-8 py-3 bg-indigo-600 hover:bg-indigo-500 text-white font-bold rounded shadow-lg shadow-indigo-500/50 transition-all transform hover:scale-105">
-                        START
+                <!-- Game 2 -->
+                <div class="glass p-4 rounded-2xl border border-white/5 hover:border-emerald-500/50 transition-all group hover:-translate-y-1">
+                    <div class="h-40 rounded-xl bg-gradient-to-br from-emerald-600 to-teal-800 relative overflow-hidden mb-4 flex items-center justify-center">
+                        <i class="fa-solid fa-worm text-6xl text-white/20 absolute -left-4 -top-4 rotate-12"></i>
+                        <i class="fa-solid fa-square text-5xl text-white drop-shadow-lg z-10"></i>
+                    </div>
+                    <div class="flex justify-between items-start mb-2">
+                        <div>
+                            <h3 class="font-bold text-lg text-white">Cyber Snake</h3>
+                            <p class="text-xs text-slate-400">Arcade • Classic</p>
+                        </div>
+                        <div class="w-8 h-8 rounded bg-emerald-500/20 text-emerald-400 flex items-center justify-center text-xs font-bold">1P</div>
+                    </div>
+                    <button onclick="launchGame('snake')" class="w-full mt-4 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg font-semibold transition-colors flex items-center justify-center gap-2">
+                        <i class="fa-solid fa-play"></i> Play
+                    </button>
+                </div>
+
+                <!-- Game 3 -->
+                <div class="glass p-4 rounded-2xl border border-white/5 hover:border-orange-500/50 transition-all group hover:-translate-y-1">
+                    <div class="h-40 rounded-xl bg-gradient-to-br from-orange-600 to-red-800 relative overflow-hidden mb-4 flex items-center justify-center">
+                        <i class="fa-solid fa-stopwatch text-6xl text-white/20 absolute right-2 top-2"></i>
+                        <i class="fa-solid fa-bolt text-5xl text-white drop-shadow-lg z-10"></i>
+                    </div>
+                    <div class="flex justify-between items-start mb-2">
+                        <div>
+                            <h3 class="font-bold text-lg text-white">Reflex Tester</h3>
+                            <p class="text-xs text-slate-400">Tool • Speed</p>
+                        </div>
+                        <div class="w-8 h-8 rounded bg-orange-500/20 text-orange-400 flex items-center justify-center text-xs font-bold">∞</div>
+                    </div>
+                    <button onclick="launchGame('reflex')" class="w-full mt-4 py-2.5 bg-orange-600 hover:bg-orange-500 text-white rounded-lg font-semibold transition-colors flex items-center justify-center gap-2">
+                        <i class="fa-solid fa-play"></i> Play
+                    </button>
+                </div>
+
+                <!-- Test Branch -->
+                <div class="glass p-4 rounded-2xl border border-white/5 hover:border-blue-500/50 transition-all group hover:-translate-y-1">
+                    <div class="h-40 rounded-xl bg-slate-800 border-2 border-dashed border-slate-700 relative overflow-hidden mb-4 flex items-center justify-center">
+                        <i class="fa-solid fa-flask text-4xl text-slate-500"></i>
+                    </div>
+                    <div class="flex justify-between items-start mb-2">
+                        <div>
+                            <h3 class="font-bold text-lg text-white">Test Branch</h3>
+                            <p class="text-xs text-slate-400">Dev • Unstable</p>
+                        </div>
+                        <div class="w-8 h-8 rounded bg-slate-700 text-slate-400 flex items-center justify-center text-xs font-bold">DEV</div>
+                    </div>
+                    <button onclick="window.location.href='Games/Test/Testbranch.html'" class="w-full mt-4 py-2.5 bg-slate-700 hover:bg-slate-600 text-white rounded-lg font-semibold transition-colors flex items-center justify-center gap-2">
+                        <i class="fa-solid fa-code-branch"></i> Access
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- VIEW: COMMUNITY -->
+        <section id="view-community" class="hidden p-6 lg:p-10 max-w-4xl mx-auto min-h-full animate-fade-in">
+            <h1 class="text-4xl font-bold text-white mb-8">Announcements</h1>
+            
+            <!-- Marquee -->
+            <div class="glass rounded-xl overflow-hidden mb-8 border border-white/10">
+                <div class="px-4 py-3 bg-indigo-600/20 border-b border-indigo-500/20 flex items-center gap-3">
+                    <span class="relative flex h-3 w-3">
+                      <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-indigo-400 opacity-75"></span>
+                      <span class="relative inline-flex rounded-full h-3 w-3 bg-indigo-500"></span>
+                    </span>
+                    <span class="text-xs font-bold text-indigo-300 uppercase tracking-wider">Live Feed</span>
+                </div>
+                <div class="p-4 overflow-hidden relative">
+                    <div id="scrolling-announcements" class="whitespace-nowrap animate-marquee text-slate-300">
+                        Connecting to Nexus Uplink...
+                    </div>
+                    <!-- Gradient masks for marquee -->
+                    <div class="absolute top-0 left-0 w-8 h-full bg-gradient-to-r from-[#18181b] to-transparent"></div>
+                    <div class="absolute top-0 right-0 w-8 h-full bg-gradient-to-l from-[#18181b] to-transparent"></div>
+                </div>
+            </div>
+
+            <!-- Pinned -->
+            <div id="pinned-announcement" class="hidden relative overflow-hidden rounded-2xl bg-gradient-to-r from-indigo-900/50 to-purple-900/50 border border-indigo-500/30 p-6 md:p-8 mb-8">
+                <div class="absolute top-0 right-0 p-4 opacity-10">
+                    <i class="fa-solid fa-thumbtack text-8xl text-white"></i>
+                </div>
+                <div class="relative z-10">
+                    <div class="inline-block px-3 py-1 rounded-full bg-indigo-500 text-white text-xs font-bold mb-3">PINNED</div>
+                    <h2 id="pinned-title" class="text-2xl font-bold text-white mb-2"></h2>
+                    <p id="pinned-msg" class="text-indigo-100 mb-4 leading-relaxed"></p>
+                    <p id="pinned-time" class="text-xs text-indigo-300 font-mono"></p>
+                </div>
+            </div>
+
+            <!-- List -->
+            <div id="announcement-list" class="space-y-4">
+                <!-- Loading Skeleton -->
+                <div class="animate-pulse space-y-4">
+                    <div class="h-24 bg-white/5 rounded-xl"></div>
+                    <div class="h-24 bg-white/5 rounded-xl"></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- VIEW: SETTINGS -->
+        <section id="view-settings" class="hidden p-6 lg:p-10 max-w-3xl mx-auto min-h-full animate-fade-in">
+            <h1 class="text-4xl font-bold text-white mb-8">Settings</h1>
+
+            <div class="space-y-6">
+                <!-- Display Section -->
+                <div class="glass rounded-2xl p-6 border border-white/5">
+                    <h2 class="text-xl font-bold text-white mb-6 flex items-center">
+                        <span class="w-8 h-8 rounded bg-blue-500/20 text-blue-400 flex items-center justify-center mr-3 text-sm"><i class="fa-solid fa-display"></i></span>
+                        Display
+                    </h2>
+                    <div class="space-y-6">
+                        <div class="flex items-center justify-between group">
+                            <div>
+                                <span class="block text-white font-medium">Streamer Mode</span>
+                                <span class="text-slate-400 text-sm">Hide sensitive information</span>
+                            </div>
+                            <label class="relative inline-flex items-center cursor-pointer">
+                                <input type="checkbox" value="" class="sr-only peer">
+                                <div class="w-11 h-6 bg-slate-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-indigo-600"></div>
+                            </label>
+                        </div>
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <span class="block text-white font-medium">Show FPS Counter</span>
+                                <span class="text-slate-400 text-sm">Display performance metrics</span>
+                            </div>
+                            <label class="relative inline-flex items-center cursor-pointer">
+                                <input type="checkbox" value="" class="sr-only peer" checked>
+                                <div class="w-11 h-6 bg-slate-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-indigo-600"></div>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Audio Section -->
+                <div class="glass rounded-2xl p-6 border border-white/5">
+                    <h2 class="text-xl font-bold text-white mb-6 flex items-center">
+                        <span class="w-8 h-8 rounded bg-pink-500/20 text-pink-400 flex items-center justify-center mr-3 text-sm"><i class="fa-solid fa-volume-high"></i></span>
+                        Audio
+                    </h2>
+                    <div class="space-y-6">
+                        <div>
+                            <div class="flex justify-between mb-2">
+                                <span class="text-white font-medium">Master Volume</span>
+                                <span class="text-indigo-400 font-mono">80%</span>
+                            </div>
+                            <input type="range" value="80" class="w-full h-2 bg-slate-700 rounded-lg appearance-none cursor-pointer accent-indigo-500">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- MOBILE BOTTOM NAVIGATION (Only visible on small screens) -->
+    <div class="md:hidden fixed bottom-0 left-0 right-0 h-20 glass border-t border-white/10 z-50 flex justify-around items-center px-2 pb-2">
+        <button onclick="switchTab('home')" class="mobile-nav-btn flex flex-col items-center justify-center w-16 h-16 rounded-xl text-slate-400 active:text-indigo-400 transition-colors active" data-target="home">
+            <i class="fa-solid fa-house text-xl mb-1"></i>
+            <span class="text-[10px] font-medium">Home</span>
+        </button>
+        <button onclick="switchTab('games')" class="mobile-nav-btn flex flex-col items-center justify-center w-16 h-16 rounded-xl text-slate-400 active:text-indigo-400 transition-colors" data-target="games">
+            <i class="fa-solid fa-ghost text-xl mb-1"></i>
+            <span class="text-[10px] font-medium">Games</span>
+        </button>
+        <button onclick="window.location.href='store.html'" class="flex flex-col items-center justify-center w-16 h-16 rounded-xl text-slate-400 active:text-indigo-400 transition-colors">
+            <i class="fa-solid fa-bag-shopping text-xl mb-1"></i>
+            <span class="text-[10px] font-medium">Store</span>
+        </button>
+        <button onclick="switchTab('community')" class="mobile-nav-btn flex flex-col items-center justify-center w-16 h-16 rounded-xl text-slate-400 active:text-indigo-400 transition-colors" data-target="community">
+            <i class="fa-solid fa-users text-xl mb-1"></i>
+            <span class="text-[10px] font-medium">Comm</span>
+        </button>
+    </div>
+
+    <!-- GAME OVERLAY (MODAL) -->
+    <div id="game-overlay" class="fixed inset-0 bg-black/90 z-[100] hidden flex-col animate-fade-in backdrop-blur-xl">
+        <!-- Header -->
+        <div class="flex justify-between items-center p-4 border-b border-white/10">
+            <h2 id="active-game-title" class="text-xl font-bold text-white tracking-wider flex items-center gap-2">
+                <span class="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span> GAME TITLE
+            </h2>
+            <button onclick="closeGame()" class="w-10 h-10 rounded-full bg-white/10 hover:bg-red-500/20 hover:text-red-500 flex items-center justify-center transition-all">
+                <i class="fa-solid fa-xmark text-lg"></i>
+            </button>
+        </div>
+
+        <!-- Game Area -->
+        <div class="flex-1 flex items-center justify-center p-4 overflow-hidden relative">
+            
+            <div class="relative bg-slate-900 rounded-xl shadow-2xl border border-white/10 overflow-hidden max-w-full max-h-full">
+                <!-- Canvas for Snake/Reflex -->
+                <canvas id="game-canvas" width="400" height="400" class="hidden max-w-full max-h-[70vh] cursor-crosshair object-contain"></canvas>
+
+                <!-- DOM Board for Tic Tac Toe -->
+                <div id="ttt-board" class="hidden grid-cols-3 gap-3 bg-slate-800 p-4 w-[min(90vw,400px)] h-[min(90vw,400px)]">
+                    <!-- Cells generated by JS -->
+                </div>
+
+                <!-- Start/Game Over Screen -->
+                <div id="game-ui-layer" class="absolute inset-0 flex flex-col items-center justify-center bg-black/80 z-10 backdrop-blur-sm p-6 text-center">
+                    <h3 id="game-status-title" class="text-4xl font-black text-white mb-2 italic tracking-widest text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-purple-400">READY</h3>
+                    <p id="game-status-desc" class="text-slate-300 mb-8 max-w-xs">Press start to begin the session.</p>
+                    <button id="start-btn" class="group relative px-8 py-4 bg-indigo-600 font-bold text-white rounded-xl overflow-hidden transition-all hover:scale-105 active:scale-95">
+                        <div class="absolute inset-0 w-full h-full bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:animate-[shimmer_1s_infinite]"></div>
+                        <span class="relative flex items-center gap-2">START GAME <i class="fa-solid fa-play text-xs"></i></span>
                     </button>
                 </div>
             </div>
 
-            <div class="mt-6 text-slate-500 text-sm" id="game-controls-hint">
-                Use Arrow Keys to move
-            </div>
         </div>
 
-        <script src="Js/Base-games.js"></script>
-        <!-- 🔥 FIREBASE ANNOUNCEMENT SYSTEM -->
-        <script type="module">
-            import {
-                initializeApp
-            } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-app.js";
+        <!-- Controls Hint -->
+        <div class="p-6 text-center text-slate-500 text-sm border-t border-white/10 bg-black">
+            <p id="game-controls-hint" class="flex justify-center items-center gap-4">
+                <span class="flex gap-1"><i class="fa-solid fa-arrow-up border border-slate-700 p-1 rounded"></i><i class="fa-solid fa-arrow-down border border-slate-700 p-1 rounded"></i></span> to move
+            </p>
+        </div>
+    </div>
 
-            import {
-                getDatabase, ref, onValue
-            } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-database.js";
+    <!-- JAVASCRIPT LOGIC -->
+    <script>
+        // --- NAVIGATION LOGIC ---
+        function switchTab(tabId) {
+            // Hide all views
+            ['home', 'games', 'community', 'settings'].forEach(id => {
+                document.getElementById(`view-${id}`).classList.add('hidden');
+            });
+            
+            // Show selected view
+            const view = document.getElementById(`view-${tabId}`);
+            view.classList.remove('hidden');
+            
+            // Reset scroll
+            document.getElementById('main-scroll').scrollTop = 0;
 
-            const firebaseConfig = {
-                apiKey: "AIzaSyDWGcagecOrdCn7BuBeA72ICFkeH7QWePc",
-                authDomain: "nexus-hub-caeab.firebaseapp.com",
-                databaseURL: "https://nexus-hub-caeab-default-rtdb.asia-southeast1.firebasedatabase.app",
-                projectId: "nexus-hub-caeab",
-                storageBucket: "nexus-hub-caeab.firebasestorage.app",
-                messagingSenderId: "45490042276",
-                appId: "1:45490042276:web:5dd49816f386fc23193d31",
-                measurementId: "G-MM3NHNWYZX"
-            };
-
-            const app = initializeApp(firebaseConfig);
-            const db = getDatabase(app);
-
-            // ELEMENTS
-            const marqueeEl = document.getElementById("scrolling-announcements");
-            const pinnedEl = document.getElementById("pinned-announcement");
-            const pinnedTitle = document.getElementById("pinned-title");
-            const pinnedMsg = document.getElementById("pinned-msg");
-            const pinnedTime = document.getElementById("pinned-time");
-
-            const listEl = document.getElementById("announcement-list");
-
-            // Time Ago Helper
-            function timeAgo(ts) {
-                const sec = Math.floor((Date.now() - ts) / 1000);
-                const t = [
-                    { s: 31536000, l: 'year' },
-                    { s: 2592000, l: 'month' },
-                    { s: 86400, l: 'day' },
-                    { s: 3600, l: 'hour' },
-                    { s: 60, l: 'minute' }
-                ];
-                for (const i of t) {
-                    const v = Math.floor(sec / i.s);
-                    if (v >= 1) return `${v} ${i.l}${v > 1 ? 's' : ''} ago`;
-                }
-                return "Just now";
+            // Update Desktop Nav State
+            document.querySelectorAll('.nav-item').forEach(el => {
+                el.classList.remove('bg-white/10', 'text-white');
+                el.classList.add('text-slate-400');
+            });
+            const deskBtn = document.getElementById(`desk-nav-${tabId}`);
+            if(deskBtn) {
+                deskBtn.classList.add('bg-white/10', 'text-white');
+                deskBtn.classList.remove('text-slate-400');
             }
 
-            // Category styles
-            const catStyle = {
-                "alert":      { bg: "bg-red-600/30 border-red-500/30", icon: "⚠", label: "Alert" },
-                "update":     { bg: "bg-blue-600/30 border-blue-500/30", icon: "📢", label: "Update" },
-                "maintenance": { bg: "bg-yellow-600/30 border-yellow-500/30", icon: "🛠", label: "Maintenance" }
-            };
-
-            /* -----------------------------
-            🔵 SCROLLING TEXT
-            --------------------------------*/
-            onValue(ref(db, "scrolling_text/value"), snap => {
-                const text = snap.val() || "Welcome to Nexus Hub!";
-                marqueeEl.textContent = text;
+            // Update Mobile Nav State
+            document.querySelectorAll('.mobile-nav-btn').forEach(el => {
+                el.classList.remove('text-indigo-400');
+                el.classList.add('text-slate-400');
+                if(el.dataset.target === tabId) {
+                    el.classList.add('text-indigo-400');
+                    el.classList.remove('text-slate-400');
+                }
             });
+        }
 
-            /* -----------------------------
-            📌 PINNED ANNOUNCEMENT
-            --------------------------------*/
-            onValue(ref(db, "pinned"), snap => {
-                const data = snap.val();
-                if (!data) {
-                    pinnedEl.classList.add("hidden");
+        // --- GAME SYSTEM ---
+        let gameInterval = null;
+        let activeGame = null;
+        const canvas = document.getElementById('game-canvas');
+        const ctx = canvas.getContext('2d');
+        const tttBoard = document.getElementById('ttt-board');
+        const overlay = document.getElementById('game-overlay');
+        const uiLayer = document.getElementById('game-ui-layer');
+        const titleEl = document.getElementById('active-game-title');
+        const statusTitle = document.getElementById('game-status-title');
+        const statusDesc = document.getElementById('game-status-desc');
+        const startBtn = document.getElementById('start-btn');
+        const hintEl = document.getElementById('game-controls-hint');
+
+        function launchGame(gameType) {
+            overlay.classList.remove('hidden');
+            overlay.classList.add('flex');
+            activeGame = gameType;
+            uiLayer.classList.remove('hidden');
+            statusTitle.textContent = "READY?";
+            statusTitle.className = "text-4xl font-black text-white mb-2 italic tracking-widest";
+            statusDesc.textContent = "Press start to begin.";
+            startBtn.classList.remove('hidden');
+            
+            // Reset Displays
+            canvas.classList.add('hidden');
+            tttBoard.classList.add('hidden');
+            
+            if (gameType === 'tictactoe') {
+                titleEl.innerHTML = '<i class="fa-solid fa-x text-indigo-400 mr-2"></i> NEON TIC-TAC-TOE';
+                hintEl.innerHTML = 'Tap a square to place your mark';
+                tttBoard.classList.remove('hidden');
+                tttBoard.classList.add('grid');
+                initTicTacToe(false); // Init purely for visuals behind menu
+            } else if (gameType === 'snake') {
+                titleEl.innerHTML = '<i class="fa-solid fa-worm text-emerald-400 mr-2"></i> CYBER SNAKE';
+                hintEl.innerHTML = 'Use Arrow Keys or Swipe to change direction';
+                canvas.classList.remove('hidden');
+                // Draw static preview
+                ctx.fillStyle = '#0f172a';
+                ctx.fillRect(0,0,400,400);
+            } else if (gameType === 'reflex') {
+                titleEl.innerHTML = '<i class="fa-solid fa-bolt text-orange-400 mr-2"></i> REFLEX TESTER';
+                hintEl.innerHTML = 'Wait for green, then click FAST!';
+                canvas.classList.remove('hidden');
+                ctx.fillStyle = '#0f172a';
+                ctx.fillRect(0,0,400,400);
+            }
+        }
+
+        function closeGame() {
+            overlay.classList.add('hidden');
+            overlay.classList.remove('flex');
+            clearInterval(gameInterval);
+            activeGame = null;
+        }
+
+        startBtn.addEventListener('click', () => {
+            uiLayer.classList.add('hidden');
+            if (activeGame === 'snake') startSnake();
+            if (activeGame === 'tictactoe') initTicTacToe(true);
+            if (activeGame === 'reflex') startReflex();
+        });
+
+        // --- SNAKE GAME LOGIC ---
+        function startSnake() {
+            let snake = [{x: 10, y: 10}];
+            let food = {x: 15, y: 15};
+            let dx = 0;
+            let dy = 0;
+            let score = 0;
+            let gridSize = 20;
+            let tileCount = 20; // 400px / 20px
+            let speed = 100;
+            
+            // Initial render
+            draw();
+            
+            // Input
+            const handleKey = (e) => {
+                if(e.key === 'ArrowUp' && dy === 0) { dx=0; dy=-1; }
+                if(e.key === 'ArrowDown' && dy === 0) { dx=0; dy=1; }
+                if(e.key === 'ArrowLeft' && dx === 0) { dx=-1; dy=0; }
+                if(e.key === 'ArrowRight' && dx === 0) { dx=1; dy=0; }
+            };
+            document.addEventListener('keydown', handleKey);
+
+            // Touch Inputs
+            let touchStartX = 0;
+            let touchStartY = 0;
+            overlay.addEventListener('touchstart', e => {
+                touchStartX = e.changedTouches[0].screenX;
+                touchStartY = e.changedTouches[0].screenY;
+            }, {passive: true});
+            
+            overlay.addEventListener('touchend', e => {
+                let touchEndX = e.changedTouches[0].screenX;
+                let touchEndY = e.changedTouches[0].screenY;
+                handleSwipe(touchStartX, touchStartY, touchEndX, touchEndY);
+            }, {passive: true});
+
+            function handleSwipe(sx, sy, ex, ey) {
+                let xDiff = ex - sx;
+                let yDiff = ey - sy;
+                if(Math.abs(xDiff) > Math.abs(yDiff)) {
+                    if(xDiff > 0 && dx === 0) { dx=1; dy=0; }
+                    else if(xDiff < 0 && dx === 0) { dx=-1; dy=0; }
+                } else {
+                    if(yDiff > 0 && dy === 0) { dx=0; dy=1; }
+                    else if(yDiff < 0 && dy === 0) { dx=0; dy=-1; }
+                }
+            }
+
+            function gameLoop() {
+                // Move
+                const head = {x: snake[0].x + dx, y: snake[0].y + dy};
+
+                // Collision Wall
+                if(head.x < 0 || head.x >= tileCount || head.y < 0 || head.y >= tileCount) {
+                    gameOver(`Score: ${score}`);
                     return;
                 }
+                // Collision Self
+                for(let i=0; i<snake.length; i++){
+                    if(head.x === snake[i].x && head.y === snake[i].y && snake.length > 1) {
+                        gameOver(`Score: ${score}`);
+                        return;
+                    }
+                }
 
-                const key = Object.keys(data)[0];
-                const ann = data[key];
+                snake.unshift(head);
 
-                const c = catStyle[ann.category] || catStyle.update;
+                // Eat Food
+                if(head.x === food.x && head.y === food.y) {
+                    score++;
+                    food = {
+                        x: Math.floor(Math.random() * tileCount),
+                        y: Math.floor(Math.random() * tileCount)
+                    };
+                } else {
+                    // Only remove tail if didn't eat (movement)
+                    if(dx !== 0 || dy !== 0) snake.pop();
+                }
 
-                pinnedTitle.textContent = `${c.icon} ${ann.title}`;
-                pinnedMsg.textContent = ann.message;
-                pinnedTime.textContent = timeAgo(ann.timestamp);
+                draw();
+            }
 
-                pinnedEl.classList.remove("hidden");
-            });
+            function draw() {
+                // BG
+                ctx.fillStyle = '#0f172a';
+                ctx.fillRect(0,0,400,400);
 
-            /* -----------------------------
-            📰 LATEST ANNOUNCEMENTS
-            --------------------------------*/
-            onValue(ref(db, "announcements"), snap => {
-                const data = snap.val();
-                listEl.innerHTML = "";
-                if (!data) return;
+                // Grid (Subtle)
+                ctx.strokeStyle = '#1e293b';
+                ctx.lineWidth = 1;
+                for(let i=0; i<tileCount; i++) {
+                    ctx.beginPath(); ctx.moveTo(i*gridSize,0); ctx.lineTo(i*gridSize,400); ctx.stroke();
+                    ctx.beginPath(); ctx.moveTo(0,i*gridSize); ctx.lineTo(400,i*gridSize); ctx.stroke();
+                }
 
-                const arr = Object.keys(data)
-                    .map(k => ({ id: k, ...data[k] }))
-                    .sort((a, b) => b.timestamp - a.timestamp)
-                    .slice(0, 10);
+                // Snake
+                ctx.fillStyle = '#10b981'; // Emerald
+                ctx.shadowColor = '#10b981';
+                ctx.shadowBlur = 10;
+                for(let i=0; i<snake.length; i++) {
+                    // Head is slightly different
+                    if(i===0) ctx.fillStyle = '#34d399';
+                    else ctx.fillStyle = '#10b981';
+                    
+                    ctx.fillRect(snake[i].x*gridSize + 1, snake[i].y*gridSize + 1, gridSize-2, gridSize-2);
+                }
+                ctx.shadowBlur = 0;
 
-                arr.forEach(a => {
-                    const c = catStyle[a.category] || catStyle.update;
+                // Food
+                ctx.fillStyle = '#ef4444'; // Red
+                ctx.beginPath();
+                ctx.arc(food.x*gridSize + gridSize/2, food.y*gridSize + gridSize/2, gridSize/3, 0, Math.PI*2);
+                ctx.fill();
+            }
 
-                    const item = document.createElement("div");
-                    item.className = `p-4 my-3 rounded border ${c.bg}`;
+            gameInterval = setInterval(gameLoop, speed);
 
-                    item.innerHTML = `
-                        <div class="flex justify-between items-center cursor-pointer">
-                            <div class="flex items-center gap-2">
-                                <span class="text-2xl">${c.icon}</span>
-                                <span class="font-bold">${a.title}</span>
-                                <span class="px-2 py-0.5 rounded text-xs bg-white/10 border">${c.label}</span>
-                            </div>
-                            <span class="text-slate-300 text-xs">${timeAgo(a.timestamp)}</span>
-                        </div>
+            function gameOver(msg) {
+                clearInterval(gameInterval);
+                document.removeEventListener('keydown', handleKey);
+                uiLayer.classList.remove('hidden');
+                statusTitle.textContent = "GAME OVER";
+                statusTitle.className = "text-4xl font-black text-red-500 mb-2 italic";
+                statusDesc.textContent = msg;
+                startBtn.innerHTML = "RETRY";
+            }
+        }
 
-                        <div class="hidden mt-3 text-slate-200">${a.message}</div>
-                    `;
+        // --- TIC TAC TOE LOGIC ---
+        function initTicTacToe(playable) {
+            tttBoard.innerHTML = '';
+            let board = ['','','','','','','','',''];
+            let currentPlayer = 'X';
+            let gameActive = playable;
 
-                    // Expand on click
-                    item.addEventListener("click", () => {
-                        const msg = item.querySelector("div.hidden, div.mt-3");
-                        msg.classList.toggle("hidden");
-                    });
+            for(let i=0; i<9; i++) {
+                const cell = document.createElement('div');
+                cell.className = 'bg-slate-700/50 rounded-lg flex items-center justify-center text-4xl font-bold cursor-pointer hover:bg-slate-600 transition-colors h-full w-full aspect-square border-2 border-slate-600';
+                if(playable) {
+                    cell.addEventListener('click', () => handleCellClick(cell, i));
+                }
+                tttBoard.appendChild(cell);
+            }
 
-                    listEl.appendChild(item);
+            function handleCellClick(cell, index) {
+                if(board[index] === '' && gameActive) {
+                    board[index] = currentPlayer;
+                    cell.textContent = currentPlayer;
+                    cell.classList.add(currentPlayer === 'X' ? 'text-indigo-400' : 'text-pink-400');
+                    
+                    if(checkWin()) {
+                        gameActive = false;
+                        setTimeout(() => endTTT(false), 500);
+                    } else if (!board.includes('')) {
+                        gameActive = false;
+                        setTimeout(() => endTTT(true), 500);
+                    } else {
+                        currentPlayer = currentPlayer === 'X' ? 'O' : 'X';
+                        if(currentPlayer === 'O') {
+                            // Simple AI
+                            setTimeout(aiMove, 300);
+                        }
+                    }
+                }
+            }
+
+            function aiMove() {
+                if(!gameActive) return;
+                let available = board.map((v, i) => v === '' ? i : null).filter(v => v !== null);
+                if(available.length > 0) {
+                    let move = available[Math.floor(Math.random() * available.length)];
+                    board[move] = 'O';
+                    const cells = tttBoard.children;
+                    cells[move].textContent = 'O';
+                    cells[move].classList.add('text-pink-400');
+                    
+                    if(checkWin()) {
+                        gameActive = false;
+                        setTimeout(() => endTTT(false), 500);
+                    } else if (!board.includes('')) {
+                        setTimeout(() => endTTT(true), 500);
+                    } else {
+                        currentPlayer = 'X';
+                    }
+                }
+            }
+
+            function checkWin() {
+                const wins = [[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]];
+                return wins.some(condition => {
+                    return condition.every(index => board[index] === currentPlayer);
                 });
-            });
-        </script>
+            }
 
-    </body>
-    </html>
+            function endTTT(draw) {
+                uiLayer.classList.remove('hidden');
+                if(draw) {
+                    statusTitle.textContent = "DRAW";
+                    statusTitle.className = "text-4xl font-black text-slate-400 mb-2";
+                } else {
+                    const color = currentPlayer === 'X' ? 'text-indigo-400' : 'text-pink-400';
+                    statusTitle.textContent = `${currentPlayer} WINS!`;
+                    statusTitle.className = `text-4xl font-black ${color} mb-2`;
+                }
+                statusDesc.textContent = "Play again?";
+                startBtn.innerHTML = "REMATCH";
+            }
+        }
+
+        // --- REFLEX TESTER LOGIC ---
+        function startReflex() {
+            let state = 'waiting'; // waiting, ready, clicked
+            let startTime = 0;
+            
+            // Draw initial Red state
+            ctx.fillStyle = '#ef4444'; // Red
+            ctx.fillRect(0,0,400,400);
+            ctx.fillStyle = 'white';
+            ctx.font = 'bold 30px Arial';
+            ctx.textAlign = 'center';
+            ctx.fillText("WAIT FOR GREEN...", 200, 200);
+
+            const randomDelay = 2000 + Math.random() * 3000;
+            
+            const timeout = setTimeout(() => {
+                if(activeGame !== 'reflex') return;
+                state = 'ready';
+                startTime = Date.now();
+                ctx.fillStyle = '#10b981'; // Green
+                ctx.fillRect(0,0,400,400);
+                ctx.fillStyle = 'white';
+                ctx.fillText("CLICK NOW!", 200, 200);
+            }, randomDelay);
+
+            const clickHandler = () => {
+                if(state === 'waiting') {
+                    clearTimeout(timeout);
+                    finishReflex("Too Early!", true);
+                } else if (state === 'ready') {
+                    const reaction = Date.now() - startTime;
+                    finishReflex(`${reaction}ms`, false);
+                }
+                canvas.removeEventListener('mousedown', clickHandler);
+                canvas.removeEventListener('touchstart', clickHandler);
+            };
+
+            canvas.addEventListener('mousedown', clickHandler);
+            canvas.addEventListener('touchstart', clickHandler);
+
+            function finishReflex(text, isBad) {
+                uiLayer.classList.remove('hidden');
+                statusTitle.textContent = text;
+                statusTitle.className = isBad ? "text-4xl font-black text-red-500 mb-2" : "text-5xl font-black text-white mb-2";
+                statusDesc.textContent = isBad ? "Try again" : "Great reaction time!";
+                startBtn.innerHTML = "TRY AGAIN";
+            }
+        }
+    </script>
+
+    <!-- FIREBASE MODULE -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js";
+        import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-database.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyDWGcagecOrdCn7BuBeA72ICFkeH7QWePc",
+            authDomain: "nexus-hub-caeab.firebaseapp.com",
+            databaseURL: "https://nexus-hub-caeab-default-rtdb.asia-southeast1.firebasedatabase.app",
+            projectId: "nexus-hub-caeab",
+            storageBucket: "nexus-hub-caeab.firebasestorage.app",
+            messagingSenderId: "45490042276",
+            appId: "1:45490042276:web:5dd49816f386fc23193d31",
+            measurementId: "G-MM3NHNWYZX"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
+
+        const marqueeEl = document.getElementById("scrolling-announcements");
+        const pinnedEl = document.getElementById("pinned-announcement");
+        const pinnedTitle = document.getElementById("pinned-title");
+        const pinnedMsg = document.getElementById("pinned-msg");
+        const pinnedTime = document.getElementById("pinned-time");
+        const listEl = document.getElementById("announcement-list");
+
+        function timeAgo(ts) {
+            const sec = Math.floor((Date.now() - ts) / 1000);
+            if (sec < 60) return "Just now";
+            const min = Math.floor(sec/60);
+            if (min < 60) return `${min}m ago`;
+            const hr = Math.floor(min/60);
+            if (hr < 24) return `${hr}h ago`;
+            return `${Math.floor(hr/24)}d ago`;
+        }
+
+        const catStyle = {
+            "alert":      { bg: "bg-red-500/10 border-red-500/20", icon: "fa-triangle-exclamation text-red-500", label: "Alert" },
+            "update":     { bg: "bg-blue-500/10 border-blue-500/20", icon: "fa-bullhorn text-blue-500", label: "Update" },
+            "maintenance": { bg: "bg-yellow-500/10 border-yellow-500/20", icon: "fa-screwdriver-wrench text-yellow-500", label: "Maintenance" }
+        };
+
+        // SCROLLING TEXT
+        onValue(ref(db, "scrolling_text/value"), snap => {
+            const text = snap.val() || "Welcome to Nexus Hub!";
+            marqueeEl.textContent = text;
+        });
+
+        // PINNED
+        onValue(ref(db, "pinned"), snap => {
+            const data = snap.val();
+            if (!data) {
+                pinnedEl.classList.add("hidden");
+                return;
+            }
+            const key = Object.keys(data)[0];
+            const ann = data[key];
+            pinnedTitle.textContent = ann.title;
+            pinnedMsg.textContent = ann.message;
+            pinnedTime.textContent = timeAgo(ann.timestamp);
+            pinnedEl.classList.remove("hidden");
+        });
+
+        // LIST
+        onValue(ref(db, "announcements"), snap => {
+            const data = snap.val();
+            listEl.innerHTML = "";
+            if (!data) return;
+
+            const arr = Object.keys(data)
+                .map(k => ({ id: k, ...data[k] }))
+                .sort((a, b) => b.timestamp - a.timestamp)
+                .slice(0, 10);
+
+            arr.forEach(a => {
+                const c = catStyle[a.category] || catStyle.update;
+                const item = document.createElement("div");
+                item.className = `p-4 rounded-xl border ${c.bg} hover:bg-white/5 transition-colors cursor-pointer group`;
+                item.innerHTML = `
+                    <div class="flex justify-between items-start">
+                        <div class="flex gap-4">
+                            <div class="mt-1"><i class="fa-solid ${c.icon} text-xl"></i></div>
+                            <div>
+                                <h4 class="font-bold text-white group-hover:text-indigo-300 transition-colors">${a.title}</h4>
+                                <p class="text-xs text-slate-400 mt-1">${timeAgo(a.timestamp)}</p>
+                            </div>
+                        </div>
+                        <i class="fa-solid fa-chevron-down text-white/20 group-hover:text-white/50 transition-colors"></i>
+                    </div>
+                    <div class="hidden mt-4 pt-4 border-t border-white/5 text-slate-300 text-sm leading-relaxed">${a.message}</div>
+                `;
+                item.addEventListener("click", () => {
+                    const msg = item.querySelector("div.hidden, div.mt-4");
+                    msg.classList.toggle("hidden");
+                    const icon = item.querySelector(".fa-chevron-down");
+                    icon.classList.toggle("rotate-180");
+                });
+                listEl.appendChild(item);
+            });
+        });
+    </script>
+</body>
+</html>
