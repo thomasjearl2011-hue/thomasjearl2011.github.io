@@ -454,7 +454,8 @@
         { id: 6, name: "Ima Touch You", color: "indigo", hp: 75, attacks: "Slash, Pull (Invert)" },
         { id: 7, name: "Vigilante", color: "#2F4F4F", hp: 125, attacks: "Takedown, Drone Support" },
         { id : 8, name: "Fbt_7 (Secret)", color: "black", hp: 200, attacks: "Delete (Poison Slash), Error 404 (Disrupt+Clone), Hatred (Rage), Termination (Reality Shatter)" },
-        { id: 9, name: "Master Cube", color: "#FFD700", hp: "100", attacks: "Call back, Overtime" }
+        { id: 9, name: "Master Cube", color: "#FFD700", hp: "100", attacks: "Call back, Overtime" },
+        { id: 10, name: "Bobbythe124", color: "#CCCCFF", hp: 149, attacks: "Silence (Slash), Hatred (Rage), Beam, Bleed (Poison Slash)", passive: "Higher jumps after each jump" }
     ];
 
     let selectedCubeId = 1; // Default to Cube 1
@@ -465,7 +466,8 @@
         { id: 3, name: "Unstoppable", desc: "Win without taking damage", unlocks: "The Jorker", unlocked: false },
         { id: 4, name: "Wombo Combo", desc: "Absolutely combo the red Ai cube", unlocks: "Ima Touch You", unlocked: false },
         { id: 5, name: "In every timeline I kill you...", desc: "Lose to Fbt_7  ", unlocks: "Vigilante", unlocked: false },
-        { id: 6, name: "Cube Master", desc: "Unlock all other cubes", unlocks: "Master Cube", unlocked: false }
+        { id: 6, name: "Not like this", desc: "Fbt_7 vs Bobbythe124", unlocks: "The heartbreaking (placeholder)", unlocked: false},
+        { id: 7, name: "Cube Master", desc: "Unlock all other cubes", unlocks: "Master Cube", unlocked: false }
     ];
 
     // --- ACHIEVEMENT SYSTEM ---
@@ -536,7 +538,7 @@
         if (window.parent && typeof window.parent.closeGame === 'function') {
             window.parent.closeGame();
         } else {
-            window.location.href = 'https://thomasjearl2011-hue.github.io/thomasjearl2011.github.io/';
+            window.location.href = '/';
         }
     }
     
@@ -571,8 +573,8 @@
             
             let isLocked = false;
             
-            // Standard locking logic (skip for ID 9 as visibility handles it)
-            if (cube.id !== 9 && cube.id > 2) {
+            // Standard locking logic (skip for ID 9 as visibility handles it, skip ID 10 bobbythe124 - not locked)
+            if (cube.id !== 9 && cube.id !== 10 && cube.id > 2) {
                  const unlockingAchievement = ACHIEVEMENT_DATA.find(a => a.unlocks === cube.name);
                  if (unlockingAchievement && !unlockingAchievement.unlocked) {
                      isLocked = true;
@@ -2077,6 +2079,353 @@
         }
     }
 
+    // CUBE 10: BOBBYTHE124 (Not Achievement Locked)
+    class Bobbythe124Cube extends BlueCube {
+        constructor() {
+            super();
+            this.color = "#CCCCFF"; // Periwinkle
+            this.baseColor = "#CCCCFF";
+            this.maxHp = 149;
+            this.hp = 149;
+            
+            // Jump passive - increases jump force after each jump
+            this.jumpCount = 0;
+            this.baseJumpForce = JUMP_FORCE;
+            
+            // Silence attack (slash)
+            this.silenceCooldown = 0;
+            this.silenceActive = false;
+            this.silenceTimer = 0;
+            
+            // Hatred ability (from Fbt_7)
+            this.hatredActive = false;
+            this.hatredTimer = 0;
+            this.hatredCooldown = 0;
+            
+            // Beam attack
+            this.beamState = 'IDLE';
+            this.beamTimer = 0;
+            
+            // Bleed attack (poison slash)
+            this.bleedCooldown = 0;
+            this.bleedActive = false;
+            this.bleedTimer = 0;
+            this.poisonTargets = [];
+        }
+
+        update() {
+            if (this.dead) return;
+            
+            // Update cooldowns
+            if (this.silenceCooldown > 0) this.silenceCooldown--;
+            if (this.hatredCooldown > 0) this.hatredCooldown--;
+            if (this.bleedCooldown > 0) this.bleedCooldown--;
+            
+            if (isRetroMode) {
+                super.update();
+                return;
+            }
+
+            // Process poison damage from bleed
+            this.processPoisonDamage();
+            
+            // HATRED mode effects
+            if (this.hatredActive) {
+                this.hatredTimer--;
+                this.color = (Math.floor(Date.now() / 80) % 2 === 0) ? "#8B0000" : this.baseColor;
+                this.damageMult = 1.5;
+                
+                if (this.hatredTimer <= 0) {
+                    this.hatredActive = false;
+                    this.color = this.baseColor;
+                    this.damageMult = 1.0;
+                    this.hatredCooldown = 480;
+                }
+            }
+            
+            // Beam state machine
+            if (this.beamState !== 'IDLE') {
+                this.vx = 0;
+                this.beamTimer--;
+                
+                if (this.beamState === 'WINDUP') {
+                    this.color = (Math.floor(Date.now() / 100) % 2 === 0) ? this.baseColor : "white";
+                    if (this.beamTimer <= 0) {
+                        this.beamState = 'FIRING';
+                        this.beamTimer = 15;
+                        this.fireBeam();
+                    }
+                } else if (this.beamState === 'FIRING') {
+                    if (!this.hatredActive) this.color = this.baseColor;
+                    if (this.beamTimer <= 0) this.beamState = 'IDLE';
+                }
+            }
+            
+            // Attack timers
+            if (this.silenceActive) {
+                this.silenceTimer--;
+                if (this.silenceTimer <= 0) this.silenceActive = false;
+            }
+            
+            if (this.bleedActive) {
+                this.bleedTimer--;
+                if (this.bleedTimer <= 0) this.bleedActive = false;
+            }
+
+            // Input handling
+            let inputLeft = keys['KeyA'];
+            let inputRight = keys['KeyD'];
+            
+            if (this.invertControlsTimer > 0) {
+                const temp = inputLeft;
+                inputLeft = inputRight;
+                inputRight = temp;
+            }
+
+            const currentSpeed = this.hatredActive ? MOVE_SPEED * 1.5 : MOVE_SPEED;
+            
+            if (inputLeft) {
+                this.vx = -currentSpeed;
+                this.facingRight = false;
+            }
+            if (inputRight) {
+                this.vx = currentSpeed;
+                this.facingRight = true;
+            }
+            
+            // PASSIVE: Higher jumps after each jump
+            if (keys['KeyW'] && this.isGrounded) {
+                this.jumpCount++;
+                const jumpBonus = Math.min(this.jumpCount * 1.5, 10); // Cap at +10
+                this.vy = -(this.baseJumpForce + jumpBonus);
+            }
+            
+            // Reset jump count when grounded for a bit (optional, or keep stacking)
+            // For now, let's keep it stacking as per the spec
+
+            // ABILITY 1: SILENCE (Space) - 35 damage slash
+            if (keys['Space'] && this.silenceCooldown <= 0 && this.beamState === 'IDLE') {
+                this.performSilence();
+            }
+            
+            // ABILITY 2: HATRED (Q) - Rage mode from Fbt_7
+            if (keys['KeyQ'] && this.hatredCooldown <= 0 && !this.hatredActive) {
+                this.activateHatred();
+            }
+            
+            // ABILITY 3: BEAM (F) - 50 damage beam
+            if (keys['KeyF'] && this.beamState === 'IDLE') {
+                this.beamState = 'WINDUP';
+                this.beamTimer = 40;
+            }
+            
+            // ABILITY 4: BLEED (E) - Poison slash
+            if (keys['KeyE'] && this.bleedCooldown <= 0 && this.beamState === 'IDLE') {
+                this.performBleed();
+            }
+
+            // Physics
+            this.vy += GRAVITY;
+            this.x += this.vx;
+            this.y += this.vy;
+
+            if (this.y + this.h >= FLOOR_Y) {
+                this.y = FLOOR_Y - this.h;
+                this.vy = 0;
+                this.isGrounded = true;
+            } else {
+                this.isGrounded = false;
+            }
+            
+            if (this.x < 0) this.x = 0;
+            if (this.x + this.w > WIDTH) this.x = WIDTH - this.w;
+
+            this.vx *= FRICTION;
+            if (Math.abs(this.vx) < 0.1) this.vx = 0;
+            
+            if (this.invertControlsTimer > 0) this.invertControlsTimer--;
+        }
+        
+        performSilence() {
+            this.silenceActive = true;
+            this.silenceTimer = 15;
+            this.silenceCooldown = 60;
+            
+            const reach = 70;
+            const hitX = this.facingRight ? this.x + this.w : this.x - reach;
+            
+            if (!redCube.dead && rectIntersect(hitX, this.y, reach, this.h, redCube.x, redCube.y, redCube.w, redCube.h)) {
+                if (!redCube.isInvincible) {
+                    redCube.takeDamage(35 * this.damageMult);
+                    redCube.vx = this.facingRight ? 10 : -10;
+                    redCube.vy = -5;
+                }
+            }
+        }
+        
+        activateHatred() {
+            this.hatredActive = true;
+            this.hatredTimer = 300; // 5 seconds
+            this.hatredCooldown = 600;
+        }
+        
+        fireBeam() {
+            const beamW = 600;
+            const beamH = 30;
+            const beamX = this.facingRight ? this.x + this.w : this.x - beamW;
+            const beamY = this.y + 15;
+            
+            if (rectIntersect(beamX, beamY, beamW, beamH, redCube.x, redCube.y, redCube.w, redCube.h)) {
+                redCube.takeDamage(50 * this.damageMult);
+                redCube.vx = this.facingRight ? 15 : -15;
+            }
+        }
+        
+        performBleed() {
+            this.bleedActive = true;
+            this.bleedTimer = 20;
+            this.bleedCooldown = 90;
+            
+            const reach = 100;
+            const hitX = this.facingRight ? this.x + this.w : this.x - reach;
+            
+            if (!redCube.dead && rectIntersect(hitX, this.y - 20, reach, this.h + 40, redCube.x, redCube.y, redCube.w, redCube.h)) {
+                if (!redCube.isInvincible) {
+                    redCube.takeDamage(20 * this.damageMult);
+                    redCube.vx = this.facingRight ? 12 : -12;
+                    redCube.vy = -8;
+                    
+                    // Apply bleed/poison effect
+                    this.poisonTargets.push({
+                        target: redCube,
+                        ticksRemaining: 6,
+                        tickTimer: 60
+                    });
+                }
+            }
+        }
+        
+        processPoisonDamage() {
+            for (let i = this.poisonTargets.length - 1; i >= 0; i--) {
+                const poison = this.poisonTargets[i];
+                poison.tickTimer--;
+                
+                if (poison.tickTimer <= 0) {
+                    poison.tickTimer = 60;
+                    poison.ticksRemaining--;
+                    
+                    if (!poison.target.dead) {
+                        poison.target.takeDamage(10);
+                        poison.target.color = "#8B0000"; // Dark red for bleed
+                        setTimeout(() => {
+                            if (!poison.target.dead) {
+                                poison.target.color = poison.target.baseColor || COLORS.RED;
+                            }
+                        }, 100);
+                    }
+                    
+                    if (poison.ticksRemaining <= 0) {
+                        this.poisonTargets.splice(i, 1);
+                    }
+                }
+            }
+        }
+
+        draw(ctx) {
+            if (this.dead) return;
+            if (isRetroMode) {
+                ctx.fillStyle = this.baseColor;
+                ctx.fillRect(this.x, this.y, this.w, this.h);
+                return;
+            }
+            
+            // Draw main cube
+            ctx.fillStyle = this.color;
+            ctx.fillRect(this.x, this.y, this.w, this.h);
+            
+            // Hatred glow effect
+            if (this.hatredActive) {
+                ctx.shadowColor = "#FF0000";
+                ctx.shadowBlur = 20;
+                ctx.strokeStyle = "#FF0000";
+                ctx.lineWidth = 4;
+                ctx.strokeRect(this.x - 2, this.y - 2, this.w + 4, this.h + 4);
+                ctx.shadowBlur = 0;
+            } else {
+                ctx.strokeStyle = "#9999CC";
+                ctx.lineWidth = 2;
+                ctx.strokeRect(this.x, this.y, this.w, this.h);
+            }
+            
+            // Eye
+            ctx.fillStyle = this.hatredActive ? "#FF0000" : "#6666AA";
+            const eyeX = this.facingRight ? this.x + 30 : this.x + 10;
+            ctx.fillRect(eyeX, this.y + 10, 10, 10);
+
+            // SILENCE SLASH visual
+            if (this.silenceActive) {
+                const reach = 70;
+                const hitX = this.facingRight ? this.x + this.w : this.x - reach;
+                ctx.fillStyle = "rgba(153, 153, 204, 0.6)";
+                ctx.fillRect(hitX, this.y, reach, this.h);
+            }
+            
+            // BEAM visual
+            if (this.beamState === 'FIRING') {
+                ctx.fillStyle = "#AAAAFF";
+                const beamW = 600;
+                const beamX = this.facingRight ? this.x + this.w : this.x - beamW;
+                ctx.fillRect(beamX, this.y + 15, beamW, 30);
+            }
+            
+            // BLEED SLASH visual
+            if (this.bleedActive) {
+                const reach = 100;
+                const hitX = this.facingRight ? this.x + this.w : this.x - reach;
+                
+                ctx.fillStyle = "rgba(139, 0, 0, 0.6)";
+                ctx.fillRect(hitX, this.y - 20, reach, this.h + 40);
+                
+                // Dripping blood effect
+                for (let i = 0; i < 5; i++) {
+                    ctx.fillStyle = "rgba(139, 0, 0, 0.8)";
+                    ctx.beginPath();
+                    ctx.arc(hitX + Math.random() * reach, this.y + this.h + Math.random() * 20, 3, 0, Math.PI * 2);
+                    ctx.fill();
+                }
+            }
+            
+            // Draw ability cooldown indicators
+            ctx.font = "10px Arial";
+            ctx.textAlign = "left";
+            let indicatorY = this.y - 55;
+            
+            // SILENCE cooldown
+            ctx.fillStyle = this.silenceCooldown > 0 ? "#666" : "#9999CC";
+            ctx.fillText(`[SPACE] SILENCE ${this.silenceCooldown > 0 ? Math.ceil(this.silenceCooldown/60) + 's' : 'READY'}`, this.x - 20, indicatorY);
+            indicatorY += 12;
+            
+            // HATRED cooldown
+            ctx.fillStyle = this.hatredCooldown > 0 ? "#666" : "#8B0000";
+            ctx.fillText(`[Q] HATRED ${this.hatredActive ? 'ACTIVE' : (this.hatredCooldown > 0 ? Math.ceil(this.hatredCooldown/60) + 's' : 'READY')}`, this.x - 20, indicatorY);
+            indicatorY += 12;
+            
+            // BEAM cooldown
+            ctx.fillStyle = this.beamState !== 'IDLE' ? "#666" : "#AAAAFF";
+            ctx.fillText(`[F] BEAM ${this.beamState !== 'IDLE' ? 'CHARGING' : 'READY'}`, this.x - 20, indicatorY);
+            indicatorY += 12;
+            
+            // BLEED cooldown
+            ctx.fillStyle = this.bleedCooldown > 0 ? "#666" : "#8B0000";
+            ctx.fillText(`[E] BLEED ${this.bleedCooldown > 0 ? Math.ceil(this.bleedCooldown/60) + 's' : 'READY'}`, this.x - 20, indicatorY);
+            indicatorY += 12;
+            
+            // Jump bonus indicator
+            ctx.fillStyle = "#CCCCFF";
+            ctx.fillText(`JUMPS: ${this.jumpCount} (+${Math.min(this.jumpCount * 1.5, 10).toFixed(1)})`, this.x - 20, indicatorY);
+        }
+    }
+
     // CUBE 2: ANGRY SNIPER (Red) - AI/P2
     class RedCube extends Entity {
         constructor() {
@@ -2348,6 +2697,7 @@
             case 7: blueCube = new VigilanteCube(); break;
             case 8: blueCube = new Fbt7Cube(); break; // Added custom class for Fbt_7
             case 9: blueCube = new GoldCube(); break;
+            case 10: blueCube = new Bobbythe124Cube(); break; // Bobbythe124 - Not achievement locked
             default: blueCube = new BlueCube(); break;
         }
 
