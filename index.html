@@ -105,6 +105,20 @@
         body {
             -webkit-tap-highlight-color: transparent;
         }
+
+        /* Card Game Styles */
+        .playing-card {
+            background: white;
+            border-radius: 6px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.5);
+            position: relative;
+            user-select: none;
+            transition: transform 0.2s;
+        }
+        .playing-card.red { color: #ef4444; }
+        .playing-card.black { color: #1e293b; }
+        .playing-card:hover { transform: translateY(-2px); }
+        .playing-card.selected { border: 2px solid #fbbf24; transform: translateY(-4px); box-shadow: 0 0 10px #fbbf24; }
     </style>
 </head>
 <body class="bg-nexus-base text-white h-screen flex flex-col md:flex-row overflow-hidden selection:bg-indigo-500 selection:text-white font-sans">
@@ -140,6 +154,11 @@
             <button onclick="switchTab('community')" class="nav-item w-full flex items-center p-3.5 rounded-xl text-slate-400 hover:text-white hover:bg-white/5 transition-all group" id="desk-nav-community">
                 <i class="fa-solid fa-users text-xl w-6 text-center group-hover:text-emerald-400 transition-colors"></i>
                 <span class="ml-4 font-medium hidden lg:block">Community</span>
+            </button>
+
+            <button onclick="switchTab('credits')" class="nav-item w-full flex items-center p-3.5 rounded-xl text-slate-400 hover:text-white hover:bg-white/5 transition-all group" id="desk-nav-credits">
+                <i class="fa-solid fa-circle-info text-xl w-6 text-center group-hover:text-sky-400 transition-colors"></i>
+                <span class="ml-4 font-medium hidden lg:block">Credits</span>
             </button>
 
             <div class="my-4 border-t border-white/5 mx-2"></div>
@@ -212,7 +231,7 @@
                         <i class="fa-solid fa-trophy"></i>
                     </div>
                     <div>
-                        <p class="text-3xl font-bold text-white">1</p>
+                        <p class="text-3xl font-bold text-white">5</p>
                         <p class="text-slate-400 text-xs font-medium uppercase tracking-wider">Trophies</p>
                     </div>
                 </div>
@@ -255,27 +274,27 @@
                 </div>
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                     <!-- Game Card 1 -->
-                    <div onclick="launchGame('tictactoe')" class="group cursor-pointer relative rounded-2xl overflow-hidden aspect-video">
+                    <div onclick="launchGame('solitaire')" class="group cursor-pointer relative rounded-2xl overflow-hidden aspect-video">
                         <img src="https://www.nomadfoods.com/wp-content/uploads/2018/08/placeholder-1-e1533569576673-960x960.png" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110">
                         <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent p-6 flex flex-col justify-end">
-                            <h3 class="font-bold text-xl text-white group-hover:text-indigo-400 transition-colors">Neon Tic-Tac-Toe</h3>
-                            <p class="text-slate-300 text-sm">Classic Strategy</p>
+                            <h3 class="font-bold text-xl text-white group-hover:text-green-400 transition-colors">Cyber Solitaire</h3>
+                            <p class="text-slate-300 text-sm">Classic Card Game</p>
                         </div>
                     </div>
                     <!-- Game Card 2 -->
                     <div onclick="launchGame('snake')" class="group cursor-pointer relative rounded-2xl overflow-hidden aspect-video">
-                        <img src="https://www.coolmathgames.com/sites/default/files/styles/mobile_game_image/public/Snake_OG-logo.jpg.webp?itok=EOKYMydV" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110">
+                        <img src="https://www.nomadfoods.com/wp-content/uploads/2018/08/placeholder-1-e1533569576673-960x960.png" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110">
                         <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent p-6 flex flex-col justify-end">
                             <h3 class="font-bold text-xl text-white group-hover:text-emerald-400 transition-colors">Cyber Snake</h3>
                             <p class="text-slate-300 text-sm">Arcade Retro</p>
                         </div>
                     </div>
                     <!-- Game Card 3 -->
-                    <div onclick="launchGame('reflex')" class="group cursor-pointer relative rounded-2xl overflow-hidden aspect-video">
+                    <div onclick="launchGame('match')" class="group cursor-pointer relative rounded-2xl overflow-hidden aspect-video">
                         <img src="https://www.nomadfoods.com/wp-content/uploads/2018/08/placeholder-1-e1533569576673-960x960.png" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110">
                         <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent p-6 flex flex-col justify-end">
-                            <h3 class="font-bold text-xl text-white group-hover:text-orange-400 transition-colors">Reflex Tester</h3>
-                            <p class="text-slate-300 text-sm">Speed Challenge</p>
+                            <h3 class="font-bold text-xl text-white group-hover:text-purple-400 transition-colors">Cyber Match</h3>
+                            <p class="text-slate-300 text-sm">Memory Puzzle</p>
                         </div>
                     </div>
                 </div>
@@ -300,11 +319,51 @@
                 <button class="px-4 py-2 bg-white text-black font-bold rounded-lg text-sm whitespace-nowrap">All Games</button>
                 <button class="px-4 py-2 bg-white/5 text-slate-300 hover:text-white font-medium rounded-lg text-sm whitespace-nowrap border border-white/5 transition-colors">Arcade</button>
                 <button class="px-4 py-2 bg-white/5 text-slate-300 hover:text-white font-medium rounded-lg text-sm whitespace-nowrap border border-white/5 transition-colors">Puzzle</button>
-                <button class="px-4 py-2 bg-white/5 text-slate-300 hover:text-white font-medium rounded-lg text-sm whitespace-nowrap border border-white/5 transition-colors">Action</button>
+                <button class="px-4 py-2 bg-white/5 text-slate-300 hover:text-white font-medium rounded-lg text-sm whitespace-nowrap border border-white/5 transition-colors">Card</button>
             </div>
 
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                <!-- Game 1 -->
+                
+                <!-- Game 1: Solitaire (NEW) -->
+                <div class="glass p-4 rounded-2xl border border-white/5 hover:border-green-500/50 transition-all group hover:-translate-y-1">
+                    <div class="h-40 rounded-xl bg-gradient-to-br from-green-600 to-emerald-800 relative overflow-hidden mb-4 flex items-center justify-center">
+                        <i class="fa-solid fa-diamond text-6xl text-white/20 absolute -right-4 -bottom-4 rotate-12"></i>
+                        <div class="flex gap-1 relative z-10 transform -rotate-6">
+                            <div class="w-12 h-16 bg-white rounded flex items-center justify-center text-red-500 text-xl font-bold shadow-lg">A♥</div>
+                            <div class="w-12 h-16 bg-white rounded flex items-center justify-center text-black text-xl font-bold shadow-lg -ml-4 mt-2">K♠</div>
+                        </div>
+                    </div>
+                    <div class="flex justify-between items-start mb-2">
+                        <div>
+                            <h3 class="font-bold text-lg text-white">Cyber Solitaire</h3>
+                            <p class="text-xs text-slate-400">Card • Classic</p>
+                        </div>
+                        <div class="w-8 h-8 rounded bg-green-500/20 text-green-400 flex items-center justify-center text-xs font-bold">1P</div>
+                    </div>
+                    <button onclick="launchGame('solitaire')" class="w-full mt-4 py-2.5 bg-green-600 hover:bg-green-500 text-white rounded-lg font-semibold transition-colors flex items-center justify-center gap-2">
+                        <i class="fa-solid fa-play"></i> Play
+                    </button>
+                </div>
+
+                <!-- Game 2: High-Low (NEW) -->
+                <div class="glass p-4 rounded-2xl border border-white/5 hover:border-yellow-500/50 transition-all group hover:-translate-y-1">
+                    <div class="h-40 rounded-xl bg-gradient-to-br from-yellow-600 to-orange-800 relative overflow-hidden mb-4 flex items-center justify-center">
+                        <i class="fa-solid fa-arrow-up text-6xl text-white/20 absolute left-2 top-2"></i>
+                        <i class="fa-solid fa-arrow-down-up-across-line text-5xl text-white drop-shadow-lg z-10"></i>
+                    </div>
+                    <div class="flex justify-between items-start mb-2">
+                        <div>
+                            <h3 class="font-bold text-lg text-white">Neon High-Low</h3>
+                            <p class="text-xs text-slate-400">Card • Luck</p>
+                        </div>
+                        <div class="w-8 h-8 rounded bg-yellow-500/20 text-yellow-400 flex items-center justify-center text-xs font-bold">∞</div>
+                    </div>
+                    <button onclick="launchGame('highlow')" class="w-full mt-4 py-2.5 bg-yellow-600 hover:bg-yellow-500 text-white rounded-lg font-semibold transition-colors flex items-center justify-center gap-2">
+                        <i class="fa-solid fa-play"></i> Play
+                    </button>
+                </div>
+
+                <!-- Game 3: TTT -->
                 <div class="glass p-4 rounded-2xl border border-white/5 hover:border-indigo-500/50 transition-all group hover:-translate-y-1">
                     <div class="h-40 rounded-xl bg-gradient-to-br from-indigo-600 to-violet-800 relative overflow-hidden mb-4 flex items-center justify-center">
                         <i class="fa-solid fa-gamepad text-6xl text-white/20 absolute -right-4 -bottom-4 rotate-12"></i>
@@ -322,7 +381,7 @@
                     </button>
                 </div>
 
-                <!-- Game 2 -->
+                <!-- Game 4: Snake -->
                 <div class="glass p-4 rounded-2xl border border-white/5 hover:border-emerald-500/50 transition-all group hover:-translate-y-1">
                     <div class="h-40 rounded-xl bg-gradient-to-br from-emerald-600 to-teal-800 relative overflow-hidden mb-4 flex items-center justify-center">
                         <i class="fa-solid fa-worm text-6xl text-white/20 absolute -left-4 -top-4 rotate-12"></i>
@@ -340,7 +399,7 @@
                     </button>
                 </div>
 
-                <!-- Game 3 -->
+                <!-- Game 5: Reflex -->
                 <div class="glass p-4 rounded-2xl border border-white/5 hover:border-orange-500/50 transition-all group hover:-translate-y-1">
                     <div class="h-40 rounded-xl bg-gradient-to-br from-orange-600 to-red-800 relative overflow-hidden mb-4 flex items-center justify-center">
                         <i class="fa-solid fa-stopwatch text-6xl text-white/20 absolute right-2 top-2"></i>
@@ -358,8 +417,44 @@
                     </button>
                 </div>
 
-                <!-- Test Branch -->
+                <!-- Game 6: Neon Breaker -->
                 <div class="glass p-4 rounded-2xl border border-white/5 hover:border-blue-500/50 transition-all group hover:-translate-y-1">
+                    <div class="h-40 rounded-xl bg-gradient-to-br from-blue-600 to-cyan-800 relative overflow-hidden mb-4 flex items-center justify-center">
+                        <i class="fa-solid fa-shield-halved text-6xl text-white/20 absolute -left-2 -bottom-2"></i>
+                        <i class="fa-solid fa-bars text-5xl text-white drop-shadow-lg z-10 rotate-90"></i>
+                    </div>
+                    <div class="flex justify-between items-start mb-2">
+                        <div>
+                            <h3 class="font-bold text-lg text-white">Neon Breaker</h3>
+                            <p class="text-xs text-slate-400">Arcade • Action</p>
+                        </div>
+                        <div class="w-8 h-8 rounded bg-blue-500/20 text-blue-400 flex items-center justify-center text-xs font-bold">1P</div>
+                    </div>
+                    <button onclick="launchGame('breaker')" class="w-full mt-4 py-2.5 bg-blue-600 hover:bg-blue-500 text-white rounded-lg font-semibold transition-colors flex items-center justify-center gap-2">
+                        <i class="fa-solid fa-play"></i> Play
+                    </button>
+                </div>
+
+                <!-- Game 7: Cyber Match -->
+                <div class="glass p-4 rounded-2xl border border-white/5 hover:border-purple-500/50 transition-all group hover:-translate-y-1">
+                    <div class="h-40 rounded-xl bg-gradient-to-br from-purple-600 to-fuchsia-800 relative overflow-hidden mb-4 flex items-center justify-center">
+                        <i class="fa-solid fa-brain text-6xl text-white/20 absolute right-0 bottom-0"></i>
+                        <i class="fa-solid fa-layer-group text-5xl text-white drop-shadow-lg z-10"></i>
+                    </div>
+                    <div class="flex justify-between items-start mb-2">
+                        <div>
+                            <h3 class="font-bold text-lg text-white">Cyber Match</h3>
+                            <p class="text-xs text-slate-400">Puzzle • Memory</p>
+                        </div>
+                        <div class="w-8 h-8 rounded bg-purple-500/20 text-purple-400 flex items-center justify-center text-xs font-bold">1P</div>
+                    </div>
+                    <button onclick="launchGame('match')" class="w-full mt-4 py-2.5 bg-purple-600 hover:bg-purple-500 text-white rounded-lg font-semibold transition-colors flex items-center justify-center gap-2">
+                        <i class="fa-solid fa-play"></i> Play
+                    </button>
+                </div>
+
+                <!-- Test Branch -->
+                <div class="glass p-4 rounded-2xl border border-white/5 hover:border-slate-500/50 transition-all group hover:-translate-y-1">
                     <div class="h-40 rounded-xl bg-slate-800 border-2 border-dashed border-slate-700 relative overflow-hidden mb-4 flex items-center justify-center">
                         <i class="fa-solid fa-flask text-4xl text-slate-500"></i>
                     </div>
@@ -412,6 +507,8 @@
                     <p id="pinned-time" class="text-xs text-indigo-300 font-mono"></p>
                 </div>
             </div>
+
+            
 
             <!-- List -->
             <div id="announcement-list" class="space-y-4">
@@ -477,6 +574,37 @@
             </div>
         </section>
 
+        <!-- VIEW: CREDITS -->
+        <section id="view-credits" class="hidden p-6 lg:p-10 max-w-3xl mx-auto min-h-full animate-fade-in">
+            <h1 class="text-4xl font-bold text-white mb-8">Credits</h1>
+
+            <div class="space-y-4">
+                <div class="glass rounded-2xl p-6 border border-white/5">
+                    <h2 class="text-xl font-semibold mb-2">Development</h2>
+                    <p class="text-slate-300 text-sm">
+                        Coded by Fkm_X3, art done by .
+                    </p>
+                </div>
+
+                <div class="glass rounded-2xl p-6 border border-white/5">
+                    <h2 class="text-xl font-semibold mb-2">Assets & Libraries</h2>
+                    <ul class="list-disc list-inside text-slate-300 text-sm space-y-1">
+                        <li>Tailwind CSS (CDN)</li>
+                        <li>Font Awesome Icons</li>
+                    <li>Google Fonts – Outfit</li>
+                    <li>Unsplash background images</li>
+                    </ul>
+                </div>
+
+                <div class="glass rounded-2xl p-6 border border-white/5">
+                    <h2 class="text-xl font-semibold mb-2">Special Thanks</h2>
+                    <p class="text-slate-300 text-sm">
+                        Thanks to @RedFox-AI51 for providing the framework for testbranch.
+                        Thanks to everyone who helped test Nexus Gaming Hub and provided feedback.
+                    </p>
+                </div>
+            </div>
+        </section>
     </main>
 
     <!-- MOBILE BOTTOM NAVIGATION (Only visible on small screens) -->
@@ -497,6 +625,10 @@
             <i class="fa-solid fa-users text-xl mb-1"></i>
             <span class="text-[10px] font-medium">Comm</span>
         </button>
+        <button onclick="switchTab('credits')" class="mobile-nav-btn flex flex-col items-center justify-center w-16 h-16 rounded-xl text-slate-400 active:text-indigo-400 transition-colors" data-target="credits">
+            <i class="fa-solid fa-circle-info text-xl mb-1"></i>
+            <span class="text-[10px] font-medium">Credits</span>
+        </button>
     </div>
 
     <!-- GAME OVERLAY (MODAL) -->
@@ -515,7 +647,7 @@
         <div class="flex-1 flex items-center justify-center p-4 overflow-hidden relative">
             
             <div class="relative bg-slate-900 rounded-xl shadow-2xl border border-white/10 overflow-hidden max-w-full max-h-full">
-                <!-- Canvas for Snake/Reflex -->
+                <!-- Canvas for Snake/Reflex/Breaker -->
                 <canvas id="game-canvas" width="400" height="400" class="hidden max-w-full max-h-[70vh] cursor-crosshair object-contain"></canvas>
 
                 <!-- DOM Board for Tic Tac Toe -->
@@ -523,8 +655,49 @@
                     <!-- Cells generated by JS -->
                 </div>
 
+                <!-- DOM Board for Memory Match -->
+                <div id="memory-board" class="hidden grid-cols-4 gap-2 bg-slate-800 p-4 w-[min(90vw,400px)] h-[min(90vw,400px)]">
+                    <!-- Cards generated by JS -->
+                </div>
+
+                <!-- DOM Board for High-Low -->
+                <div id="highlow-board" class="hidden flex-col items-center justify-center gap-8 bg-slate-800 p-8 w-[min(90vw,400px)] h-[min(90vw,400px)]">
+                     <div id="hl-card-display" class="w-32 h-48 bg-white rounded-xl shadow-2xl flex flex-col items-center justify-center text-4xl font-bold transition-all transform hover:scale-105">
+                        <!-- Card content -->
+                     </div>
+                     <div class="flex gap-4 w-full">
+                        <button id="hl-lower" class="flex-1 py-3 bg-red-500 hover:bg-red-600 rounded-lg font-bold text-white transition-colors">LOWER <i class="fa-solid fa-arrow-down ml-1"></i></button>
+                        <button id="hl-higher" class="flex-1 py-3 bg-green-500 hover:bg-green-600 rounded-lg font-bold text-white transition-colors">HIGHER <i class="fa-solid fa-arrow-up ml-1"></i></button>
+                     </div>
+                     <div class="text-xl font-bold text-slate-300">Score: <span id="hl-score" class="text-white">0</span></div>
+                </div>
+
+                <!-- DOM Board for Solitaire -->
+                <div id="solitaire-board" class="hidden flex-col bg-slate-800 p-2 w-[min(95vw,600px)] h-[min(140vw,600px)] relative">
+                    <!-- Top Row: Foundations & Stock -->
+                    <div class="flex justify-between h-24 mb-4">
+                        <div class="flex gap-2" id="sol-foundations">
+                            <!-- 4 Foundation Piles -->
+                            <div class="w-16 h-24 border-2 border-slate-600 rounded-md flex items-center justify-center text-slate-600" data-type="foundation" data-id="0"><i class="fa-solid fa-heart"></i></div>
+                            <div class="w-16 h-24 border-2 border-slate-600 rounded-md flex items-center justify-center text-slate-600" data-type="foundation" data-id="1"><i class="fa-solid fa-diamond"></i></div>
+                            <div class="w-16 h-24 border-2 border-slate-600 rounded-md flex items-center justify-center text-slate-600" data-type="foundation" data-id="2"><i class="fa-solid fa-clover"></i></div>
+                            <div class="w-16 h-24 border-2 border-slate-600 rounded-md flex items-center justify-center text-slate-600" data-type="foundation" data-id="3"><i class="fa-solid fa-spa"></i></div>
+                        </div>
+                        <div class="flex gap-2">
+                            <div id="sol-stock" class="w-16 h-24 bg-blue-900 border-2 border-white rounded-md flex items-center justify-center cursor-pointer shadow-lg hover:bg-blue-800 transition-colors">
+                                <i class="fa-solid fa-rotate text-white text-2xl"></i>
+                            </div>
+                            <div id="sol-talon" class="w-16 h-24 border border-slate-600 rounded-md relative"></div>
+                        </div>
+                    </div>
+                    <!-- Tableau -->
+                    <div class="flex justify-between flex-1 relative" id="sol-tableau">
+                        <!-- 7 Columns generated by JS -->
+                    </div>
+                </div>
+
                 <!-- Start/Game Over Screen -->
-                <div id="game-ui-layer" class="absolute inset-0 flex flex-col items-center justify-center bg-black/80 z-10 backdrop-blur-sm p-6 text-center">
+                <div id="game-ui-layer" class="absolute inset-0 flex flex-col items-center justify-center bg-black/80 z-20 backdrop-blur-sm p-6 text-center">
                     <h3 id="game-status-title" class="text-4xl font-black text-white mb-2 italic tracking-widest text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-purple-400">READY</h3>
                     <p id="game-status-desc" class="text-slate-300 mb-8 max-w-xs">Press start to begin the session.</p>
                     <button id="start-btn" class="group relative px-8 py-4 bg-indigo-600 font-bold text-white rounded-xl overflow-hidden transition-all hover:scale-105 active:scale-95">
@@ -549,7 +722,7 @@
         // --- NAVIGATION LOGIC ---
         function switchTab(tabId) {
             // Hide all views
-            ['home', 'games', 'community', 'settings'].forEach(id => {
+            ['home', 'games', 'community', 'settings', 'credits'].forEach(id => {
                 document.getElementById(`view-${id}`).classList.add('hidden');
             });
             
@@ -588,6 +761,10 @@
         const canvas = document.getElementById('game-canvas');
         const ctx = canvas.getContext('2d');
         const tttBoard = document.getElementById('ttt-board');
+        const memoryBoard = document.getElementById('memory-board');
+        const highlowBoard = document.getElementById('highlow-board');
+        const solBoard = document.getElementById('solitaire-board');
+        
         const overlay = document.getElementById('game-overlay');
         const uiLayer = document.getElementById('game-ui-layer');
         const titleEl = document.getElementById('active-game-title');
@@ -609,18 +786,22 @@
             // Reset Displays
             canvas.classList.add('hidden');
             tttBoard.classList.add('hidden');
-            
+            memoryBoard.classList.add('hidden');
+            highlowBoard.classList.add('hidden');
+            highlowBoard.classList.remove('flex');
+            solBoard.classList.add('hidden');
+            solBoard.classList.remove('flex');
+
             if (gameType === 'tictactoe') {
                 titleEl.innerHTML = '<i class="fa-solid fa-x text-indigo-400 mr-2"></i> NEON TIC-TAC-TOE';
                 hintEl.innerHTML = 'Tap a square to place your mark';
                 tttBoard.classList.remove('hidden');
                 tttBoard.classList.add('grid');
-                initTicTacToe(false); // Init purely for visuals behind menu
+                initTicTacToe(false);
             } else if (gameType === 'snake') {
                 titleEl.innerHTML = '<i class="fa-solid fa-worm text-emerald-400 mr-2"></i> CYBER SNAKE';
                 hintEl.innerHTML = 'Use Arrow Keys or Swipe to change direction';
                 canvas.classList.remove('hidden');
-                // Draw static preview
                 ctx.fillStyle = '#0f172a';
                 ctx.fillRect(0,0,400,400);
             } else if (gameType === 'reflex') {
@@ -629,6 +810,29 @@
                 canvas.classList.remove('hidden');
                 ctx.fillStyle = '#0f172a';
                 ctx.fillRect(0,0,400,400);
+            } else if (gameType === 'breaker') {
+                titleEl.innerHTML = '<i class="fa-solid fa-shield-halved text-blue-400 mr-2"></i> NEON BREAKER';
+                hintEl.innerHTML = 'Use Arrow Keys or Touch to move paddle';
+                canvas.classList.remove('hidden');
+                ctx.fillStyle = '#0f172a';
+                ctx.fillRect(0,0,400,400);
+            } else if (gameType === 'match') {
+                titleEl.innerHTML = '<i class="fa-solid fa-layer-group text-purple-400 mr-2"></i> CYBER MATCH';
+                hintEl.innerHTML = 'Tap cards to find pairs';
+                memoryBoard.classList.remove('hidden');
+                memoryBoard.classList.add('grid');
+                initMemoryMatch(false);
+            } else if (gameType === 'highlow') {
+                titleEl.innerHTML = '<i class="fa-solid fa-arrow-down-up-across-line text-yellow-400 mr-2"></i> NEON HIGH-LOW';
+                hintEl.innerHTML = 'Guess if next card is higher or lower';
+                highlowBoard.classList.remove('hidden');
+                highlowBoard.classList.add('flex');
+                initHighLow(false);
+            } else if (gameType === 'solitaire') {
+                titleEl.innerHTML = '<i class="fa-solid fa-diamond text-green-400 mr-2"></i> CYBER SOLITAIRE';
+                hintEl.innerHTML = 'Tap to Move • Tap Deck to Deal';
+                solBoard.classList.remove('hidden');
+                solBoard.classList.add('flex');
             }
         }
 
@@ -644,6 +848,10 @@
             if (activeGame === 'snake') startSnake();
             if (activeGame === 'tictactoe') initTicTacToe(true);
             if (activeGame === 'reflex') startReflex();
+            if (activeGame === 'breaker') startBreaker();
+            if (activeGame === 'match') initMemoryMatch(true);
+            if (activeGame === 'highlow') initHighLow(true);
+            if (activeGame === 'solitaire') initSolitaire();
         });
 
         // --- SNAKE GAME LOGIC ---
@@ -657,10 +865,8 @@
             let tileCount = 20; // 400px / 20px
             let speed = 100;
             
-            // Initial render
             draw();
             
-            // Input
             const handleKey = (e) => {
                 if(e.key === 'ArrowUp' && dy === 0) { dx=0; dy=-1; }
                 if(e.key === 'ArrowDown' && dy === 0) { dx=0; dy=1; }
@@ -669,7 +875,6 @@
             };
             document.addEventListener('keydown', handleKey);
 
-            // Touch Inputs
             let touchStartX = 0;
             let touchStartY = 0;
             overlay.addEventListener('touchstart', e => {
@@ -696,25 +901,18 @@
             }
 
             function gameLoop() {
-                // Move
                 const head = {x: snake[0].x + dx, y: snake[0].y + dy};
-
-                // Collision Wall
                 if(head.x < 0 || head.x >= tileCount || head.y < 0 || head.y >= tileCount) {
                     gameOver(`Score: ${score}`);
                     return;
                 }
-                // Collision Self
                 for(let i=0; i<snake.length; i++){
                     if(head.x === snake[i].x && head.y === snake[i].y && snake.length > 1) {
                         gameOver(`Score: ${score}`);
                         return;
                     }
                 }
-
                 snake.unshift(head);
-
-                // Eat Food
                 if(head.x === food.x && head.y === food.y) {
                     score++;
                     food = {
@@ -722,41 +920,30 @@
                         y: Math.floor(Math.random() * tileCount)
                     };
                 } else {
-                    // Only remove tail if didn't eat (movement)
                     if(dx !== 0 || dy !== 0) snake.pop();
                 }
-
                 draw();
             }
 
             function draw() {
-                // BG
                 ctx.fillStyle = '#0f172a';
                 ctx.fillRect(0,0,400,400);
-
-                // Grid (Subtle)
                 ctx.strokeStyle = '#1e293b';
                 ctx.lineWidth = 1;
                 for(let i=0; i<tileCount; i++) {
                     ctx.beginPath(); ctx.moveTo(i*gridSize,0); ctx.lineTo(i*gridSize,400); ctx.stroke();
                     ctx.beginPath(); ctx.moveTo(0,i*gridSize); ctx.lineTo(400,i*gridSize); ctx.stroke();
                 }
-
-                // Snake
-                ctx.fillStyle = '#10b981'; // Emerald
+                ctx.fillStyle = '#10b981';
                 ctx.shadowColor = '#10b981';
                 ctx.shadowBlur = 10;
                 for(let i=0; i<snake.length; i++) {
-                    // Head is slightly different
                     if(i===0) ctx.fillStyle = '#34d399';
                     else ctx.fillStyle = '#10b981';
-                    
                     ctx.fillRect(snake[i].x*gridSize + 1, snake[i].y*gridSize + 1, gridSize-2, gridSize-2);
                 }
                 ctx.shadowBlur = 0;
-
-                // Food
-                ctx.fillStyle = '#ef4444'; // Red
+                ctx.fillStyle = '#ef4444';
                 ctx.beginPath();
                 ctx.arc(food.x*gridSize + gridSize/2, food.y*gridSize + gridSize/2, gridSize/3, 0, Math.PI*2);
                 ctx.fill();
@@ -796,7 +983,6 @@
                     board[index] = currentPlayer;
                     cell.textContent = currentPlayer;
                     cell.classList.add(currentPlayer === 'X' ? 'text-indigo-400' : 'text-pink-400');
-                    
                     if(checkWin()) {
                         gameActive = false;
                         setTimeout(() => endTTT(false), 500);
@@ -805,10 +991,7 @@
                         setTimeout(() => endTTT(true), 500);
                     } else {
                         currentPlayer = currentPlayer === 'X' ? 'O' : 'X';
-                        if(currentPlayer === 'O') {
-                            // Simple AI
-                            setTimeout(aiMove, 300);
-                        }
+                        if(currentPlayer === 'O') setTimeout(aiMove, 300);
                     }
                 }
             }
@@ -822,7 +1005,6 @@
                     const cells = tttBoard.children;
                     cells[move].textContent = 'O';
                     cells[move].classList.add('text-pink-400');
-                    
                     if(checkWin()) {
                         gameActive = false;
                         setTimeout(() => endTTT(false), 500);
@@ -858,11 +1040,9 @@
 
         // --- REFLEX TESTER LOGIC ---
         function startReflex() {
-            let state = 'waiting'; // waiting, ready, clicked
+            let state = 'waiting'; 
             let startTime = 0;
-            
-            // Draw initial Red state
-            ctx.fillStyle = '#ef4444'; // Red
+            ctx.fillStyle = '#ef4444';
             ctx.fillRect(0,0,400,400);
             ctx.fillStyle = 'white';
             ctx.font = 'bold 30px Arial';
@@ -870,12 +1050,11 @@
             ctx.fillText("WAIT FOR GREEN...", 200, 200);
 
             const randomDelay = 2000 + Math.random() * 3000;
-            
             const timeout = setTimeout(() => {
                 if(activeGame !== 'reflex') return;
                 state = 'ready';
                 startTime = Date.now();
-                ctx.fillStyle = '#10b981'; // Green
+                ctx.fillStyle = '#10b981';
                 ctx.fillRect(0,0,400,400);
                 ctx.fillStyle = 'white';
                 ctx.fillText("CLICK NOW!", 200, 200);
@@ -892,7 +1071,6 @@
                 canvas.removeEventListener('mousedown', clickHandler);
                 canvas.removeEventListener('touchstart', clickHandler);
             };
-
             canvas.addEventListener('mousedown', clickHandler);
             canvas.addEventListener('touchstart', clickHandler);
 
@@ -904,9 +1082,510 @@
                 startBtn.innerHTML = "TRY AGAIN";
             }
         }
-    </script>
 
-    <!-- FIREBASE MODULE -->
+        // --- NEON BREAKER LOGIC ---
+        function startBreaker() {
+            let paddleH = 10, paddleW = 75, paddleX = (canvas.width-paddleW)/2;
+            let rightPressed = false, leftPressed = false;
+            let ballRadius = 8;
+            let x = canvas.width/2, y = canvas.height-30;
+            let dx = 3, dy = -3;
+            let brickRowCount = 5, brickColumnCount = 6;
+            let brickWidth = 55, brickHeight = 20, brickPadding = 10;
+            let brickOffsetTop = 30, brickOffsetLeft = 10;
+            let score = 0;
+
+            let bricks = [];
+            for(let c=0; c<brickColumnCount; c++) {
+                bricks[c] = [];
+                for(let r=0; r<brickRowCount; r++) {
+                    bricks[c][r] = { x: 0, y: 0, status: 1 };
+                }
+            }
+
+            document.addEventListener("keydown", keyDownHandler, false);
+            document.addEventListener("keyup", keyUpHandler, false);
+
+            function keyDownHandler(e) {
+                if(e.key == "Right" || e.key == "ArrowRight") rightPressed = true;
+                else if(e.key == "Left" || e.key == "ArrowLeft") leftPressed = true;
+            }
+            function keyUpHandler(e) {
+                if(e.key == "Right" || e.key == "ArrowRight") rightPressed = false;
+                else if(e.key == "Left" || e.key == "ArrowLeft") leftPressed = false;
+            }
+            canvas.addEventListener('touchmove', e => {
+                e.preventDefault();
+                let touchX = e.touches[0].clientX - canvas.getBoundingClientRect().left;
+                paddleX = touchX - paddleW/2;
+            }, {passive: false});
+
+            function collisionDetection() {
+                for(let c=0; c<brickColumnCount; c++) {
+                    for(let r=0; r<brickRowCount; r++) {
+                        let b = bricks[c][r];
+                        if(b.status == 1) {
+                            if(x > b.x && x < b.x+brickWidth && y > b.y && y < b.y+brickHeight) {
+                                dy = -dy;
+                                b.status = 0;
+                                score++;
+                                if(score == brickRowCount*brickColumnCount) endGame("YOU WIN!", false);
+                            }
+                        }
+                    }
+                }
+            }
+
+            function draw() {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                ctx.fillStyle = '#0f172a';
+                ctx.fillRect(0,0,canvas.width,canvas.height);
+
+                for(let c=0; c<brickColumnCount; c++) {
+                    for(let r=0; r<brickRowCount; r++) {
+                        if(bricks[c][r].status == 1) {
+                            let brickX = (c*(brickWidth+brickPadding))+brickOffsetLeft;
+                            let brickY = (r*(brickHeight+brickPadding))+brickOffsetTop;
+                            bricks[c][r].x = brickX;
+                            bricks[c][r].y = brickY;
+                            ctx.beginPath();
+                            ctx.rect(brickX, brickY, brickWidth, brickHeight);
+                            ctx.fillStyle = `hsl(${c*60}, 70%, 60%)`;
+                            ctx.fill();
+                            ctx.closePath();
+                        }
+                    }
+                }
+                ctx.beginPath();
+                ctx.arc(x, y, ballRadius, 0, Math.PI*2);
+                ctx.fillStyle = "#ffffff";
+                ctx.fill();
+                ctx.closePath();
+                ctx.beginPath();
+                ctx.rect(paddleX, canvas.height-paddleH-5, paddleW, paddleH);
+                ctx.fillStyle = "#3b82f6";
+                ctx.fill();
+                ctx.closePath();
+                ctx.font = "16px Arial";
+                ctx.fillStyle = "#ffffff";
+                ctx.fillText("Score: "+score, 8, 20);
+
+                collisionDetection();
+
+                if(x + dx > canvas.width-ballRadius || x + dx < ballRadius) dx = -dx;
+                if(y + dy < ballRadius) dy = -dy;
+                else if(y + dy > canvas.height-ballRadius-10) {
+                    if(x > paddleX && x < paddleX + paddleW) dy = -dy;
+                    else {
+                        endGame("GAME OVER", true);
+                        return;
+                    }
+                }
+
+                if(rightPressed && paddleX < canvas.width-paddleW) paddleX += 5;
+                else if(leftPressed && paddleX > 0) paddleX -= 5;
+
+                x += dx;
+                y += dy;
+                gameInterval = requestAnimationFrame(draw);
+            }
+
+            function endGame(msg, bad) {
+                cancelAnimationFrame(gameInterval);
+                document.removeEventListener("keydown", keyDownHandler);
+                document.removeEventListener("keyup", keyUpHandler);
+                uiLayer.classList.remove('hidden');
+                statusTitle.textContent = msg;
+                statusTitle.className = bad ? "text-4xl font-black text-red-500 mb-2" : "text-4xl font-black text-green-500 mb-2";
+                statusDesc.textContent = `Final Score: ${score}`;
+                startBtn.innerHTML = "RETRY";
+            }
+            draw();
+        }
+
+        // --- MEMORY MATCH LOGIC ---
+        function initMemoryMatch(playable) {
+            memoryBoard.innerHTML = '';
+            const icons = ['fa-ghost', 'fa-gamepad', 'fa-heart', 'fa-bolt', 'fa-star', 'fa-bomb', 'fa-robot', 'fa-dragon'];
+            const cards = [...icons, ...icons];
+            for (let i = cards.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [cards[i], cards[j]] = [cards[j], cards[i]];
+            }
+
+            let flippedCards = [];
+            let matchedPairs = 0;
+            let locked = false;
+
+            cards.forEach((icon, index) => {
+                const card = document.createElement('div');
+                card.className = 'bg-slate-700/50 rounded-lg flex items-center justify-center text-3xl transition-all duration-300 transform perspective-1000 h-full w-full aspect-square border-2 border-slate-600 cursor-pointer hover:bg-slate-600';
+                card.innerHTML = `<i class="fa-solid fa-question text-slate-500"></i>`;
+                card.dataset.icon = icon;
+                
+                if (playable) {
+                    card.addEventListener('click', () => {
+                        if(locked || card.classList.contains('flipped') || card.classList.contains('matched')) return;
+                        card.classList.add('flipped', 'bg-indigo-600', 'border-indigo-400');
+                        card.classList.remove('bg-slate-700/50', 'border-slate-600');
+                        card.innerHTML = `<i class="fa-solid ${icon} text-white animate-bounce"></i>`;
+                        flippedCards.push(card);
+
+                        if(flippedCards.length === 2) {
+                            locked = true;
+                            checkForMatch();
+                        }
+                    });
+                }
+                memoryBoard.appendChild(card);
+            });
+
+            function checkForMatch() {
+                const [c1, c2] = flippedCards;
+                if(c1.dataset.icon === c2.dataset.icon) {
+                    c1.classList.add('matched', 'bg-emerald-600', 'border-emerald-400');
+                    c2.classList.add('matched', 'bg-emerald-600', 'border-emerald-400');
+                    matchedPairs++;
+                    flippedCards = [];
+                    locked = false;
+                    if(matchedPairs === 8) {
+                        setTimeout(() => {
+                            uiLayer.classList.remove('hidden');
+                            statusTitle.textContent = "COMPLETED!";
+                            statusTitle.className = "text-4xl font-black text-emerald-400 mb-2";
+                            statusDesc.textContent = "Memory updated.";
+                            startBtn.innerHTML = "PLAY AGAIN";
+                        }, 500);
+                    }
+                } else {
+                    setTimeout(() => {
+                        c1.classList.remove('flipped', 'bg-indigo-600', 'border-indigo-400');
+                        c1.classList.add('bg-slate-700/50', 'border-slate-600');
+                        c1.innerHTML = `<i class="fa-solid fa-question text-slate-500"></i>`;
+                        c2.classList.remove('flipped', 'bg-indigo-600', 'border-indigo-400');
+                        c2.classList.add('bg-slate-700/50', 'border-slate-600');
+                        c2.innerHTML = `<i class="fa-solid fa-question text-slate-500"></i>`;
+                        flippedCards = [];
+                        locked = false;
+                    }, 1000);
+                }
+            }
+        }
+
+        // --- HIGH-LOW LOGIC ---
+        function initHighLow(playable) {
+            let deck = [], score = 0, currentCard = null;
+            const suits = ['♥','♦','♣','♠'];
+            const values = [2,3,4,5,6,7,8,9,10,11,12,13,14]; // 11=J, 12=Q, 13=K, 14=A
+            
+            function createDeck() {
+                deck = [];
+                for(let s of suits) {
+                    for(let v of values) {
+                        let display = v;
+                        if(v==11) display='J'; if(v==12) display='Q'; if(v==13) display='K'; if(v==14) display='A';
+                        let color = (s=='♥'||s=='♦') ? 'text-red-500' : 'text-black';
+                        deck.push({ val: v, display: display, suit: s, color: color });
+                    }
+                }
+                for (let i = deck.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                   
+                    [deck[i], deck[j]] = [deck[j], deck[i]];
+                }
+            }
+
+            function drawCard() {
+                if(deck.length === 0) createDeck();
+                return deck.pop();
+            }
+
+            function updateUI() {
+                const disp = document.getElementById('hl-card-display');
+                disp.innerHTML = `<div class="${currentCard.color} flex flex-col items-center"><span>${currentCard.display}</span><span class="text-6xl">${currentCard.suit}</span></div>`;
+                document.getElementById('hl-score').textContent = score;
+            }
+
+            function handleGuess(isHigher) {
+                if(!playable) return;
+                const nextCard = drawCard();
+                let win = false;
+                if(isHigher && nextCard.val >= currentCard.val) win = true;
+                if(!isHigher && nextCard.val <= currentCard.val) win = true;
+
+                currentCard = nextCard;
+                updateUI();
+
+                if(win) {
+                    score++;
+                    document.getElementById('hl-score').textContent = score;
+                } else {
+                    playable = false;
+                    setTimeout(() => {
+                        uiLayer.classList.remove('hidden');
+                        statusTitle.textContent = "GAME OVER";
+                        statusTitle.className = "text-4xl font-black text-red-500 mb-2";
+                        statusDesc.textContent = `Streak: ${score}`;
+                        startBtn.innerHTML = "RETRY";
+                    }, 800);
+                }
+            }
+
+            createDeck();
+            currentCard = drawCard();
+            if(playable) updateUI();
+            else {
+                document.getElementById('hl-card-display').innerHTML = `<div class="text-red-500 flex flex-col items-center"><span>A</span><span class="text-6xl">♥</span></div>`;
+            }
+
+            // Cleanup old listeners to prevent stacking
+            const btnHigh = document.getElementById('hl-higher');
+            const btnLow = document.getElementById('hl-lower');
+            const newHigh = btnHigh.cloneNode(true);
+            const newLow = btnLow.cloneNode(true);
+            btnHigh.parentNode.replaceChild(newHigh, btnHigh);
+            btnLow.parentNode.replaceChild(newLow, btnLow);
+
+            if(playable) {
+                newHigh.addEventListener('click', () => handleGuess(true));
+                newLow.addEventListener('click', () => handleGuess(false));
+            }
+        }
+
+        // --- SOLITAIRE LOGIC ---
+        function initSolitaire() {
+            let deck = [], tableau = [[],[],[],[],[],[],[]], foundations = [[],[],[],[]], stock = [], talon = [];
+            let selectedCard = null;
+
+            const suits = ['♥','♦','♣','♠']; // R, R, B, B
+            const values = [1,2,3,4,5,6,7,8,9,10,11,12,13]; 
+
+            function createDeck() {
+                deck = [];
+                for(let s of suits) {
+                    for(let v of values) {
+                        let display = v;
+                        if(v==1) display='A'; if(v==11) display='J'; if(v==12) display='Q'; if(v==13) display='K';
+                        let color = (s=='♥'||s=='♦') ? 'red' : 'black';
+                        deck.push({ val: v, display: display, suit: s, color: color, id: Math.random().toString(36).substr(2, 9), faceUp: false });
+                    }
+                }
+                for (let i = deck.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [deck[i], deck[j]] = [deck[j], deck[i]];
+                }
+            }
+
+            function deal() {
+                createDeck();
+                for(let i=0; i<7; i++) {
+                    for(let j=0; j<=i; j++) {
+                        let card = deck.pop();
+                        if(j===i) card.faceUp = true;
+                        tableau[i].push(card);
+                    }
+                }
+                stock = deck;
+                render();
+            }
+
+            function getCardHTML(card) {
+                if(!card) return '';
+                if(!card.faceUp) return `<div class="playing-card w-full h-24 bg-blue-800 border-2 border-white rounded-md flex items-center justify-center"><i class="fa-solid fa-gamepad text-blue-900 opacity-50"></i></div>`;
+                const isSel = selectedCard && selectedCard.id === card.id ? 'selected' : '';
+                return `<div class="playing-card ${card.color} ${isSel} w-full h-24 flex flex-col items-center justify-center text-xl font-bold cursor-pointer" onclick="solCardClick('${card.id}')">
+                    <span class="text-xs absolute top-1 left-1">${card.display}</span>
+                    <span class="text-2xl">${card.suit}</span>
+                </div>`;
+            }
+
+            function render() {
+                // Stock/Talon
+                const talonHTML = talon.length > 0 ? getCardHTML({...talon[talon.length-1], faceUp: true}) : '';
+                document.getElementById('sol-talon').innerHTML = talonHTML;
+
+                // Foundations
+                for(let i=0; i<4; i++) {
+                    const fd = foundations[i];
+                    const el = document.querySelector(`[data-type="foundation"][data-id="${i}"]`);
+                    if(fd.length > 0) el.innerHTML = getCardHTML(fd[fd.length-1]);
+                    else el.innerHTML = `<i class="fa-solid fa-${['heart','diamond','clover','spa'][i]} opacity-20"></i>`;
+                }
+
+                // Tableau
+                const tabEl = document.getElementById('sol-tableau');
+                tabEl.innerHTML = '';
+                tableau.forEach((col, cIdx) => {
+                    const colDiv = document.createElement('div');
+                    colDiv.className = 'flex-1 mx-1 flex flex-col relative min-h-[200px] cursor-pointer';
+                    colDiv.onclick = (e) => { if(e.target === colDiv) solColumnClick(cIdx); };
+                    
+                    col.forEach((card, rIdx) => {
+                        const cardDiv = document.createElement('div');
+                        cardDiv.style.position = 'absolute';
+                        cardDiv.style.top = (rIdx * 25) + 'px';
+                        cardDiv.style.width = '100%';
+                        cardDiv.innerHTML = getCardHTML(card);
+                        colDiv.appendChild(cardDiv);
+                    });
+                    tabEl.appendChild(colDiv);
+                });
+            }
+
+            window.solCardClick = (id) => {
+                // Find card
+                let loc = findCard(id);
+                if(!loc) return;
+                
+                // If in Talon
+                if(loc.place === 'talon') {
+                    handleSelection(loc.card, 'talon');
+                    return;
+                }
+                // If in Tableau
+                if(loc.place === 'tableau') {
+                    // Only face up can be selected
+                    if(loc.card.faceUp) handleSelection(loc.card, 'tableau', loc.colIdx);
+                    else if(loc.isLast) {
+                        // Flip if last
+                         loc.card.faceUp = true;
+                         render();
+                    }
+                }
+            };
+
+            window.solColumnClick = (colIdx) => {
+                if(selectedCard) {
+                    tryMove(selectedCard, 'tableau', colIdx);
+                }
+            };
+
+            document.getElementById('sol-stock').onclick = () => {
+                if(stock.length > 0) {
+                    let c = stock.pop();
+                    c.faceUp = true;
+                    talon.push(c);
+                } else {
+                    stock = talon.reverse();
+                    talon = [];
+                    stock.forEach(c => c.faceUp = false);
+                }
+                selectedCard = null;
+                render();
+            };
+
+            function findCard(id) {
+                if(talon.length && talon[talon.length-1].id === id) return {place: 'talon', card: talon[talon.length-1]};
+                for(let i=0; i<7; i++) {
+                    let col = tableau[i];
+                    for(let j=0; j<col.length; j++) {
+                        if(col[j].id === id) return {place: 'tableau', colIdx: i, rowIdx: j, card: col[j], isLast: j===col.length-1};
+                    }
+                }
+                return null;
+            }
+
+            function handleSelection(card, place, colIdx) {
+                // If already selected, deselect
+                if(selectedCard && selectedCard.id === card.id) {
+                    selectedCard = null;
+                    render();
+                    return;
+                }
+
+                // If another selected, try to move to this card
+                if(selectedCard) {
+                    if(place === 'tableau') tryMove(selectedCard, 'tableau', colIdx);
+                    // Cannot move TO talon
+                    return;
+                }
+
+                // Select logic
+                // Try auto move to foundation first
+                if(tryAutoFoundation(card, place, colIdx)) return;
+
+                // Else select it
+                selectedCard = card;
+                render();
+            }
+
+            function tryAutoFoundation(card, place, colIdx) {
+                for(let i=0; i<4; i++) {
+                    let fd = foundations[i];
+                    // Empty foundation needs Ace
+                    if(fd.length === 0) {
+                        if(card.val === 1) {
+                            doMove(card, place, colIdx, 'foundation', i);
+                            return true;
+                        }
+                    } else {
+                        // Needs same suit, +1 value
+                        let top = fd[fd.length-1];
+                        if(top.suit === card.suit && card.val === top.val + 1) {
+                            doMove(card, place, colIdx, 'foundation', i);
+                            return true;
+                        }
+                    }
+                }
+                return false;
+            }
+
+            function tryMove(card, toPlace, toIdx) {
+                if(toPlace === 'tableau') {
+                    let destCol = tableau[toIdx];
+                    // If empty, only King
+                    if(destCol.length === 0) {
+                        if(card.val === 13) doMove(card, findCard(card.id).place, findCard(card.id).colIdx, 'tableau', toIdx);
+                    } else {
+                        let top = destCol[destCol.length-1];
+                        // Opp color, -1 value
+                        if(top.color !== card.color && top.val === card.val + 1) {
+                            doMove(card, findCard(card.id).place, findCard(card.id).colIdx, 'tableau', toIdx);
+                        }
+                    }
+                }
+                selectedCard = null;
+                render();
+            }
+
+            function doMove(card, fromPlace, fromIdx, toPlace, toIdx) {
+                // Remove from Source
+                let movingCards = [];
+                if(fromPlace === 'talon') {
+                    movingCards.push(talon.pop());
+                } else if (fromPlace === 'tableau') {
+                    let col = tableau[fromIdx];
+                    let cIdx = col.findIndex(c => c.id === card.id);
+                    movingCards = col.splice(cIdx);
+                    // Flip new top
+                    if(col.length > 0) col[col.length-1].faceUp = true;
+                }
+
+                // Add to Dest
+                if(toPlace === 'foundation') {
+                    foundations[toIdx].push(movingCards[0]);
+                    // Check Win
+                    if(foundations.every(f => f.length === 13)) {
+                        setTimeout(() => {
+                            uiLayer.classList.remove('hidden');
+                            statusTitle.textContent = "YOU WIN!";
+                            statusTitle.className = "text-4xl font-black text-green-500 mb-2";
+                            statusDesc.textContent = "All suits completed.";
+                            startBtn.innerHTML = "PLAY AGAIN";
+                        }, 500);
+                    }
+                } else if (toPlace === 'tableau') {
+                    tableau[toIdx] = tableau[toIdx].concat(movingCards);
+                }
+                selectedCard = null;
+                render();
+            }
+
+            deal();
+        }
+
+        // --- FIREBASE (Preserved) ---
+    </script>
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js";
         import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-database.js";
@@ -948,13 +1627,11 @@
             "maintenance": { bg: "bg-yellow-500/10 border-yellow-500/20", icon: "fa-screwdriver-wrench text-yellow-500", label: "Maintenance" }
         };
 
-        // SCROLLING TEXT
         onValue(ref(db, "scrolling_text/value"), snap => {
             const text = snap.val() || "Welcome to Nexus Hub!";
             marqueeEl.textContent = text;
         });
 
-        // PINNED
         onValue(ref(db, "pinned"), snap => {
             const data = snap.val();
             if (!data) {
@@ -969,7 +1646,6 @@
             pinnedEl.classList.remove("hidden");
         });
 
-        // LIST
         onValue(ref(db, "announcements"), snap => {
             const data = snap.val();
             listEl.innerHTML = "";
