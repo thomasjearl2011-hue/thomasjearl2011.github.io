@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>You like making websites, don't you?</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Quicksand', sans-serif;
+            background-color: #fdf2f8; /* pink-50 */
+            cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="%23db2777" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg>') 12 12, auto;
+        }
+        
+        /* Custom Animations */
+        @keyframes bounce-slow {
+            0%, 100% { transform: translateY(-5%); }
+            50% { transform: translateY(5%); }
+        }
+        .animate-bounce-slow {
+            animation: bounce-slow 3s infinite ease-in-out;
+        }
+        
+        @keyframes wiggle {
+            0%, 100% { transform: rotate(-3deg); }
+            50% { transform: rotate(3deg); }
+        }
+        .animate-wiggle {
+            animation: wiggle 2s infinite ease-in-out;
+        }
+
+        .cat-face {
+            transition: transform 0.2s;
+        }
+        .cat-face:hover {
+            transform: scale(1.05);
+        }
+        .eye-left, .eye-right {
+            transform-origin: center;
+            animation: blink 4s infinite;
+        }
+        @keyframes blink {
+            0%, 96%, 100% { transform: scaleY(1); }
+            98% { transform: scaleY(0.1); }
+        }
+        
+        .confetti {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            background-color: #f472b6;
+            animation: fall linear forwards;
+        }
+        @keyframes fall {
+            to { transform: translateY(100vh) rotate(720deg); }
+        }
+    </style>
+</head>
+<body class="text-gray-800 overflow-x-hidden">
+
+    <!-- Navbar -->
+    <nav class="bg-white/80 backdrop-blur-md sticky top-0 z-50 border-b-4 border-pink-200">
+        <div class="container mx-auto px-4 py-3 flex justify-between items-center">
+            <div class="flex items-center gap-2">
+                <span class="text-2xl">😺</span>
+                <span class="font-bold text-xl text-pink-600 tracking-tight">The Silly Zone</span>
+            </div>
+            <div class="hidden md:flex gap-6 font-semibold text-pink-500">
+                <a href="#home" class="hover:text-pink-700 transition">Home</a>
+                <a href="#about" class="hover:text-pink-700 transition">Lore</a>
+                <a href="#gallery" class="hover:text-pink-700 transition">Memes</a>
+                <a href="#quiz" class="hover:text-pink-700 transition">Quiz</a>
+            </div>
+            <button onclick="playMeow()" class="bg-pink-400 hover:bg-pink-500 text-white px-4 py-2 rounded-full font-bold transition transform hover:scale-105 shadow-md">
+                Meow! 🔊
+            </button>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section id="home" class="min-h-screen flex flex-col items-center justify-center relative overflow-hidden pt-10">
+        <!-- Background Blobs -->
+        <div class="absolute top-20 left-10 w-32 h-32 bg-pink-300 rounded-full blur-3xl opacity-30 animate-bounce-slow"></div>
+        <div class="absolute bottom-20 right-10 w-48 h-48 bg-purple-300 rounded-full blur-3xl opacity-30 animate-pulse"></div>
+
+        <div class="text-center z-10 max-w-2xl px-4">
+            <h1 class="text-4xl md:text-6xl font-bold text-pink-600 mb-4 drop-shadow-sm leading-tight">
+                You like visiting websites,<br>don't you?
+            </h1>
+            <p class="text-xl text-pink-400 font-semibold mb-8">You're a website visitor.</p>
+
+            <!-- SVG Character (Recreation of the meme) -->
+            <div class="w-64 h-64 mx-auto mb-8 relative cursor-pointer cat-face" onclick="patHead()">
+                <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg" class="w-full h-full filter drop-shadow-xl">
+                    <!-- Head -->
+                    <circle cx="100" cy="100" r="90" fill="white" stroke="#e5e7eb" stroke-width="4"/>
+                    
+                    <!-- Ears -->
+                    <path d="M35 50 L10 10 L60 30 Z" fill="white" stroke="#e5e7eb" stroke-width="4"/>
+                    <path d="M35 45 L20 20 L55 35 Z" fill="#fbcfe8"/> <!-- Inner Ear Left -->
+                    
+                    <path d="M165 50 L190 10 L140 30 Z" fill="white" stroke="#e5e7eb" stroke-width="4"/>
+                    <path d="M165 45 L180 20 L145 35 Z" fill="#fbcfe8"/> <!-- Inner Ear Right -->
+
+                    <!-- Eyes (Smug) -->
+                    <path class="eye-left" d="M60 90 Q80 80 100 90" fill="none" stroke="#1f2937" stroke-width="5" stroke-linecap="round"/>
+                    <path class="eye-right" d="M120 90 Q140 80 160 90" fill="none" stroke="#1f2937" stroke-width="5" stroke-linecap="round"/>
+
+                    <!-- Blush -->
+                    <ellipse cx="50" cy="120" rx="15" ry="8" fill="#fbcfe8" opacity="0.6"/>
+                    <ellipse cx="150" cy="120" rx="15" ry="8" fill="#fbcfe8" opacity="0.6"/>
+
+                    <!-- Mouth (:3) -->
+                    <path d="M85 130 Q100 145 115 130" fill="none" stroke="#1f2937" stroke-width="5" stroke-linecap="round"/>
+                    <path d="M85 130 Q70 145 85 150" fill="none" stroke="#1f2937" stroke-width="5" stroke-linecap="round"/>
+                    <path d="M115 130 Q130 145 115 150" fill="none" stroke="#1f2937" stroke-width="5" stroke-linecap="round"/>
+                </svg>
+                
+                <!-- Hand for petting (Hidden by default) -->
+                <div id="pet-hand" class="absolute -top-10 left-1/2 transform -translate-x-1/2 text-6xl transition-opacity opacity-0 duration-200 pointer-events-none">
+                    👋
+                </div>
+            </div>
+
+            <!-- Stats Box -->
+            <div class="bg-white p-6 rounded-2xl shadow-lg border-2 border-pink-100 max-w-sm mx-auto transform hover:-translate-y-1 transition">
+                <p class="text-gray-500 text-sm font-bold uppercase tracking-wider mb-2">Global Headpats</p>
+                <div class="flex items-center justify-center gap-3">
+                    <span class="text-4xl">💆</span>
+                    <span id="pat-counter" class="text-4xl font-black text-pink-500 font-mono">0</span>
+                </div>
+                <button onclick="patHead()" class="mt-4 w-full bg-pink-100 hover:bg-pink-200 text-pink-600 font-bold py-2 rounded-xl transition active:scale-95 select-none">
+                    Give Headpat
+                </button>
+            </div>
+        </div>
+        
+        <div class="absolute bottom-10 animate-bounce">
+            <span class="text-pink-300 text-2xl">↓</span>
+        </div>
+    </section>
+
+    <!-- Lore Section -->
+    <section id="about" class="py-20 bg-white">
+        <div class="container mx-auto px-4">
+            <div class="flex flex-col md:flex-row items-center gap-12">
+                <div class="md:w-1/2 text-center md:text-right space-y-4 order-2 md:order-1">
+                    <h2 class="text-3xl font-bold text-gray-800">The Lore</h2>
+                    <p class="text-lg text-gray-600 leading-relaxed">
+                        Originally appearing as a simple doodle, this silly creature has taken over the internet. 
+                        Known for asking very specific questions and having an incredibly smug aura, 
+                        the Boykisser (or Silly Cat) represents the mischievous spirit in all of us.
+                    </p>
+                    <div class="flex gap-4 justify-center md:justify-end">
+                        <span class="bg-blue-100 text-blue-600 px-3 py-1 rounded-full text-sm font-bold">#Silly</span>
+                        <span class="bg-purple-100 text-purple-600 px-3 py-1 rounded-full text-sm font-bold">#Cat</span>
+                        <span class="bg-pink-100 text-pink-600 px-3 py-1 rounded-full text-sm font-bold">#Meme</span>
+                    </div>
+                </div>
+                <div class="md:w-1/2 flex justify-center order-1 md:order-2">
+                    <div class="bg-pink-50 p-8 rounded-full animate-wiggle border-4 border-dashed border-pink-200">
+                        <span class="text-9xl">😺</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Gallery Grid -->
+    <section id="gallery" class="py-20 bg-pink-50">
+        <div class="container mx-auto px-4">
+            <h2 class="text-3xl font-bold text-center text-pink-600 mb-12">The Hall of Silliness</h2>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <!-- Card 1 -->
+                <div class="bg-white p-4 rounded-xl shadow-md hover:shadow-xl transition transform hover:-translate-y-2 border border-pink-100">
+                    <div class="h-48 bg-gray-100 rounded-lg mb-4 flex items-center justify-center overflow-hidden relative group">
+                        <span class="text-6xl group-hover:scale-110 transition duration-300">🥬</span>
+                        <div class="absolute inset-0 bg-black/5 flex items-center justify-center opacity-0 group-hover:opacity-100 transition">
+                            <span class="text-xs font-bold bg-white px-2 py-1 rounded">Meme #1</span>
+                        </div>
+                    </div>
+                    <h3 class="font-bold text-lg text-gray-800">The Lettuce Cat</h3>
+                    <p class="text-gray-500 text-sm">Crunchy.</p>
+                </div>
+                
+                <!-- Card 2 -->
+                <div class="bg-white p-4 rounded-xl shadow-md hover:shadow-xl transition transform hover:-translate-y-2 border border-pink-100">
+                    <div class="h-48 bg-gray-100 rounded-lg mb-4 flex items-center justify-center overflow-hidden relative group">
+                        <span class="text-6xl group-hover:scale-110 transition duration-300">🥤</span>
+                    </div>
+                    <h3 class="font-bold text-lg text-gray-800">Silly Soda</h3>
+                    <p class="text-gray-500 text-sm">Slurp.</p>
+                </div>
+                
+                <!-- Card 3 -->
+                <div class="bg-white p-4 rounded-xl shadow-md hover:shadow-xl transition transform hover:-translate-y-2 border border-pink-100">
+                    <div class="h-48 bg-gray-100 rounded-lg mb-4 flex items-center justify-center overflow-hidden relative group">
+                        <span class="text-6xl group-hover:scale-110 transition duration-300">💤</span>
+                    </div>
+                    <h3 class="font-bold text-lg text-gray-800">Eepy Time</h3>
+                    <p class="text-gray-500 text-sm">Honk shoo.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Quiz Section -->
+    <section id="quiz" class="py-20 bg-white">
+        <div class="container mx-auto px-4 max-w-2xl">
+            <div class="bg-gradient-to-br from-pink-100 to-purple-100 rounded-3xl p-8 shadow-inner border-2 border-white text-center">
+                <h2 class="text-3xl font-bold text-gray-800 mb-2">Am I a Silly Boykisser?</h2>
+                <p class="text-gray-600 mb-8">Take the highly scientific test.</p>
+                
+                <div id="quiz-container">
+                    <div class="space-y-4">
+                        <button onclick="checkAnswer(true)" class="w-full bg-white hover:bg-pink-50 text-gray-700 font-bold py-4 px-6 rounded-xl shadow-sm transition transform hover:scale-102 border border-gray-100 text-left flex justify-between items-center group">
+                            <span>1. Do you use ":3" in daily conversation?</span>
+                            <span class="opacity-0 group-hover:opacity-100 transition">👉</span>
+                        </button>
+                        <button onclick="checkAnswer(true)" class="w-full bg-white hover:bg-pink-50 text-gray-700 font-bold py-4 px-6 rounded-xl shadow-sm transition transform hover:scale-102 border border-gray-100 text-left flex justify-between items-center group">
+                            <span>2. Is Monster Energy a food group?</span>
+                            <span class="opacity-0 group-hover:opacity-100 transition">👉</span>
+                        </button>
+                        <button onclick="checkAnswer(false)" class="w-full bg-white hover:bg-pink-50 text-gray-700 font-bold py-4 px-6 rounded-xl shadow-sm transition transform hover:scale-102 border border-gray-100 text-left flex justify-between items-center group">
+                            <span>3. I hate fun and silliness.</span>
+                            <span class="opacity-0 group-hover:opacity-100 transition">👉</span>
+                        </button>
+                    </div>
+                </div>
+
+                <div id="quiz-result" class="hidden mt-6 animate-bounce">
+                    <h3 class="text-2xl font-bold text-pink-600">Diagnosis: 100% SILLY!</h3>
+                    <p class="text-gray-600">Welcome to the club. Grab a hoodie.</p>
+                    <button onclick="resetQuiz()" class="mt-4 text-sm text-gray-400 underline hover:text-gray-600">Retake Test</button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-pink-900 text-pink-200 py-8 text-center">
+        <div class="container mx-auto px-4">
+            <p class="mb-2">Made with <span class="text-pink-400">♥</span> and too much caffeine.</p>
+            <p class="text-xs opacity-50">This is a fan parody site. All memes belong to the internet.</p>
+        </div>
+    </footer>
+
+    <script>
+        // --- Interactivity Logic ---
+
+        // 1. Headpat Logic
+        let pats = 0;
+        const patCounter = document.getElementById('pat-counter');
+        const petHand = document.getElementById('pet-hand');
+
+        function patHead() {
+            pats++;
+            patCounter.innerText = pats.toLocaleString();
+            
+            // Show hand emoji briefly
+            petHand.style.opacity = '1';
+            petHand.style.top = '10%'; // Move down slightly
+            
+            setTimeout(() => {
+                petHand.style.opacity = '0';
+                petHand.style.top = '-40px'; // Reset position
+            }, 200);
+
+            // Confetti effect every 10 pats
+            if (pats % 10 === 0) {
+                spawnConfetti();
+            }
+        }
+
+        // 2. Sound Logic (Simulated)
+        function playMeow() {
+            // In a real app, this would be new Audio('meow.mp3').play();
+            // Since we don't have files, we'll visual cue it.
+            const button = document.querySelector('nav button');
+            const originalText = button.innerText;
+            
+            button.innerText = "Meow! 🎵";
+            button.classList.add('bg-purple-500');
+            
+            // Create a temporary floating "Meow"
+            const floaty = document.createElement('div');
+            floaty.innerText = "MEOW!";
+            floaty.style.position = 'fixed';
+            floaty.style.left = '50%';
+            floaty.style.top = '50%';
+            floaty.style.transform = 'translate(-50%, -50%)';
+            floaty.style.fontSize = '3rem';
+            floaty.style.fontWeight = 'bold';
+            floaty.style.color = '#db2777';
+            floaty.style.zIndex = '100';
+            floaty.style.pointerEvents = 'none';
+            floaty.className = 'animate-ping';
+            document.body.appendChild(floaty);
+
+            setTimeout(() => {
+                button.innerText = originalText;
+                button.classList.remove('bg-purple-500');
+                floaty.remove();
+            }, 1000);
+        }
+
+        // 3. Quiz Logic
+        function checkAnswer(isSilly) {
+            const container = document.getElementById('quiz-container');
+            const result = document.getElementById('quiz-result');
+            
+            // Hide questions, show result
+            container.style.display = 'none';
+            result.classList.remove('hidden');
+
+            const title = result.querySelector('h3');
+            const desc = result.querySelector('p');
+
+            if (isSilly) {
+                title.innerText = "Diagnosis: CERTIFIED BOYKISSER";
+                title.className = "text-2xl font-bold text-pink-600";
+                desc.innerText = "There is no cure. You must now wear striped socks.";
+                spawnConfetti();
+            } else {
+                title.innerText = "Diagnosis: BOOOORING";
+                title.className = "text-2xl font-bold text-gray-500";
+                desc.innerText = "Try being a little sillier next time.";
+            }
+        }
+
+        function resetQuiz() {
+            document.getElementById('quiz-container').style.display = 'block';
+            document.getElementById('quiz-result').classList.add('hidden');
+        }
+
+        // 4. Confetti Effect
+        function spawnConfetti() {
+            for(let i=0; i<30; i++) {
+                const conf = document.createElement('div');
+                conf.classList.add('confetti');
+                
+                // Randomize position and colors
+                conf.style.left = Math.random() * 100 + 'vw';
+                conf.style.backgroundColor = ['#f472b6', '#a78bfa', '#60a5fa'][Math.floor(Math.random()*3)];
+                conf.style.animationDuration = (Math.random() * 2 + 2) + 's';
+                
+                document.body.appendChild(conf);
+
+                // Cleanup
+                setTimeout(() => conf.remove(), 4000);
+            }
+        }
+    </script>
+</body>
+</html>
